@@ -1,4 +1,4 @@
-"""Generic application schema implemented in python"""
+"""Generic application schema implemented in python."""
 
 from importlib.metadata import PackageNotFoundError, version
 
