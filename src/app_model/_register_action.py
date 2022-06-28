@@ -2,28 +2,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, overload
 
+from ._registries import CommandsRegistry, KeybindingsRegistry, MenuRegistry
 from ._types import Action, MenuItem
 
 if TYPE_CHECKING:
     from typing import Any, Callable, List, Literal, Optional, Union
 
     from . import context
-
     from ._types import (
-        CommandHandler,
-        CommandId,
+        CommandCallable,
+        CommandIdStr,
         Icon,
         KeybindingRule,
         KeybindingRuleDict,
         MenuRule,
         MenuRuleDict,
-        TranslationOrStr,
     )
 
     KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]
     MenuRuleOrDict = Union[MenuRule, MenuRuleDict]
     DisposeCallable = Callable[[], None]
-    CommandDecorator = Callable[[CommandHandler], CommandHandler]
+    CommandDecorator = Callable[[CommandCallable], CommandCallable]
 
 
 @overload
@@ -33,12 +32,12 @@ def register_action(id_or_action: Action) -> DisposeCallable:
 
 @overload
 def register_action(
-    id_or_action: CommandId,
-    title: TranslationOrStr,
+    id_or_action: CommandIdStr,
+    title: str,
     *,
     run: Literal[None] = None,
-    category: Optional[TranslationOrStr] = None,
-    tooltip: Optional[TranslationOrStr] = None,
+    category: Optional[str] = None,
+    tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
     enablement: Optional[context.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
@@ -50,12 +49,12 @@ def register_action(
 
 @overload
 def register_action(
-    id_or_action: CommandId,
-    title: TranslationOrStr,
+    id_or_action: CommandIdStr,
+    title: str,
     *,
-    run: CommandHandler,
-    category: Optional[TranslationOrStr] = None,
-    tooltip: Optional[TranslationOrStr] = None,
+    run: CommandCallable,
+    category: Optional[str] = None,
+    tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
     enablement: Optional[context.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
@@ -66,12 +65,12 @@ def register_action(
 
 
 def register_action(
-    id_or_action: Union[CommandId, Action],
-    title: Optional[TranslationOrStr] = None,
+    id_or_action: Union[CommandIdStr, Action],
+    title: Optional[str] = None,
     *,
-    run: Optional[CommandHandler] = None,
-    category: Optional[TranslationOrStr] = None,
-    tooltip: Optional[TranslationOrStr] = None,
+    run: Optional[CommandCallable] = None,
+    category: Optional[str] = None,
+    tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
     enablement: Optional[context.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
@@ -107,16 +106,16 @@ def register_action(
     id_or_action : Union[CommandId, Action]
         Either a complete Action object or a string id of the command being registered.
         If an `Action` object is provided, then all other arguments are ignored.
-    title : Optional[TranslationOrStr]
+    title : Optional[str]
         Title by which the command is represented in the UI. Required when
         `id_or_action` is a string.
     run : Optional[CommandHandler]
         Callable object that executes this command, by default None. If not provided,
         a decorator is returned that can be used to decorate a function that executes
         this action.
-    category : Optional[TranslationOrStr]
+    category : Optional[str]
         Category string by which the command may be grouped in the UI, by default None
-    tooltip : Optional[TranslationOrStr]
+    tooltip : Optional[str]
         Tooltip to show when hovered., by default None
     icon : Optional[Icon]
         :class:`~napari.urils.actions._types.Icon` used to represent this command,
@@ -179,29 +178,30 @@ def _register_action_str(
     corresponding registries. Otherwise a decorator returned that can be used
     to decorate the callable that executes the action.
     """
-    if callable(kwargs.get('run')):
+    if callable(kwargs.get("run")):
         return _register_action_obj(Action(**kwargs))
 
-    def decorator(command: CommandHandler, **k) -> CommandHandler:
-        _register_action_obj(Action(**{**kwargs, **k, 'run': command}))
+    def decorator(command: CommandCallable, **k: Any) -> CommandCallable:
+        _register_action_obj(Action(**{**kwargs, **k, "run": command}))
         return command
 
-    decorator.__doc__ = (
-        f"Decorate function as callback for command {kwargs['id']!r}"
-    )
+    decorator.__doc__ = f"Decorate function as callback for command {kwargs['id']!r}"
     return decorator
 
 
-def _register_action_obj(action: Action) -> DisposeCallable:
+def _register_action_obj(
+    action: Action,
+    commands_registry: Optional[CommandsRegistry] = None,
+    menu_registry: Optional[MenuRegistry] = None,
+    keybindings_registry: Optional[KeybindingsRegistry] = None,
+) -> DisposeCallable:
     """Register an Action object. Return a function that unregisters the action.
 
     Helper for `register_action()`.
     """
-    from ._plugin_aware_registries import (
-        commands_registry,
-        keybindings_registry,
-        menu_registry,
-    )
+    commands_registry = commands_registry or CommandsRegistry.instance()
+    menu_registry = menu_registry or MenuRegistry.instance()
+    keybindings_registry = keybindings_registry or KeybindingsRegistry.instance()
 
     # command
     disposers = [
@@ -218,18 +218,13 @@ def _register_action_obj(action: Action) -> DisposeCallable:
         items.append((rule.id, menu_item))
 
     disposers.append(menu_registry.append_menu_items(items))
-    if action.add_to_command_palette:
-        # TODO: dispose
-        menu_registry.add_commands(action)
 
     # keybinding
     for keyb in action.keybindings or ():
-        if _d := keybindings_registry.register_keybinding_rule(
-            action.id, keyb
-        ):
+        if _d := keybindings_registry.register_keybinding_rule(action.id, keyb):
             disposers.append(_d)
 
-    def _dispose():
+    def _dispose() -> None:
         for d in disposers:
             d()
 

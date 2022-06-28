@@ -7,6 +7,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Generator,
     Generic,
     List,
     NamedTuple,
@@ -14,26 +15,21 @@ from typing import (
     Optional,
     TypedDict,
     TypeVar,
-    Union,
 )
 
 from pydantic import BaseModel, Field
 
-from napari.utils._injection import inject_napari_dependencies
+from . import context
 
-from ...utils import context
-from ...utils.translations import TranslationString
-
-WINDOWS = os.name == 'nt'
-MACOS = sys.platform == 'darwin'
+WINDOWS = os.name == "nt"
+MACOS = sys.platform == "darwin"
 LINUX = sys.platform.startswith("linux")
 
-TranslationOrStr = Union[TranslationString, str]
-CommandId = NewType("CommandId", str)
-MenuId = NewType("MenuId", str)
-KeyCode = NewType("KeyCode", str)
-IconCode = NewType("IconCode", str)
-CommandHandler = TypeVar("CommandHandler", bound=Callable[..., Any])
+CommandIdStr = NewType("CommandIdStr", str)
+MenuIdStr = NewType("MenuIdStr", str)
+KeyCodeStr = NewType("KeyCodeStr", str)
+IconCodeStr = NewType("IconCodeStr", str)
+CommandCallable = TypeVar("CommandCallable", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
 
@@ -45,13 +41,13 @@ if TYPE_CHECKING:
         when: Optional[context.Expr]
         group: str
         order: Optional[float]
-        id: MenuId
+        id: MenuIdStr
 
     class KeybindingRuleDict(TypedDict, total=False):
-        primary: Optional[KeyCode]
-        win: Optional[KeyCode]
-        linux: Optional[KeyCode]
-        mac: Optional[KeyCode]
+        primary: Optional[KeyCodeStr]
+        win: Optional[KeyCodeStr]
+        linux: Optional[KeyCodeStr]
+        mac: Optional[KeyCodeStr]
         weight: int
         when: Optional[context.Expr]
 
@@ -66,25 +62,25 @@ class Icon(BaseModel):
     in all theme types.
     """
 
-    dark: Optional[IconCode] = Field(
+    dark: Optional[IconCodeStr] = Field(
         None,
         description="Icon path when a dark theme is used. These may be superqt "
         "fonticon keys, such as `fa5s.arrow_down`",
     )
-    light: Optional[IconCode] = Field(
+    light: Optional[IconCodeStr] = Field(
         None,
         description="Icon path when a light theme is used. These may be superqt "
         "fonticon keys, such as `fa5s.arrow_down`",
     )
 
     @classmethod
-    def __get_validators__(cls):
+    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v: Any) -> Icon:
         if isinstance(v, str):
-            v = {'dark': v, 'light': v}
+            v = {"dark": v, "light": v}
         return cls(v)
 
 
@@ -98,19 +94,17 @@ class CommandRule(BaseModel):
     category label.
     """
 
-    id: CommandId = Field(
-        ..., description="The global identifier for the command."
-    )
-    title: TranslationOrStr = Field(
+    id: CommandIdStr = Field(..., description="The global identifier for the command.")
+    title: str = Field(
         ...,
         description="Title by which the command is represented in the UI.",
     )
-    category: Optional[TranslationOrStr] = Field(
+    category: Optional[str] = Field(
         None,
         description="(Optional) Category string by which the command may be grouped "
         "in the UI",
     )
-    tooltip: Optional[TranslationOrStr] = Field(
+    tooltip: Optional[str] = Field(
         None, description="(Optional) Tooltip to show when hovered."
     )
     icon: Optional[Icon] = Field(
@@ -124,7 +118,7 @@ class CommandRule(BaseModel):
         "the UI (menu and keybindings). Does not prevent executing the command by "
         "other means, like the `execute_command` API.",
     )
-    short_title: Optional[TranslationOrStr] = Field(
+    short_title: Optional[str] = Field(
         None,
         description="(Optional) Short title by which the command is represented in "
         "the UI. Menus pick either `title` or `short_title` depending on the context "
@@ -141,21 +135,16 @@ class _RegisteredCommand:
     the attribute: `del cmd.run_injected`
     """
 
-    def __init__(
-        self, id: CommandId, run: CommandHandler, title: TranslationOrStr
-    ) -> None:
+    def __init__(self, id: CommandIdStr, run: CommandCallable, title: str) -> None:
         self.id = id
         self.run = run
         self.title = title
 
     @cached_property
-    def run_injected(self):
-        from .._injection import inject_napari_dependencies
-
-        return inject_napari_dependencies(self.run)
-
-
-
+    def run_injected(self) -> Callable:
+        # from .._injection import inject_napari_dependencies
+        # return inject_napari_dependencies(self.run)
+        ...
 
 
 # ------------------ keybinding-related types --------------------
@@ -168,16 +157,16 @@ class KeybindingRule(BaseModel):
     such as below in `Action`.
     """
 
-    primary: Optional[KeyCode] = Field(
+    primary: Optional[KeyCodeStr] = Field(
         None, description="(Optional) Key combo, (e.g. Ctrl+O)."
     )
-    win: Optional[KeyCode] = Field(
+    win: Optional[KeyCodeStr] = Field(
         None, description="(Optional) Windows specific key combo."
     )
-    linux: Optional[KeyCode] = Field(
+    linux: Optional[KeyCodeStr] = Field(
         None, description="(Optional) Linux specific key combo."
     )
-    mac: Optional[KeyCode] = Field(
+    mac: Optional[KeyCodeStr] = Field(
         None, description="(Optional) MacOS specific key combo."
     )
     when: Optional[context.Expr] = Field(
@@ -190,7 +179,7 @@ class KeybindingRule(BaseModel):
         "This is not part of the plugin schema",
     )
 
-    def _bind_to_current_platform(self) -> Optional[KeyCode]:
+    def _bind_to_current_platform(self) -> Optional[KeyCodeStr]:
         if WINDOWS and self.win:
             return self.win
         if MACOS and self.mac:
@@ -203,8 +192,8 @@ class KeybindingRule(BaseModel):
 class _RegisteredKeyBinding(NamedTuple):
     """Internal object representing a fully registered keybinding."""
 
-    keybinding: KeyCode  # the keycode to bind to
-    command_id: CommandId  # the command to run
+    keybinding: KeyCodeStr  # the keycode to bind to
+    command_id: CommandIdStr  # the command to run
     weight: int  # the weight of the binding, for prioritization
     when: Optional[context.Expr] = None  # condition to enable keybinding
 
@@ -241,7 +230,7 @@ class MenuRule(_MenuItemBase):
     It does not define an actual command. That is done in either `MenuItem` or `Action`.
     """
 
-    id: MenuId = Field(..., description="Menu in which to place this item.")
+    id: MenuIdStr = Field(..., description="Menu in which to place this item.")
 
 
 class MenuItem(_MenuItemBase):
@@ -265,10 +254,8 @@ class MenuItem(_MenuItemBase):
 class SubmenuItem(_MenuItemBase):
     """Point to another Menu that will be displayed as a submenu."""
 
-    submenu: MenuId = Field(..., description="Menu to insert as a submenu.")
-    title: TranslationOrStr = Field(
-        ..., description="Title of this submenu, shown in the UI."
-    )
+    submenu: MenuIdStr = Field(..., description="Menu to insert as a submenu.")
+    title: str = Field(..., description="Title of this submenu, shown in the UI.")
     icon: Optional[Icon] = Field(
         None,
         description="(Optional) Icon used to represent this submenu. "
@@ -279,7 +266,7 @@ class SubmenuItem(_MenuItemBase):
 # ------------------ (complete) action-related types --------------------
 
 
-class Action(CommandRule, Generic[CommandHandler]):
+class Action(CommandRule, Generic[CommandCallable]):
     """Callable object along with specific context, menu, keybindings logic.
 
     This is the "complete" representation of a command.  Including a pointer to the
@@ -288,7 +275,7 @@ class Action(CommandRule, Generic[CommandHandler]):
     and registered using `register_action`.
     """
 
-    run: CommandHandler = Field(
+    run: CommandCallable = Field(
         ...,
         description="A function to call when the associated CommandId is executed.",
     )

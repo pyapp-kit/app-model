@@ -21,7 +21,6 @@ from typing_extensions import Literal
 
 from ._expressions import Name
 
-
 T = TypeVar("T")
 A = TypeVar("A")
 

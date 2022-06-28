@@ -2,7 +2,6 @@ import gc
 from unittest.mock import Mock
 
 import pytest
-
 from napari.utils.context import Context, create_context, get_context
 from napari.utils.context._context import _OBJ_TO_CONTEXT, SettingsAwareContext
 
@@ -52,8 +51,8 @@ def test_create_and_get_scoped_contexts():
     ctxa = get_context(obja)
     ctxb = get_context(obja.b)
     assert ctxa and ctxb
-    ctxa['hi'] = 'hi'
-    assert ctxb['hi'] == 'hi'
+    ctxa["hi"] = "hi"
+    assert ctxb["hi"] == "hi"
 
     # keys get deleted on object deletion
     del obja
@@ -68,24 +67,24 @@ def test_context_events():
     scoped = root.new_child()
     scoped.changed.connect(mock)  # connect the mock to the child
 
-    root['a'] = 1
+    root["a"] = 1
     # child re-emits parent events
-    assert mock.call_args[0][0].value == {'a'}
+    assert mock.call_args[0][0].value == {"a"}
 
     mock.reset_mock()
-    scoped['b'] = 1
+    scoped["b"] = 1
     # also emits own events
-    assert mock.call_args[0][0].value == {'b'}
+    assert mock.call_args[0][0].value == {"b"}
 
     mock.reset_mock()
-    del scoped['b']
-    assert mock.call_args[0][0].value == {'b'}
+    del scoped["b"]
+    assert mock.call_args[0][0].value == {"b"}
 
     # but parent does not emit child events
     mock.reset_mock()
     mock2 = Mock()
     root.changed.connect(mock2)
-    scoped['c'] = 'c'
+    scoped["c"] = "c"
     mock.assert_called_once()
     mock2.assert_not_called()
 
@@ -96,30 +95,30 @@ def test_settings_context():
     root = SettingsAwareContext()
     root.changed.connect(mock)
 
-    assert isinstance(root['settings.appearance'], dict)
-    assert root['settings.appearance.theme'] == 'dark'
+    assert isinstance(root["settings.appearance"], dict)
+    assert root["settings.appearance.theme"] == "dark"
     from napari.settings import get_settings
 
-    get_settings().appearance.theme = 'light'
-    assert root['settings.appearance.theme'] == 'light'
+    get_settings().appearance.theme = "light"
+    assert root["settings.appearance.theme"] == "light"
     assert dict(root) == {}  # the context itself doesn't have the value
     event = mock.call_args_list[0][0][0]
-    assert event.value == {'settings.appearance.theme'}
+    assert event.value == {"settings.appearance.theme"}
 
     # any changes made here can't affect the global settings...
     with pytest.raises(ValueError):
-        root['settings.appearance.theme'] = 'dark'
-    assert get_settings().appearance.theme == 'light'
+        root["settings.appearance.theme"] = "dark"
+    assert get_settings().appearance.theme == "light"
 
     with pytest.raises(KeyError):
         # can't delete from settings here either
-        del root['settings.appearance.theme']
-    assert root['settings.appearance.theme'] == 'light'
+        del root["settings.appearance.theme"]
+    assert root["settings.appearance.theme"] == "light"
 
     with pytest.raises(KeyError):
         # of course, keys not in settings should still raise key error
-        root['not.there']
+        root["not.there"]
 
     # but can be added like any other context
-    root['there'] = 1
-    assert root['there'] == 1
+    root["there"] = 1
+    assert root["there"] == 1

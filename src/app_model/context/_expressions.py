@@ -46,7 +46,6 @@ from typing import (
     overload,
 )
 
-
 ConstType = Union[None, str, bytes, bool, int, float]
 PassedType = TypeVar(
     "PassedType",
