@@ -1,0 +1,22 @@
+{
+  "template": "https://github.com/tlambert03/pyrepo-cookiecutter",
+  "commit": "50aa84d9370c84ce53db364b3a68ce00f63f0d13",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Talley Lambert",
+      "email": "talley.lambert@gmail.com",
+      "github_username": "tlambert03",
+      "project_name": "app-model",
+      "project_slug": "app_model",
+      "project_short_description": "Generic application schema implemented in python",
+      "pypi_username": "talley",
+      "version_control": "setuptools-scm",
+      "_copy_without_render": [
+        ".github/workflows/*"
+      ],
+      "_template": "https://github.com/tlambert03/pyrepo-cookiecutter"
+    }
+  },
+  "directory": null
+}
