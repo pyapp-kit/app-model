@@ -57,7 +57,12 @@ if TYPE_CHECKING:
 # ------------------ commands-related types --------------------
 
 
-class Icon(BaseModel):
+class _StrictModel(BaseModel):
+    class Config:
+        extra = "forbid"
+
+
+class Icon(_StrictModel):
     """Icons used to represent commands, or submenus.
 
     May provide both a light and dark variant.  If only one is provided, it is used
@@ -87,7 +92,7 @@ class Icon(BaseModel):
         return cls(**v)
 
 
-class CommandRule(BaseModel):
+class CommandRule(_StrictModel):
     """Data representing a command and its presentation.
 
     Presentation of contributed commands depends on the containing menu. The Command
@@ -132,7 +137,7 @@ class CommandRule(BaseModel):
 # ------------------ keybinding-related types --------------------
 
 
-class KeybindingRule(BaseModel):
+class KeybindingRule(_StrictModel):
     """Data representing a keybinding and when it should be active.
 
     This model lacks a corresponding command. That gets linked up elsewhere,
@@ -174,7 +179,7 @@ class KeybindingRule(BaseModel):
 # ------------------ menus-related types --------------------
 
 
-class _MenuItemBase(BaseModel):
+class _MenuItemBase(_StrictModel):
     """Data representing where and when a menu item should be shown."""
 
     when: Optional[context.Expr] = Field(
