@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, overload
 
-from ._registries import CommandsRegistry, KeybindingsRegistry, MenuRegistry
+from ._registries import CommandsRegistry, KeybindingsRegistry, MenusRegistry
 from ._types import Action, MenuItem
 
 if TYPE_CHECKING:
@@ -85,10 +85,10 @@ def register_action(
 
     see also docstrings for:
 
-    - :class:`~napari.utils.actions._types.Action`
-    - :class:`~napari.utils.actions._types.CommandRule`
-    - :class:`~napari.utils.actions._types.MenuRule`
-    - :class:`~napari.utils.actions._types.KeybindingRule`
+    - :class:`~app_model._types.Action`
+    - :class:`~app_model._types.CommandRule`
+    - :class:`~app_model._types.MenuRule`
+    - :class:`~app_model._types.KeybindingRule`
 
     This function can be used directly or as a decorator:
 
@@ -118,16 +118,16 @@ def register_action(
     tooltip : Optional[str]
         Tooltip to show when hovered., by default None
     icon : Optional[Icon]
-        :class:`~napari.urils.actions._types.Icon` used to represent this command,
+        :class:`~app_model._types.Icon` used to represent this command,
         e.g. on buttons or in menus. by default None
     enablement : Optional[context.Expr]
         Condition which must be true to enable the command in in the UI,
         by default None
     menus : Optional[List[MenuRuleOrDict]]
-        :class:`~napari.utils.actions._types.MenuRule` or `dicts` containing menu
+        :class:`~app_model._types.MenuRule` or `dicts` containing menu
         placements for this action, by default None
     keybindings : Optional[List[KeybindingRuleOrDict]]
-        :class:`~napari.utils.actions._types.KeybindingRule` or `dicts` containing
+        :class:`~app_model._types.KeybindingRule` or `dicts` containing
         default keybindings for this action, by default None
     add_to_command_palette : bool
         Whether to adds this command to the Command Palette, by default True
@@ -192,7 +192,7 @@ def _register_action_str(
 def _register_action_obj(
     action: Action,
     commands_registry: Optional[CommandsRegistry] = None,
-    menu_registry: Optional[MenuRegistry] = None,
+    menus_registry: Optional[MenusRegistry] = None,
     keybindings_registry: Optional[KeybindingsRegistry] = None,
 ) -> DisposeCallable:
     """Register an Action object. Return a function that unregisters the action.
@@ -200,7 +200,7 @@ def _register_action_obj(
     Helper for `register_action()`.
     """
     commands_registry = commands_registry or CommandsRegistry.instance()
-    menu_registry = menu_registry or MenuRegistry.instance()
+    menus_registry = menus_registry or MenusRegistry.instance()
     keybindings_registry = keybindings_registry or KeybindingsRegistry.instance()
 
     # command
@@ -217,7 +217,7 @@ def _register_action_obj(
         )
         items.append((rule.id, menu_item))
 
-    disposers.append(menu_registry.append_menu_items(items))
+    disposers.append(menus_registry.append_menu_items(items))
 
     # keybinding
     for keyb in action.keybindings or ():

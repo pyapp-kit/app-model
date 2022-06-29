@@ -77,7 +77,7 @@ class CommandsRegistry:
         return f"<{name} at {hex(id(self))} ({len(self._commands)} commands)>"
 
     def __getitem__(self, id: CommandIdStr) -> List[_RegisteredCommand]:
-        """Retrieve commands registered under a given ID"""
+        """Retrieve commands registered under a given ID."""
         return self._commands[id]
 
     def execute_command(
@@ -87,7 +87,7 @@ class CommandsRegistry:
         execute_asychronously: bool = False,
         **kwargs: Any,
     ) -> Future:
-        """Execute a registered command
+        """Execute a registered command.
 
         Parameters
         ----------
@@ -177,15 +177,15 @@ class KeybindingsRegistry:
         return f"<{name} at {hex(id(self))} ({len(self._coreKeybindings)} bindings)>"
 
 
-class MenuRegistry:
+class MenusRegistry:
     menus_changed = Signal(set)
-    __instance: Optional[MenuRegistry] = None
+    __instance: Optional[MenusRegistry] = None
 
     def __init__(self) -> None:
         self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
 
     @classmethod
-    def instance(cls) -> MenuRegistry:
+    def instance(cls) -> MenusRegistry:
         if cls.__instance is None:
             cls.__instance = cls()
         return cls.__instance
@@ -259,7 +259,7 @@ class MenuRegistry:
         return lines
 
     def iter_menu_groups(self, menu_id: str) -> Iterator[List[MenuOrSubmenu]]:
-        yield from MenuRegistry._sorted_groups(self.get_menu(menu_id))
+        yield from MenusRegistry._sorted_groups(self.get_menu(menu_id))
 
     @staticmethod
     def _sorted_groups(

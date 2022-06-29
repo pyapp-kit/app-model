@@ -323,19 +323,21 @@ class Expr(ast.AST, Generic[T]):
         return v if isinstance(v, Expr) else parse_expression(v)
 
 
+LOAD = ast.Load()
+
+
 class Name(Expr[T], ast.Name):
     """A variable name.
 
     `id` holds the name as a string.
     """
 
-    def __init__(
-        self, id: str, ctx: ast.expr_context = ast.Load(), **kwargs: Any
-    ) -> None:
-        kwargs["ctx"] = ast.Load()
+    def __init__(self, id: str, ctx: ast.expr_context = LOAD, **kwargs: Any) -> None:
+        kwargs["ctx"] = LOAD
         super().__init__(id, **kwargs)
 
     def eval(self, context: Optional[Mapping] = None) -> T:
+        """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
         return super().eval(context=context)
@@ -438,7 +440,7 @@ class IfExp(Expr, ast.IfExp):
 
 
 class ExprTranformer(ast.NodeTransformer):
-    """This transformer converts an ast.expr into an :class:`Expr`.
+    """Transformer that converts an ast.expr into an :class:`Expr`.
 
     Examples
     --------
@@ -601,7 +603,7 @@ def _iter_names(expr: Expr) -> Iterator[str]:
     if isinstance(expr, Name):
         yield expr.id
     elif isinstance(expr, Expr):
-        for field, val in ast.iter_fields(expr):
+        for _, val in ast.iter_fields(expr):
             val = val if isinstance(val, list) else [val]
             for v in val:
                 yield from _iter_names(v)

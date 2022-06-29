@@ -38,12 +38,16 @@ if TYPE_CHECKING:
     # This lets us use either anywhere, without losing typing support.
     # e.g. Union[MenuRuleDict, MenuRule]
     class MenuRuleDict(TypedDict, total=False):
+        """Typed dict for MenuRule kwargs."""
+
         when: Optional[context.Expr]
         group: str
         order: Optional[float]
         id: MenuIdStr
 
     class KeybindingRuleDict(TypedDict, total=False):
+        """Typed dict for KeybindingRule kwargs."""
+
         primary: Optional[KeyCodeStr]
         win: Optional[KeyCodeStr]
         linux: Optional[KeyCodeStr]
@@ -79,9 +83,10 @@ class Icon(BaseModel):
 
     @classmethod
     def validate(cls, v: Any) -> Icon:
+        """Validate icon."""
         if isinstance(v, str):
             v = {"dark": v, "light": v}
-        return cls(v)
+        return cls(**v)
 
 
 class CommandRule(BaseModel):
@@ -142,9 +147,9 @@ class _RegisteredCommand:
 
     @cached_property
     def run_injected(self) -> Callable:
-        # from .._injection import inject_napari_dependencies
-        # return inject_napari_dependencies(self.run)
-        ...
+        # from .._injection import inject_dependencies
+        # return inject_dependencies(self.run)
+        return self.run
 
 
 # ------------------ keybinding-related types --------------------
@@ -211,10 +216,9 @@ class _MenuItemBase(BaseModel):
     group: Optional[str] = Field(
         None,
         description="(Optional) Menu group to which this item should be added. Menu "
-        "groups are strings (like `'1_cutandpaste'`) that napari provides for specific "
-        "menus. But plugins may also create groups. 'navigation' is a special group "
-        "that always appears at the top of a menu.  If not provided, the item is added "
-        "in the last group of the menu.",
+        "groups are sortable strings (like `'1_cutandpaste'`). 'navigation' is a "
+        "special group that always appears at the top of a menu.  If not provided, "
+        "the item is added in the last group of the menu.",
     )
     order: Optional[float] = Field(
         None,
@@ -271,13 +275,13 @@ class Action(CommandRule, Generic[CommandCallable]):
 
     This is the "complete" representation of a command.  Including a pointer to the
     actual callable object, as well as any additional menu and keybinding rules.
-    Most internal napari commands and menu items will be represented by Actions,
-    and registered using `register_action`.
+    Most commands and menu items will be represented by Actions, and registered using
+    `register_action`.
     """
 
     run: CommandCallable = Field(
         ...,
-        description="A function to call when the associated CommandId is executed.",
+        description="A function to call when the associated command id is executed.",
     )
     menus: Optional[List[MenuRule]] = Field(
         None,

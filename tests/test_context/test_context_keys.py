@@ -1,5 +1,6 @@
 import pytest
-from napari.utils.context._context_keys import (
+
+from app_model.context._context_keys import (
     MISSING,
     ContextKey,
     ContextKeyInfo,
@@ -8,9 +9,11 @@ from napari.utils.context._context_keys import (
 
 
 def test_context_key_info():
+    ContextKey("default", "description", None, id="some_key")
     info = ContextKey.info()
     assert isinstance(info, list) and len(info)
     assert all(isinstance(x, ContextKeyInfo) for x in info)
+    assert "some_key" in {x.key for x in info}
 
 
 def _adder(x: list) -> int:

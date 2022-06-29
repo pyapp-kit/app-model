@@ -3,7 +3,8 @@ import sys
 from copy import deepcopy
 
 import pytest
-from napari.utils.context._expressions import (
+
+from app_model.context._expressions import (
     _OPS,
     Constant,
     Expr,
