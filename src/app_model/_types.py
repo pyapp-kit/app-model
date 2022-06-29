@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import sys
-from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -10,7 +9,6 @@ from typing import (
     Generator,
     Generic,
     List,
-    NamedTuple,
     NewType,
     Optional,
     TypedDict,
@@ -131,27 +129,6 @@ class CommandRule(BaseModel):
     )
 
 
-class _RegisteredCommand:
-    """Small object to represent a command in the CommandsRegistry.
-
-    Only used internally by the CommandsRegistry.
-    This helper class allows us to cache the dependency-injected variant of the
-    command. As usual with `cached_property`, the cache can be cleard by deleting
-    the attribute: `del cmd.run_injected`
-    """
-
-    def __init__(self, id: CommandIdStr, run: CommandCallable, title: str) -> None:
-        self.id = id
-        self.run = run
-        self.title = title
-
-    @cached_property
-    def run_injected(self) -> Callable:
-        # from .._injection import inject_dependencies
-        # return inject_dependencies(self.run)
-        return self.run
-
-
 # ------------------ keybinding-related types --------------------
 
 
@@ -192,15 +169,6 @@ class KeybindingRule(BaseModel):
         if LINUX and self.linux:
             return self.linux
         return self.primary
-
-
-class _RegisteredKeyBinding(NamedTuple):
-    """Internal object representing a fully registered keybinding."""
-
-    keybinding: KeyCodeStr  # the keycode to bind to
-    command_id: CommandIdStr  # the command to run
-    weight: int  # the weight of the binding, for prioritization
-    when: Optional[context.Expr] = None  # condition to enable keybinding
 
 
 # ------------------ menus-related types --------------------
