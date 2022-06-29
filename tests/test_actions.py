@@ -23,7 +23,7 @@ KWARGS = [
     dict(keybindings=[{"primary": PRIMARY_KEY}]),
     dict(
         keybindings=[
-            {"primary": PRIMARY_KEY, "mac": OS_KEY, "windows": OS_KEY, "linux": OS_KEY}
+            {"primary": PRIMARY_KEY, "mac": OS_KEY, "win": OS_KEY, "linux": OS_KEY}
         ]
     ),
     dict(keybindings=[{"primary": "ctrl+a"}], menus=[{"id": MENUID}]),

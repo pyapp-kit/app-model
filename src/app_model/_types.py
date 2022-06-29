@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import platform
+import os
 import sys
 from typing import (
     TYPE_CHECKING,
@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 
 from . import context
 
-WINDOWS = platform.system() == "Windows"
+WINDOWS = os.name == "nt"
 MACOS = sys.platform == "darwin"
 LINUX = sys.platform.startswith("linux")
 
