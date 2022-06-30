@@ -3,8 +3,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from app_model.context import Context, create_context, get_context
-from app_model.context._context import _OBJ_TO_CONTEXT
+from app_model.expressions import Context, create_context, get_context
+from app_model.expressions._context import _OBJ_TO_CONTEXT
 
 
 def test_create_context():

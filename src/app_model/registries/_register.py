@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
-from ._registries import CommandsRegistry, KeybindingsRegistry, MenusRegistry
-from ._types import Action, MenuItem
+from ..types import Action, MenuItem
+from ._commands import CommandsRegistry
+from ._keybindings import KeybindingsRegistry
+from ._menus import MenusRegistry
 
 if TYPE_CHECKING:
     from typing import Any, Callable, List, Literal, Optional, Union
 
-    from . import context
-    from ._types import (
-        CommandCallable,
+    from .. import expressions
+    from ..types import (
         CommandIdStr,
         Icon,
         KeybindingRule,
@@ -22,7 +23,8 @@ if TYPE_CHECKING:
     KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]
     MenuRuleOrDict = Union[MenuRule, MenuRuleDict]
     DisposeCallable = Callable[[], None]
-    CommandDecorator = Callable[[CommandCallable], CommandCallable]
+    CommandDecorator = Callable[[Callable], Callable]
+    CommandCallable = TypeVar("CommandCallable", bound=Callable)
 
 
 @overload
@@ -39,7 +41,7 @@ def register_action(
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
-    enablement: Optional[context.Expr] = None,
+    enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,
@@ -56,7 +58,7 @@ def register_action(
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
-    enablement: Optional[context.Expr] = None,
+    enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,
@@ -72,7 +74,7 @@ def register_action(
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[Icon] = None,
-    enablement: Optional[context.Expr] = None,
+    enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,

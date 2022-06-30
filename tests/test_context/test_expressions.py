@@ -4,14 +4,8 @@ from copy import deepcopy
 
 import pytest
 
-from app_model.context._expressions import (
-    _OPS,
-    Constant,
-    Expr,
-    Name,
-    _iter_names,
-    parse_expression,
-)
+from app_model.expressions import Constant, Expr, Name, parse_expression
+from app_model.expressions._expressions import _OPS, _iter_names
 
 
 def test_names():

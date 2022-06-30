@@ -1,7 +1,6 @@
 import pytest
 
-from app_model.context._context_keys import (
-    MISSING,
+from app_model.expressions._context_keys import (
     ContextKey,
     ContextKeyInfo,
     ContextNamespace,
@@ -43,7 +42,7 @@ def test_context_namespace():
     assert ctx["my_key"] == 2
 
     assert "optional_key" not in ctx
-    assert ns.optional_key is MISSING
+    assert ns.optional_key is ContextKey.MISSING
     ns.reset("optional_key")  # shouldn't raise error to reset a missing key
     # maybe the key is there though
     ctx["optional_key"] = "hi"

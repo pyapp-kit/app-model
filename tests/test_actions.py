@@ -3,14 +3,13 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app_model import (
-    Action,
+from app_model.registries import (
     CommandsRegistry,
     KeybindingsRegistry,
     MenusRegistry,
     register_action,
 )
-from app_model._types import CommandIdStr
+from app_model.types import Action, CommandIdStr
 
 PRIMARY_KEY = "ctrl+a"
 OS_KEY = "ctrl+b"

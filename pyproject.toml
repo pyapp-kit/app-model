@@ -110,7 +110,7 @@ filterwarnings = ["error"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
-files = "src/**/"
+files = "src/**/*.py"
 strict = true
 disallow_any_generics = false
 disallow_subclassing_any = false
@@ -118,8 +118,11 @@ show_error_codes = true
 pretty = true
 
 [[tool.mypy.overrides]]
-modules = ["tests.*"]
+module = ["tests.*"]
 disallow_untyped_defs = false
+
+[tool.coverage.run]
+source = ["app_model"]
 
 # https://coverage.readthedocs.io/en/6.4/config.html
 [tool.coverage.report]
@@ -129,6 +132,8 @@ exclude_lines = [
     "@overload",
     "except ImportError",
 ]
+skip_covered = true
+show_missing = true
 
 # https://github.com/cruft/cruft
 [tool.cruft]
