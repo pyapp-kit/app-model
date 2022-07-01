@@ -63,7 +63,7 @@ jobs:
       matrix:
         python-version: ["3.8", "3.10"]
         platform: [macos-latest]
-        qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
+        qt-backend: [pyqt5, pyqt6, pyside2, pyside6]
 
     steps:
       - uses: actions/checkout@v3
@@ -79,10 +79,9 @@ jobs:
           python -m pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
-        run: python -m tox
+        run: python -m tox -e ${{ matrix.qt-backend }}
         env:
           PLATFORM: ${{ matrix.platform }}
-          BACKEND: ${{ matrix.qt-backend }}
 
   deploy:
     name: Deploy
