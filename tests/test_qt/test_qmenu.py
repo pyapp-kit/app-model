@@ -72,6 +72,7 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     # "not something_open" is the when clause
     # "friday" is the enablement clause
+
     menu.update_from_context({"something_open": False, "friday": True})
     assert submenu.isVisible()
     assert submenu.isEnabled()

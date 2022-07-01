@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Mapping, Optional, Union
 
+from qtpy import QT6
 from qtpy.QtWidgets import QMenu
 
 from app_model import Application
@@ -60,7 +61,9 @@ class QModelMenu(QMenu):
             if n < n_groups - 1:
                 self.addSeparator()
 
-    def update_from_context(self, ctx: Mapping[str, object]) -> None:
+    def update_from_context(
+        self, ctx: Mapping[str, object], _recurse: bool = True
+    ) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
         See `app_model.expressions` for details on expressions.
@@ -72,12 +75,23 @@ class QModelMenu(QMenu):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
+        _recurse : bool
+            recursion check, internal use only
         """
         for action in self.actions():
             if isinstance(action, QMenuItemAction):
                 action.update_from_context(ctx)
-            elif isinstance(menu := action.menu(), QModelMenu):
+            elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
                 menu.update_from_context(ctx)
+            elif isinstance(parent := action.parent(), QModelMenu):
+                # FIXME: this is a hack for Qt6 that I don't entirely understand.
+                # QAction has lost the `.menu()` method, and it's a bit hard to find
+                # how to get to the parent menu now. Checking parent() seems to work,
+                # but I'm not sure if it's the right thing to do, and it leads to a
+                # recursion error.  I stop it with the _recurse flag here, but I wonder
+                # whether that will cause other problems.
+                if _recurse:
+                    parent.update_from_context(ctx, _recurse=False)
 
 
 class QModelSubmenu(QModelMenu):
@@ -106,7 +120,9 @@ class QModelSubmenu(QModelMenu):
         if submenu.icon:
             self.setIcon(to_qicon(submenu.icon))
 
-    def update_from_context(self, ctx: Mapping[str, object]) -> None:
+    def update_from_context(
+        self, ctx: Mapping[str, object], _recurse: bool = True
+    ) -> None:
         """Update the enabled state of this menu item from `ctx`."""
         super().update_from_context(ctx)
         self.setEnabled(expr.eval(ctx) if (expr := self._submenu.enablement) else True)
