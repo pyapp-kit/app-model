@@ -1,25 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Mapping, Optional, Union
 
-from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QAction
 
 from app_model import Application
 
+from ._util import to_qicon
+
 if TYPE_CHECKING:
     from qtpy.QtCore import QObject
 
-    from app_model.types import CommandIdStr, CommandRule, Icon, MenuItem
-
-
-def to_qicon(icon: Icon, theme: Literal["dark", "light"] = "dark") -> QIcon:
-    """Create QIcon from Icon."""
-    from superqt import fonticon
-
-    if icn := getattr(icon, theme, ""):
-        return fonticon.icon(icn)
-    return QIcon()
+    from app_model.types import CommandIdStr, CommandRule, MenuItem
 
 
 class QCommandAction(QAction):

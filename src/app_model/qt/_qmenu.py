@@ -9,6 +9,7 @@ from app_model import Application
 from app_model.types import MenuItem, SubmenuItem
 
 from ._qaction import QMenuItemAction
+from ._util import to_qicon
 
 if TYPE_CHECKING:
     from qtpy.QtCore import QPoint
@@ -71,8 +72,8 @@ class QModelMenu(QMenu):
         """
         sub = QModelMenu(submenu.submenu, self._app, parent=self)
         sub.setTitle(submenu.title)
-        # if item.icon:
-        #     sub.setIcon(to_qicon(item.icon))
+        if submenu.icon:
+            sub.setIcon(to_qicon(submenu.icon))
         self.addMenu(sub)
         self._submenus.append(sub)  # save pointer
 
