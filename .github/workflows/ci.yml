@@ -75,7 +75,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -e .[test,test_qt]
-          python -m pip install $${{ matrix.qt-backend }}
+          python -m pip install ${{ matrix.qt-backend }}
 
       - name: Test
         run: pytest -v -s --cov=app_model --cov-report=xml --color=yes
