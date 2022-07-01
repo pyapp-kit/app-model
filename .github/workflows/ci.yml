@@ -61,7 +61,7 @@ jobs:
         qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
         include:
           - python-version: "3.8"
-            platform: "windows-latest"
+            platform: "ubuntu-latest"
             qt-backend: "PyQt5==5.12"
 
     steps:
