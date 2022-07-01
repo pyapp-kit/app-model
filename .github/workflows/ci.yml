@@ -59,6 +59,10 @@ jobs:
         python-version: ["3.9"]
         platform: [macos-latest, ubuntu-latest, windows-latest]
         qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
+        include:
+          - python-version: "3.8"
+            platform: "windows-latest"
+            qt-backend: "PyQt5==5.12"
 
     steps:
       - uses: actions/checkout@v3
