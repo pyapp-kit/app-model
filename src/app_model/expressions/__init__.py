@@ -11,6 +11,7 @@ from ._expressions import (
     Name,
     UnaryOp,
     parse_expression,
+    safe_eval,
 )
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     "Expr",
     "get_context",
     "parse_expression",
+    "safe_eval",
 ]

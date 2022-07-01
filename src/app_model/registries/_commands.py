@@ -37,6 +37,7 @@ class _RegisteredCommand:
 
 
 class CommandsRegistry:
+    """Registry for commands (callable objects)."""
 
     registered = Signal(str)
     __instance: Optional[CommandsRegistry] = None
@@ -46,6 +47,7 @@ class CommandsRegistry:
 
     @classmethod
     def instance(cls) -> CommandsRegistry:
+        """Return global instance of the CommandsRegistry."""
         if cls.__instance is None:
             cls.__instance = cls()
         return cls.__instance
@@ -135,7 +137,9 @@ class CommandsRegistry:
             # and if so, how to handle it
             cmd = cmds[0].run_injected
         else:
-            raise KeyError(f'Command "{id}" has no registered callbacks')
+            raise KeyError(
+                f'Command "{id}" has no registered callbacks'
+            )  # pragma: no cover
 
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:

@@ -89,3 +89,10 @@ def test_context_events():
     scoped["c"] = "c"
     mock.assert_called_once()
     mock2.assert_not_called()
+
+    mock.reset_mock()
+    with scoped.buffered_changes():
+        scoped["d"] = "d"
+        scoped["e"] = "f"
+        scoped["f"] = "f"
+    mock.assert_called_once_with({"d", "e", "f"})

@@ -1,3 +1,4 @@
+"""App-model registries, such as menus, keybindings, commands."""
 from ._commands import CommandsRegistry
 from ._keybindings import KeybindingsRegistry
 from ._menus import MenusRegistry

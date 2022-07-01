@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from app_model.expressions import Constant, Expr, Name, parse_expression
+from app_model.expressions import Constant, Expr, Name, parse_expression, safe_eval
 from app_model.expressions._expressions import _OPS, _iter_names
 
 
@@ -82,6 +82,11 @@ def test_bin_ops():
     assert (one % 1).eval() == 0
     assert (Constant(2) ** 2).eval() == 4
     assert (one ^ 2).eval() == 3
+    assert (Constant(4) & Constant(16)).eval() == 16
+    assert (Constant(4) | Constant(16)).eval() == 4
+
+    assert (Constant(16).bitand(16)).eval() == 16
+    assert (Constant(16).bitor(4)).eval() == 20
 
 
 def test_unary_ops():
@@ -151,6 +156,8 @@ def test_iter_names():
 GOOD_EXPRESSIONS = [
     "a and b",
     "a == 1",
+    "a @ 1",
+    "2 & 4",
     "a if b == 7 else False",
     # valid constants:
     "1",
@@ -195,6 +202,7 @@ BAD_EXPRESSIONS = [
 @pytest.mark.parametrize("expr", GOOD_EXPRESSIONS)
 def test_serdes(expr):
     assert str(parse_expression(expr)) == expr
+    assert repr(parse_expression(expr))  # smoke test
 
 
 @pytest.mark.parametrize("expr", BAD_EXPRESSIONS)
@@ -211,3 +219,16 @@ def test_deepcopy_expression():
     deepcopy(parse_expression("not 1"))
     deepcopy(parse_expression("~x"))
     deepcopy(parse_expression("2 if x else 3"))
+
+
+def test_safe_eval():
+    expr = "7 > x if x > 2 else 3"
+    assert safe_eval(expr, {"x": 3}) is True
+    assert safe_eval(expr, {"x": 10}) is False
+    assert safe_eval(expr, {"x": 1}) == 3
+
+    with pytest.raises(SyntaxError, match="Type 'Call' not supported"):
+        safe_eval("func(x)")
+
+    with pytest.raises(SyntaxError, match="Type 'Set' not supported"):
+        safe_eval("{1,2,3}")

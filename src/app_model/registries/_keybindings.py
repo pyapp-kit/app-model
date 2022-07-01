@@ -25,6 +25,7 @@ class _RegisteredKeyBinding(NamedTuple):
 
 
 class KeybindingsRegistry:
+    """Registery for keybindings."""
 
     registered = Signal()
     __instance: Optional[KeybindingsRegistry] = None
@@ -34,6 +35,7 @@ class KeybindingsRegistry:
 
     @classmethod
     def instance(cls) -> KeybindingsRegistry:
+        """Return global instance of the KeybindingsRegistry."""
         if cls.__instance is None:
             cls.__instance = cls()
         return cls.__instance
@@ -41,6 +43,20 @@ class KeybindingsRegistry:
     def register_keybinding_rule(
         self, id: CommandIdStr, rule: KeybindingRule
     ) -> Optional[DisposeCallable]:
+        """Register a new keybinding rule.
+
+        Parameters
+        ----------
+        id : CommandIdStr
+            Command identifier that should be run when the keybinding is triggered
+        rule : KeybindingRule
+            Keybinding information
+
+        Returns
+        -------
+        Optional[DisposeCallable]
+            A callable that can be used to unregister the keybinding
+        """
         if bound_keybinding := rule._bind_to_current_platform():
             entry = _RegisteredKeyBinding(
                 keybinding=bound_keybinding,

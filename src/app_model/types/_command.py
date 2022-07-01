@@ -19,7 +19,7 @@ class CommandRule(_StrictModel):
     category label.
     """
 
-    id: CommandIdStr = Field(..., description="The global identifier for the command.")
+    id: CommandIdStr = Field(..., description="A global identifier for the command.")
     title: str = Field(
         ...,
         description="Title by which the command is represented in the UI.",

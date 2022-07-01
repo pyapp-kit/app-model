@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class MenusRegistry:
+    """Registry for menu and submenu items."""
+
     menus_changed = Signal(set)
     __instance: Optional[MenusRegistry] = None
 
@@ -22,6 +24,7 @@ class MenusRegistry:
 
     @classmethod
     def instance(cls) -> MenusRegistry:
+        """Return global instance of the MenusRegistry."""
         if cls.__instance is None:
             cls.__instance = cls()
         return cls.__instance
@@ -29,10 +32,23 @@ class MenusRegistry:
     def append_menu_items(
         self, items: Sequence[Tuple[str, MenuOrSubmenu]]
     ) -> DisposeCallable:
+        """Append menu items to the registry.
+
+        Parameters
+        ----------
+        items : Sequence[Tuple[str, MenuOrSubmenu]]
+            Items to append.
+
+        Returns
+        -------
+        DisposeCallable
+            A function that can be called to unregister the menu items.
+        """
         changed_ids: Set[str] = set()
         disposers: List[Callable[[], None]] = []
 
         for id, item in items:
+            item = MenuItem.validate(item)  # type: ignore
             menu_list = self._menu_items.setdefault(id, [])
             menu_list.append(item)
             changed_ids.add(id)
@@ -60,6 +76,7 @@ class MenusRegistry:
         return id in self._menu_items
 
     def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
+        """Return menu items for `menu_id`."""
         return self._menu_items[menu_id]
 
     def __repr__(self) -> str:
@@ -95,6 +112,21 @@ class MenusRegistry:
         return lines
 
     def iter_menu_groups(self, menu_id: str) -> Iterator[List[MenuOrSubmenu]]:
+        """Iterate over menu groups for `menu_id`.
+
+        Groups are broken into sections (lists of menu or submenu items) based on
+        their `group` attribute.  And each group is sorted by `order` attribute.
+
+        Parameters
+        ----------
+        menu_id : str
+            The menu ID to return groups for.
+
+        Yields
+        ------
+        Iterator[List[MenuOrSubmenu]]
+            Iterator of menu/submenu groups.
+        """
         yield from MenusRegistry._sorted_groups(self.get_menu(menu_id))
 
     @staticmethod
