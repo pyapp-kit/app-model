@@ -24,16 +24,16 @@ class _RegisteredCommand:
     the attribute: `del cmd.run_injected`
     """
 
-    def __init__(self, id: CommandIdStr, run: CommandCallable, title: str) -> None:
+    def __init__(self, id: CommandIdStr, callback: CommandCallable, title: str) -> None:
         self.id = id
-        self.run = run
+        self.callback = callback
         self.title = title
 
     @cached_property
     def run_injected(self) -> Callable:
         # from .._injection import inject_dependencies
         # return inject_dependencies(self.run)
-        return self.run
+        return self.callback
 
 
 class CommandsRegistry:

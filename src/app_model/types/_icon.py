@@ -32,6 +32,7 @@ class Icon(_StrictModel):
     @classmethod
     def validate(cls, v: Any) -> "Icon":
         """Validate icon."""
+        # if a single string is passed, use it for both light and dark.
         if isinstance(v, str):
             v = {"dark": v, "light": v}
         return cls(**v)

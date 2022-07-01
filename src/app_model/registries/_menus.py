@@ -4,7 +4,7 @@ from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tupl
 
 from psygnal import Signal
 
-from ..types import MenuItem, MenuOrSubmenu
+from ..types import MenuIdStr, MenuItem, MenuOrSubmenu
 from ..types._misc import DisposeCallable
 
 
@@ -14,16 +14,16 @@ class MenusRegistry:
     menus_changed = Signal(set)
 
     def __init__(self) -> None:
-        self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
+        self._menu_items: Dict[MenuIdStr, List[MenuOrSubmenu]] = {}
 
     def append_menu_items(
-        self, items: Sequence[Tuple[str, MenuOrSubmenu]]
+        self, items: Sequence[Tuple[MenuIdStr, MenuOrSubmenu]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
         Parameters
         ----------
-        items : Sequence[Tuple[str, MenuOrSubmenu]]
+        items : Sequence[Tuple[MenuIdStr, MenuOrSubmenu]]
             Items to append.
 
         Returns
@@ -31,7 +31,7 @@ class MenusRegistry:
         DisposeCallable
             A function that can be called to unregister the menu items.
         """
-        changed_ids: Set[str] = set()
+        changed_ids: Set[MenuIdStr] = set()
         disposers: List[Callable[[], None]] = []
 
         for id, item in items:
@@ -62,7 +62,7 @@ class MenusRegistry:
     def __contains__(self, id: object) -> bool:
         return id in self._menu_items
 
-    def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
+    def get_menu(self, menu_id: MenuIdStr) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
         return self._menu_items[menu_id]
 
@@ -75,7 +75,7 @@ class MenusRegistry:
 
     def _render(self) -> List[str]:
         """Return registered menu items as lines of strings."""
-        lines = []
+        lines: List[str] = []
 
         branch = "  ├──"
         for menu in self._menu_items:
@@ -98,7 +98,7 @@ class MenusRegistry:
             lines.append("")
         return lines
 
-    def iter_menu_groups(self, menu_id: str) -> Iterator[List[MenuOrSubmenu]]:
+    def iter_menu_groups(self, menu_id: MenuIdStr) -> Iterator[List[MenuOrSubmenu]]:
         """Iterate over menu groups for `menu_id`.
 
         Groups are broken into sections (lists of menu or submenu items) based on
@@ -114,18 +114,18 @@ class MenusRegistry:
         Iterator[List[MenuOrSubmenu]]
             Iterator of menu/submenu groups.
         """
-        yield from MenusRegistry._sorted_groups(self.get_menu(menu_id))
+        yield from _sort_groups(self.get_menu(menu_id))
 
-    @staticmethod
-    def _sorted_groups(
-        items: List[MenuOrSubmenu],
-        group_sorter: Callable = lambda x: 0 if x == "navigation" else 1,
-        order_sorter: Callable = lambda x: getattr(x, "order", "") or 0,
-    ) -> Iterator[List[MenuOrSubmenu]]:
-        """Sort a list of menu items based on their .group and .order attributes."""
-        groups: dict[Optional[str], List[MenuOrSubmenu]] = {}
-        for item in items:
-            groups.setdefault(item.group, []).append(item)
 
-        for group_id in sorted(groups, key=group_sorter):
-            yield sorted(groups[group_id], key=order_sorter)
+def _sort_groups(
+    items: List[MenuOrSubmenu],
+    group_key: Callable = lambda x: "0000" if x == "navigation" else x,
+    order_key: Callable = lambda x: getattr(x, "order", "") or 0,
+) -> Iterator[List[MenuOrSubmenu]]:
+    """Sort a list of menu items based on their .group and .order attributes."""
+    groups: dict[Optional[str], List[MenuOrSubmenu]] = {}
+    for item in items:
+        groups.setdefault(item.group, []).append(item)
+
+    for group_id in sorted(groups, key=group_key):
+        yield sorted(groups[group_id], key=order_key)

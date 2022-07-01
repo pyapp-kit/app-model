@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import (
     TYPE_CHECKING,
     ClassVar,
@@ -60,11 +61,13 @@ class Application:
     @classmethod
     def destroy(cls, name: str) -> None:
         """Destroy the app named `name`."""
-        cls._instances.pop(name, None)
+        app = cls._instances.pop(name)
+        app.dispose()
 
     def __del__(self) -> None:
         """Remove the app from the registry when it is garbage collected."""
-        Application.destroy(self.name)
+        with contextlib.suppress(KeyError):
+            Application.destroy(self.name)
 
     @property
     def name(self) -> str:
@@ -90,7 +93,7 @@ class Application:
         id_or_action: CommandIdStr,
         title: str,
         *,
-        run: Literal[None] = None,
+        callback: Literal[None] = None,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -107,7 +110,7 @@ class Application:
         id_or_action: CommandIdStr,
         title: str,
         *,
-        run: CommandCallable,
+        callback: CommandCallable,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -123,7 +126,7 @@ class Application:
         id_or_action: Union[CommandIdStr, Action],
         title: Optional[str] = None,
         *,
-        run: Optional[CommandCallable] = None,
+        callback: Optional[CommandCallable] = None,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -137,7 +140,7 @@ class Application:
             self,
             id_or_action,  # type: ignore
             title=title,  # type: ignore
-            run=run,  # type: ignore
+            callback=callback,  # type: ignore
             category=category,
             tooltip=tooltip,
             icon=icon,

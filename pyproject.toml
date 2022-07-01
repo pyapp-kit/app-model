@@ -26,6 +26,8 @@ dependencies = ['psygnal', 'pydantic']
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 test = ["pytest>=6.0", "pytest-cov"]
+test_qt = ["pytest-qt", "fonticon-fontawesome5"]
+qt = ["qtpy", "superqt"]
 dev = [
     "black",
     "cruft",
@@ -106,7 +108,6 @@ ignore = "D100,D213,D401,D413,D107"
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-testpaths = ["tests"]
 filterwarnings = ["error"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
@@ -148,7 +149,6 @@ ignore = [
     ".github_changelog_generator",
     ".pre-commit-config.yaml",
     "tests/**/*",
-    "tox.ini",
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html
