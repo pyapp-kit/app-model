@@ -17,17 +17,9 @@ class MenusRegistry:
     """Registry for menu and submenu items."""
 
     menus_changed = Signal(set)
-    __instance: Optional[MenusRegistry] = None
 
     def __init__(self) -> None:
         self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
-
-    @classmethod
-    def instance(cls) -> MenusRegistry:
-        """Return global instance of the MenusRegistry."""
-        if cls.__instance is None:
-            cls.__instance = cls()
-        return cls.__instance
 
     def append_menu_items(
         self, items: Sequence[Tuple[str, MenuOrSubmenu]]

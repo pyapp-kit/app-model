@@ -3,14 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar, overload
 
 from ..types import Action, MenuItem
-from ._commands import CommandsRegistry
-from ._keybindings import KeybindingsRegistry
-from ._menus import MenusRegistry
 
 if TYPE_CHECKING:
     from typing import Any, Callable, List, Literal, Optional, Union
 
     from .. import expressions
+    from .._app import Application
     from ..types import (
         CommandIdStr,
         Icon,
@@ -28,12 +26,15 @@ if TYPE_CHECKING:
 
 
 @overload
-def register_action(id_or_action: Action) -> DisposeCallable:
+def register_action(
+    app: Union[Application, str], id_or_action: Action
+) -> DisposeCallable:
     ...
 
 
 @overload
 def register_action(
+    app: Union[Application, str],
     id_or_action: CommandIdStr,
     title: str,
     *,
@@ -51,6 +52,7 @@ def register_action(
 
 @overload
 def register_action(
+    app: Union[Application, str],
     id_or_action: CommandIdStr,
     title: str,
     *,
@@ -67,6 +69,7 @@ def register_action(
 
 
 def register_action(
+    app: Union[Application, str],
     id_or_action: Union[CommandIdStr, Action],
     title: Optional[str] = None,
     *,
@@ -149,11 +152,12 @@ def register_action(
         If `id_or_action` is not a string or an `Action` object.
     """
     if isinstance(id_or_action, Action):
-        return _register_action_obj(id_or_action)
+        return _register_action_obj(app, id_or_action)
     if isinstance(id_or_action, str):
         if not title:
             raise ValueError("'title' is required when 'id' is a string")
         return _register_action_str(
+            app=app,
             id=id_or_action,
             title=title,
             category=category,
@@ -169,6 +173,7 @@ def register_action(
 
 
 def _register_action_str(
+    app: Union[Application, str],
     **kwargs: Any,
 ) -> Union[CommandDecorator, DisposeCallable]:
     """Create and register an Action with a string id and title.
@@ -181,10 +186,10 @@ def _register_action_str(
     to decorate the callable that executes the action.
     """
     if callable(kwargs.get("run")):
-        return _register_action_obj(Action(**kwargs))
+        return _register_action_obj(app, Action(**kwargs))
 
     def decorator(command: CommandCallable, **k: Any) -> CommandCallable:
-        _register_action_obj(Action(**{**kwargs, **k, "run": command}))
+        _register_action_obj(app, Action(**{**kwargs, **k, "run": command}))
         return command
 
     decorator.__doc__ = f"Decorate function as callback for command {kwargs['id']!r}"
@@ -192,23 +197,19 @@ def _register_action_str(
 
 
 def _register_action_obj(
+    app: Union[Application, str],
     action: Action,
-    commands_registry: Optional[CommandsRegistry] = None,
-    menus_registry: Optional[MenusRegistry] = None,
-    keybindings_registry: Optional[KeybindingsRegistry] = None,
 ) -> DisposeCallable:
     """Register an Action object. Return a function that unregisters the action.
 
     Helper for `register_action()`.
     """
-    commands_registry = commands_registry or CommandsRegistry.instance()
-    menus_registry = menus_registry or MenusRegistry.instance()
-    keybindings_registry = keybindings_registry or KeybindingsRegistry.instance()
+    from .._app import Application
+
+    app = app if isinstance(app, Application) else Application.get_or_create(app)
 
     # command
-    disposers = [
-        commands_registry.register_command(action.id, action.run, action.title)
-    ]
+    disposers = [app.commands.register_command(action.id, action.run, action.title)]
 
     # menu
 
@@ -219,11 +220,11 @@ def _register_action_obj(
         )
         items.append((rule.id, menu_item))
 
-    disposers.append(menus_registry.append_menu_items(items))
+    disposers.append(app.menus.append_menu_items(items))
 
     # keybinding
     for keyb in action.keybindings or ():
-        if _d := keybindings_registry.register_keybinding_rule(action.id, keyb):
+        if _d := app.keybindings.register_keybinding_rule(action.id, keyb):
             disposers.append(_d)
 
     def _dispose() -> None:

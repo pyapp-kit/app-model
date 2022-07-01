@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable
 
 from psygnal import Signal
 
@@ -40,17 +40,9 @@ class CommandsRegistry:
     """Registry for commands (callable objects)."""
 
     registered = Signal(str)
-    __instance: Optional[CommandsRegistry] = None
 
     def __init__(self) -> None:
         self._commands: Dict[CommandIdStr, List[_RegisteredCommand]] = {}
-
-    @classmethod
-    def instance(cls) -> CommandsRegistry:
-        """Return global instance of the CommandsRegistry."""
-        if cls.__instance is None:
-            cls.__instance = cls()
-        return cls.__instance
 
     def register_command(
         self,

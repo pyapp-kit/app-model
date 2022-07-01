@@ -1,14 +1,9 @@
 from typing import Callable, Optional
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
-from app_model.registries import (
-    CommandsRegistry,
-    KeybindingsRegistry,
-    MenusRegistry,
-    register_action,
-)
+from app_model import Application
 from app_model.types import Action, CommandIdStr
 
 PRIMARY_KEY = "ctrl+a"
@@ -30,48 +25,27 @@ KWARGS = [
 
 
 @pytest.fixture
-def cmd_reg():
-    reg = CommandsRegistry()
-    reg.registered_emit = Mock()
-    reg.registered.connect(reg.registered_emit)
-    with patch.object(CommandsRegistry, "instance", return_value=reg):
-        yield reg
-    reg._commands.clear()
-
-
-@pytest.fixture
-def key_reg():
-    reg = KeybindingsRegistry()
-    reg.registered_emit = Mock()
-    reg.registered.connect(reg.registered_emit)
-    with patch.object(KeybindingsRegistry, "instance", return_value=reg):
-        yield reg
-    reg._coreKeybindings.clear()
-
-
-@pytest.fixture
-def menu_reg():
-    reg = MenusRegistry()
-    reg.menus_changed_emit = Mock()
-    reg.menus_changed.connect(reg.menus_changed_emit)
-    with patch.object(MenusRegistry, "instance", return_value=reg):
-        yield reg
-    reg._menu_items.clear()
+def app():
+    app = Application("test")
+    app.commands_changed = Mock()
+    app.commands.registered.connect(app.commands_changed)
+    app.keybindings_changed = Mock()
+    app.keybindings.registered.connect(app.keybindings_changed)
+    app.menus_changed = Mock()
+    app.menus.menus_changed.connect(app.menus_changed)
+    yield app
+    app.commands._commands.clear()
+    app.keybindings._keybindings.clear()
+    app.menus._menu_items.clear()
 
 
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(
-    kwargs,
-    cmd_reg: CommandsRegistry,
-    key_reg: KeybindingsRegistry,
-    menu_reg: MenusRegistry,
-    mode,
-):
+def test_register_action_decorator(kwargs, app: Application, mode):
     # make sure mocks are working
-    assert not list(cmd_reg)
-    assert not list(key_reg)
-    assert not list(menu_reg)
+    assert not list(app.commands)
+    assert not list(app.keybindings)
+    assert not list(app.menus)
 
     dispose: Optional[Callable] = None
     cmd_id = CommandIdStr("cmd.id")
@@ -80,7 +54,7 @@ def test_register_action_decorator(
     # register the action
     if mode == "decorator":
 
-        @register_action(cmd_id, **kwargs)
+        @app.register_action(cmd_id, **kwargs)
         def f1():
             return "hi"
 
@@ -92,59 +66,50 @@ def test_register_action_decorator(
             return "hi"
 
         if mode == "str":
-            dispose = register_action(cmd_id, run=f2, **kwargs)
+            dispose = app.register_action(cmd_id, run=f2, **kwargs)
 
         elif mode == "action":
             action = Action(id=cmd_id, run=f2, **kwargs)
-            dispose = register_action(action)
+            dispose = app.register_action(action)
 
     # make sure the command is registered
-    assert cmd_id in cmd_reg
-    assert list(cmd_reg)
+    assert cmd_id in app.commands
+    assert list(app.commands)
     # make sure an event was emitted signaling the command was registered
-    cmd_reg.registered_emit.assert_called_once_with(cmd_id)  # type: ignore
+    app.commands_changed.assert_called_once_with(cmd_id)  # type: ignore
 
     # make sure we can call the command, and that we can inject dependencies.
-    assert cmd_reg.execute_command(cmd_id).result() == "hi"
+    assert app.commands.execute_command(cmd_id).result() == "hi"
 
     # make sure menus are registered if specified
     if menus := kwargs.get("menus"):
         for entry in menus:
-            assert entry["id"] in menu_reg
-            menu_reg.menus_changed_emit.assert_called_with({entry["id"]})
+            assert entry["id"] in app.menus
+            app.menus_changed.assert_called_with({entry["id"]})
     else:
-        assert not list(menu_reg)
+        assert not list(app.menus)
 
     # make sure keybindings are registered if specified
     if keybindings := kwargs.get("keybindings"):
         for entry in keybindings:
             key = PRIMARY_KEY if len(entry) == 1 else OS_KEY  # see KWARGS[5]
-            assert any(i.keybinding == key for i in key_reg)
-            key_reg.registered_emit.assert_called()  # type: ignore
+            assert any(i.keybinding == key for i in app.keybindings)
+            app.keybindings_changed.assert_called()  # type: ignore
     else:
-        assert not list(key_reg)
+        assert not list(app.keybindings)
 
     # if we're not using the decorator, check that calling the dispose
     # function removes everything.  (the decorator returns the function, so can't
     # return the dispose function)
     if dispose:
         dispose()
-        assert not list(cmd_reg)
-        assert not list(key_reg)
-        assert not list(menu_reg)
+        assert not list(app.commands)
+        assert not list(app.keybindings)
+        assert not list(app.menus)
 
 
-def test_errors():
+def test_errors(app):
     with pytest.raises(ValueError, match="'title' is required"):
-        register_action("cmd_id")  # type: ignore
+        app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):
-        register_action(None)  # type: ignore
-
-
-def test_instances():
-    assert isinstance(MenusRegistry().instance(), MenusRegistry)
-    assert isinstance(
-        KeybindingsRegistry().instance(),
-        KeybindingsRegistry,
-    )
-    assert isinstance(CommandsRegistry().instance(), CommandsRegistry)
+        app.register_action(None)  # type: ignore
