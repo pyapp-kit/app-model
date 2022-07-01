@@ -29,7 +29,7 @@ def register_action(
     id_or_action: CommandIdStr,
     title: str,
     *,
-    run: Literal[None] = None,
+    callback: Literal[None] = None,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[IconOrDict] = None,
@@ -47,7 +47,7 @@ def register_action(
     id_or_action: CommandIdStr,
     title: str,
     *,
-    run: CommandCallable,
+    callback: CommandCallable,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[IconOrDict] = None,
@@ -64,7 +64,7 @@ def register_action(
     id_or_action: Union[CommandIdStr, Action],
     title: Optional[str] = None,
     *,
-    run: Optional[CommandCallable] = None,
+    callback: Optional[CommandCallable] = None,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
     icon: Optional[IconOrDict] = None,
@@ -108,7 +108,7 @@ def register_action(
     title : Optional[str]
         Title by which the command is represented in the UI. Required when
         `id_or_action` is a string.
-    run : Optional[CommandHandler]
+    callback : Optional[CommandHandler]
         Callable object that executes this command, by default None. If not provided,
         a decorator is returned that can be used to decorate a function that executes
         this action.
@@ -158,7 +158,7 @@ def register_action(
             tooltip=tooltip,
             icon=icon,
             enablement=enablement,
-            run=run,
+            callback=callback,
             add_to_command_palette=add_to_command_palette,
             menus=menus,
             keybindings=keybindings,
@@ -179,11 +179,11 @@ def _register_action_str(
     corresponding registries. Otherwise a decorator returned that can be used
     to decorate the callable that executes the action.
     """
-    if callable(kwargs.get("run")):
+    if callable(kwargs.get("callback")):
         return _register_action_obj(app, Action(**kwargs))
 
     def decorator(command: CommandCallable, **k: Any) -> CommandCallable:
-        _register_action_obj(app, Action(**{**kwargs, **k, "run": command}))
+        _register_action_obj(app, Action(**{**kwargs, **k, "callback": command}))
         return command
 
     decorator.__doc__ = f"Decorate function as callback for command {kwargs['id']!r}"
@@ -203,7 +203,9 @@ def _register_action_obj(
     app = app if isinstance(app, Application) else Application.get_or_create(app)
 
     # command
-    disposers = [app.commands.register_command(action.id, action.run, action.title)]
+    disposers = [
+        app.commands.register_command(action.id, action.callback, action.title)
+    ]
 
     # menu
 

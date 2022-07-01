@@ -21,7 +21,7 @@ class Action(CommandRule, Generic[P, R]):
     """
 
     # TODO: this could also be a string
-    run: Callable[P, R] = Field(
+    callback: Callable[P, R] = Field(
         ...,
         description="A function to call when the associated command id is executed.",
     )
@@ -38,3 +38,7 @@ class Action(CommandRule, Generic[P, R]):
         description="Whether to add this command to the global Command Palette "
         "during registration.",
     )
+
+    def run(self, *args: P.args, **kwargs: P.kwargs) -> R:
+        """Run the command."""
+        return self.callback(*args, **kwargs)

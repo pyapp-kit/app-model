@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING
+
 import pytest
 
 from app_model import Application
+
+if TYPE_CHECKING:
+    from conftest import FullApp
 
 
 def test_app_create():
@@ -14,3 +19,14 @@ def test_app_create():
         Application("my_app")
 
     assert repr(app) == "Application('my_app')"
+
+
+def test_app(full_app: "FullApp"):
+    app = full_app
+
+    app.commands.execute_command(app.Commands.OPEN)
+    app.mocks.open.assert_called_once()
+    app.commands.execute_command(app.Commands.COPY)
+    app.mocks.copy.assert_called_once()
+    app.commands.execute_command(app.Commands.PASTE)
+    app.mocks.paste.assert_called_once()

@@ -63,10 +63,10 @@ def test_register_action_decorator(kwargs, app: Application, mode):
             return "hi"
 
         if mode == "str":
-            app.register_action(cmd_id, run=f2, **kwargs)
+            app.register_action(cmd_id, callback=f2, **kwargs)
 
         elif mode == "action":
-            action = Action(id=cmd_id, run=f2, **kwargs)
+            action = Action(id=cmd_id, callback=f2, **kwargs)
             app.register_action(action)
 
     # make sure the command is registered

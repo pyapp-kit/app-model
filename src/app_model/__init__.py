@@ -8,5 +8,6 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "uninstalled"
 
 from ._app import Application
+from .types import Action
 
-__all__ = ["__version__", "Application"]
+__all__ = ["__version__", "Application", "Action"]

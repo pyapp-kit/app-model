@@ -168,7 +168,7 @@ class Expr(ast.AST, Generic[T]):
         super().__init__(*args, **kwargs)
         ast.fix_missing_locations(self)
 
-    def eval(self, context: Optional[Mapping] = None) -> T:
+    def eval(self, context: Optional[Mapping[str, object]] = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}

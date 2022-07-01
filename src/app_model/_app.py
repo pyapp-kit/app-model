@@ -90,7 +90,7 @@ class Application:
         id_or_action: CommandIdStr,
         title: str,
         *,
-        run: Literal[None] = None,
+        callback: Literal[None] = None,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -107,7 +107,7 @@ class Application:
         id_or_action: CommandIdStr,
         title: str,
         *,
-        run: CommandCallable,
+        callback: CommandCallable,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -123,7 +123,7 @@ class Application:
         id_or_action: Union[CommandIdStr, Action],
         title: Optional[str] = None,
         *,
-        run: Optional[CommandCallable] = None,
+        callback: Optional[CommandCallable] = None,
         category: Optional[str] = None,
         tooltip: Optional[str] = None,
         icon: Optional[IconOrDict] = None,
@@ -137,7 +137,7 @@ class Application:
             self,
             id_or_action,  # type: ignore
             title=title,  # type: ignore
-            run=run,  # type: ignore
+            callback=callback,  # type: ignore
             category=category,
             tooltip=tooltip,
             icon=icon,
