@@ -120,7 +120,7 @@ def create_context(
         # to scope this new context off of.
         while frame and (i := i + 1) < max_depth:
             if frame_predicate(frame):
-                return None
+                return None  # pragma: no cover
 
             # FIXME: this might be a bit napari "magic"
             # it also assumes someone uses "self" as the first argument
