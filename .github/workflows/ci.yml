@@ -59,8 +59,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.10"]
-        platform: [macos-latest]
+        python-version: ["3.9"]
+        platform: [macos-latest, windows-latest]
         qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
 
     steps:
