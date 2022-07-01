@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 
 from psygnal import Signal
 
-from ..types import MenuItem, SubmenuItem
-
-if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Sequence, Set, Tuple, Union
-
-    DisposeCallable = Callable[[], None]
-    MenuOrSubmenu = Union[MenuItem, SubmenuItem]
+from ..types import MenuItem, MenuOrSubmenu
+from ..types._misc import DisposeCallable
 
 
 class MenusRegistry:

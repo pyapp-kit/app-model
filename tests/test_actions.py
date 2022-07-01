@@ -33,9 +33,8 @@ def app():
     app.menus_changed = Mock()
     app.menus.menus_changed.connect(app.menus_changed)
     yield app
-    app.commands._commands.clear()
-    app.keybindings._keybindings.clear()
-    app.menus._menu_items.clear()
+    Application.destroy("test")
+    assert "test" not in Application._instances
 
 
 @pytest.mark.parametrize("kwargs", KWARGS)

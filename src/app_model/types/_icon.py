@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generator, NewType, Optional
+from typing import Any, Callable, Generator, NewType, Optional, TypedDict, Union
 
 from pydantic import Field
 
@@ -35,3 +35,13 @@ class Icon(_StrictModel):
         if isinstance(v, str):
             v = {"dark": v, "light": v}
         return cls(**v)
+
+
+class IconDict(TypedDict):
+    """Icon dictionary."""
+
+    dark: Optional[IconCodeStr]
+    light: Optional[IconCodeStr]
+
+
+IconOrDict = Union[Icon, IconDict]

@@ -1,12 +1,13 @@
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Generator,
     NewType,
     Optional,
     Type,
+    TypedDict,
     TypeVar,
+    Union,
 )
 
 from pydantic import Field
@@ -18,20 +19,6 @@ from ._icon import Icon
 
 MenuIdStr = NewType("MenuIdStr", str)
 T = TypeVar("T")
-if TYPE_CHECKING:
-    from typing import TypedDict
-
-    # Typed dicts mimic the API of their pydantic counterparts.
-    # Since pydantic allows you to pass in either an object or a dict,
-    # This lets us use either anywhere, without losing typing support.
-    # e.g. Union[MenuRuleDict, MenuRule]
-    class MenuRuleDict(TypedDict, total=False):
-        """Typed dict for MenuRule kwargs."""
-
-        when: Optional[expressions.Expr]
-        group: str
-        order: Optional[float]
-        id: MenuIdStr
 
 
 class _MenuItemBase(_StrictModel):
@@ -111,3 +98,19 @@ class SubmenuItem(_MenuItemBase):
         description="(Optional) Icon used to represent this submenu. "
         "These may be superqt fonticon keys, such as `fa5s.arrow_down`",
     )
+
+
+class MenuRuleDict(TypedDict, total=False):
+    """Typed dict for MenuRule kwargs.
+
+    This mimics the pydantic `MenuRule` interface, but allows you to pass in a dict
+    """
+
+    when: Optional[expressions.Expr]
+    group: str
+    order: Optional[float]
+    id: MenuIdStr
+
+
+MenuRuleOrDict = Union[MenuRule, MenuRuleDict]
+MenuOrSubmenu = Union[MenuItem, SubmenuItem]

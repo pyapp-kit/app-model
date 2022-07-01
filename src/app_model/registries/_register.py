@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, overload
+from typing import TYPE_CHECKING, overload
 
 from ..types import Action, MenuItem
 
@@ -9,20 +9,11 @@ if TYPE_CHECKING:
 
     from .. import expressions
     from .._app import Application
-    from ..types import (
-        CommandIdStr,
-        Icon,
-        KeybindingRule,
-        KeybindingRuleDict,
-        MenuRule,
-        MenuRuleDict,
-    )
+    from ..types import CommandIdStr, IconOrDict, KeybindingRuleOrDict, MenuRuleOrDict
+    from ..types._misc import DisposeCallable
+    from ._commands import CommandCallable
 
-    KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]
-    MenuRuleOrDict = Union[MenuRule, MenuRuleDict]
-    DisposeCallable = Callable[[], None]
     CommandDecorator = Callable[[Callable], Callable]
-    CommandCallable = TypeVar("CommandCallable", bound=Callable)
 
 
 @overload
@@ -41,7 +32,7 @@ def register_action(
     run: Literal[None] = None,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
-    icon: Optional[Icon] = None,
+    icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
@@ -59,7 +50,7 @@ def register_action(
     run: CommandCallable,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
-    icon: Optional[Icon] = None,
+    icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
@@ -76,7 +67,7 @@ def register_action(
     run: Optional[CommandCallable] = None,
     category: Optional[str] = None,
     tooltip: Optional[str] = None,
-    icon: Optional[Icon] = None,
+    icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeybindingRuleOrDict]] = None,
@@ -108,6 +99,9 @@ def register_action(
 
     Parameters
     ----------
+    app: Union[Application, str]
+        The app in which to register the action. If a string, the app is retrieved
+        or created as necessary using `Application.get_or_create(app)`.
     id_or_action : Union[CommandId, Action]
         Either a complete Action object or a string id of the command being registered.
         If an `Action` object is provided, then all other arguments are ignored.
