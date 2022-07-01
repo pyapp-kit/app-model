@@ -6,4 +6,9 @@
 [![CI](https://github.com/tlambert03/app-model/actions/workflows/ci.yml/badge.svg)](https://github.com/tlambert03/app-model/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/tlambert03/app-model/branch/main/graph/badge.svg)](https://codecov.io/gh/tlambert03/app-model)
 
-Generic application schema implemented in python
+Generic application schema implemented in python.
+
+This is a schema for declarative organization of application data, such as
+menus, keybindings, actions/commands, etc...
+
+Inspired by the VS-Code application model

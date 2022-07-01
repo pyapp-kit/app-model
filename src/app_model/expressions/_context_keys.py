@@ -88,6 +88,7 @@ class ContextKey(Name, Generic[A, T]):
     # an easy way to organize documentation.
     # ContextKey.info() returns a list with info for all ContextKeys
     _info: List[ContextKeyInfo] = []
+    MISSING = MISSING
 
     def __init__(
         self,
@@ -177,7 +178,7 @@ class ContextNamespaceMeta(type):
         return MappingProxyType(self._members_map_)
 
     def __dir__(self) -> List[str]:
-        return [
+        return [  # pragma: no cover
             "__class__",
             "__doc__",
             "__members__",

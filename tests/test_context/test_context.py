@@ -2,8 +2,9 @@ import gc
 from unittest.mock import Mock
 
 import pytest
-from app_model.context import Context, create_context, get_context
-from app_model.context._context import _OBJ_TO_CONTEXT
+
+from app_model.expressions import Context, create_context, get_context
+from app_model.expressions._context import _OBJ_TO_CONTEXT
 
 
 def test_create_context():
@@ -50,7 +51,8 @@ def test_create_and_get_scoped_contexts():
     assert len(_OBJ_TO_CONTEXT) == before + 2
     ctxa = get_context(obja)
     ctxb = get_context(obja.b)
-    assert ctxa and ctxb
+    assert ctxa is not None
+    assert ctxb is not None
     ctxa["hi"] = "hi"
     assert ctxb["hi"] == "hi"
 
@@ -88,3 +90,9 @@ def test_context_events():
     mock.assert_called_once()
     mock2.assert_not_called()
 
+    mock.reset_mock()
+    with scoped.buffered_changes():
+        scoped["d"] = "d"
+        scoped["e"] = "f"
+        scoped["f"] = "f"
+    mock.assert_called_once_with({"d", "e", "f"})

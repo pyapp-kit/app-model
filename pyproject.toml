@@ -9,11 +9,8 @@ name = "app-model"
 description = "Generic application schema implemented in python"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {file = "LICENSE"}
-authors = [
-  {email = "talley.lambert@gmail.com"},
-  {name = "Talley Lambert"},
-]
+license = {text = "BSD 3-Clause License"}
+authors = [{ email = "talley.lambert@gmail.com" }, { name = "Talley Lambert" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
@@ -23,15 +20,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dynamic = ["version"]
-dependencies = []
+dependencies = ['psygnal', 'pydantic']
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-test = [
-    "pytest>=6.0",
-    "pytest-cov",
-]
+test = ["pytest>=6.0", "pytest-cov"]
 dev = [
     "black",
     "cruft",
@@ -68,7 +62,7 @@ repository = "https://github.com/tlambert03/app-model"
 [tool.setuptools]
 zip-safe = false
 include-package-data = true
-packages = {find = {where = ["src"], exclude=[]}}
+packages = { find = { where = ["src"], exclude = [] } }
 
 
 # https://github.com/pypa/setuptools_scm/#pyprojecttoml-usage
@@ -96,7 +90,8 @@ D401  # imperative mood
 W503  # line break before binary operator
 """
 per-file-ignores = [
-    "tests/*:D",
+    "tests/*: D",
+    "src/app_model/_registries.py,src/app_model/context/_expressions.py: D10",
 ]
 
 
@@ -111,19 +106,23 @@ ignore = "D100,D213,D401,D413,D107"
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
-filterwarnings = [
-    "error",
-]
+filterwarnings = ["error"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
-files = "src/**/"
+files = "src/**/*.py"
 strict = true
 disallow_any_generics = false
 disallow_subclassing_any = false
 show_error_codes = true
 pretty = true
 
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.coverage.run]
+source = ["app_model"]
 
 # https://coverage.readthedocs.io/en/6.4/config.html
 [tool.coverage.report]
@@ -133,6 +132,8 @@ exclude_lines = [
     "@overload",
     "except ImportError",
 ]
+skip_covered = true
+show_missing = true
 
 # https://github.com/cruft/cruft
 [tool.cruft]
@@ -141,18 +142,18 @@ skip = ["tests"]
 # https://github.com/mgedmin/check-manifest#configuration
 [tool.check-manifest]
 ignore = [
-  ".cruft.json",
-  ".flake8",
-  ".github_changelog_generator",
-  ".pre-commit-config.yaml",
-  "tests/**/*",
-  "tox.ini",
+    ".cruft.json",
+    ".flake8",
+    ".github_changelog_generator",
+    ".pre-commit-config.yaml",
+    "tests/**/*",
+    "tox.ini",
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html
 [tool.semantic_release]
 version_source = "tag_only"
 branch = "main"
-changelog_sections="feature,fix,breaking,documentation,performance,chore,:boom:,:sparkles:,:children_crossing:,:lipstick:,:iphone:,:egg:,:chart_with_upwards_trend:,:ambulance:,:lock:,:bug:,:zap:,:goal_net:,:alien:,:wheelchair:,:speech_balloon:,:mag:,:apple:,:penguin:,:checkered_flag:,:robot:,:green_apple:,Other"
+changelog_sections = "feature,fix,breaking,documentation,performance,chore,:boom:,:sparkles:,:children_crossing:,:lipstick:,:iphone:,:egg:,:chart_with_upwards_trend:,:ambulance:,:lock:,:bug:,:zap:,:goal_net:,:alien:,:wheelchair:,:speech_balloon:,:mag:,:apple:,:penguin:,:checkered_flag:,:robot:,:green_apple:,Other"
 # commit_parser=semantic_release.history.angular_parser
 build_command = "pip install build && python -m build"

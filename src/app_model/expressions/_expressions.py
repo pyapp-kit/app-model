@@ -93,9 +93,7 @@ def safe_eval(expr: str, context: Optional[Mapping] = None) -> Any:
     This lets you evaluate a string expression with broader expression
     support than `ast.literal_eval`, but much less support than `eval()`.
     """
-    if context is None:
-        context = {}
-    return parse_expression(expr).eval(context)
+    return parse_expression(expr).eval(context or {})
 
 
 class Expr(ast.AST, Generic[T]):
@@ -197,7 +195,7 @@ class Expr(ast.AST, Generic[T]):
 
     def _serialize(self) -> str:
         """Serialize this expression to string form."""
-        return str(ExprSerializer(self))
+        return str(_ExprSerializer(self))
 
     def __repr__(self) -> str:
         if sys.version_info >= (3, 9):
@@ -278,7 +276,7 @@ class Expr(ast.AST, Generic[T]):
         return BinOp(self, ast.Mod(), other)
 
     def __matmul__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
-        return BinOp(self, ast.MatMult(), other)
+        return BinOp(self, ast.MatMult(), other)  # pragma: no cover
 
     def __pow__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
         return BinOp(self, ast.Pow(), other)
@@ -337,6 +335,7 @@ class Name(Expr[T], ast.Name):
         super().__init__(id, **kwargs)
 
     def eval(self, context: Optional[Mapping] = None) -> T:
+        """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
         return super().eval(context=context)
@@ -439,7 +438,7 @@ class IfExp(Expr, ast.IfExp):
 
 
 class ExprTranformer(ast.NodeTransformer):
-    """This transformer converts an ast.expr into an :class:`Expr`.
+    """Transformer that converts an ast.expr into an :class:`Expr`.
 
     Examples
     --------
@@ -495,7 +494,7 @@ class ExprTranformer(ast.NodeTransformer):
         return cast(Expr, globals()[type_](**kwargs))
 
 
-class ExprSerializer(ast.NodeVisitor):
+class _ExprSerializer(ast.NodeVisitor):
     """Serializes an :class:`Expr` into a string.
 
     Examples
