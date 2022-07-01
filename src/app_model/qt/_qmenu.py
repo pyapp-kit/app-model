@@ -54,17 +54,27 @@ class QModelMenu(QMenu):
         for n, group in enumerate(groups):
             for item in group:
                 if isinstance(item, SubmenuItem):
-                    sub = QModelMenu(item.submenu, self._app, parent=self)
-                    sub.setTitle(item.title)
-                    # if item.icon:
-                    #     sub.setIcon(to_qicon(item.icon))
-                    self.addMenu(sub)
-                    self._submenus.append(sub)  # save pointer
+                    self.addSubmenu(item)
                 else:
                     action = QMenuItemAction(item, app=self._app, parent=self)
                     self.addAction(action)
             if n < n_groups:
                 self.addSeparator()
+
+    def addSubmenu(self, submenu: SubmenuItem) -> None:
+        """Add submenu to menu.
+
+        Parameters
+        ----------
+        submenu : SubmenuItem
+            types.SubmenuItem instance to add to menu.
+        """
+        sub = QModelMenu(submenu.submenu, self._app, parent=self)
+        sub.setTitle(submenu.title)
+        # if item.icon:
+        #     sub.setIcon(to_qicon(item.icon))
+        self.addMenu(sub)
+        self._submenus.append(sub)  # save pointer
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
@@ -80,12 +90,8 @@ class QModelMenu(QMenu):
             the `ctx` dict, or be builtins*.
         """
         for action in self.actions():
-            item = action.data()
-            if isinstance(item, MenuItem):
-                action.setEnabled(
-                    expr.eval(ctx) if (expr := item.command.enablement) else True
-                )
-                action.setVisible(expr.eval(ctx) if (expr := item.when) else True)
+            if isinstance(action, QMenuItemAction):
+                action.update_from_context(ctx)
             elif (menu := action.menu()) and isinstance(menu, QModelMenu):
                 menu.update_from_context(ctx)
 
