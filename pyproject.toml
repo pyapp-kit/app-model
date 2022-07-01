@@ -26,6 +26,8 @@ dependencies = ['psygnal', 'pydantic']
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 test = ["pytest>=6.0", "pytest-cov"]
+test_qt = ["pytest-qt", "fonticon-fontawesome5"]
+qt = ["qtpy", "superqt"]
 dev = [
     "black",
     "cruft",

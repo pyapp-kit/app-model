@@ -15,7 +15,10 @@ if TYPE_CHECKING:
 
 def to_qicon(icon: Icon) -> QIcon:
     """Create QIcon from Icon."""
-    ...
+    from superqt import fonticon
+
+    assert icon.dark
+    return fonticon.icon(icon.dark)
 
 
 class QCommandAction(QAction):

@@ -52,24 +52,28 @@ def full_app() -> Application:
         Action(
             id=Commands.UNDO,
             title="Undo",
+            icon="fa5s.undo",
             callback=app.mocks.undo,
             menus=[{"id": Menus.EDIT, "group": "1_undo_redo", "order": 0}],
         ),
         Action(
             id=Commands.REDO,
             title="Redo",
+            icon="fa5s.redo",
             callback=app.mocks.redo,
             menus=[{"id": Menus.EDIT, "group": "1_undo_redo", "order": 0}],
         ),
         Action(
             id=Commands.COPY,
             title="Copy",
+            icon="fa5s.copy",
             callback=app.mocks.copy,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
         ),
         Action(
             id=Commands.PASTE,
             title="Paste",
+            icon="fa5s.paste",
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
         ),

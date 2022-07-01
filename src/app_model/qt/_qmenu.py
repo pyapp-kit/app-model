@@ -12,15 +12,9 @@ from ._qaction import QMenuItemAction
 
 if TYPE_CHECKING:
     from qtpy.QtCore import QPoint
-    from qtpy.QtGui import QIcon
     from qtpy.QtWidgets import QAction, QWidget
 
-    from app_model.types import Icon, MenuIdStr
-
-
-def to_qicon(icon: Icon) -> QIcon:
-    """Create QIcon from Icon."""
-    ...
+    from app_model.types import MenuIdStr
 
 
 class QModelMenu(QMenu):
@@ -62,8 +56,8 @@ class QModelMenu(QMenu):
                 if isinstance(item, SubmenuItem):
                     sub = QModelMenu(item.submenu, self._app, parent=self)
                     sub.setTitle(item.title)
-                    if item.icon:
-                        sub.setIcon(to_qicon(item.icon))
+                    # if item.icon:
+                    #     sub.setIcon(to_qicon(item.icon))
                     self.addMenu(sub)
                     self._submenus.append(sub)  # save pointer
                 else:
