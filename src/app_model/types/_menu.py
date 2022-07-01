@@ -98,6 +98,12 @@ class SubmenuItem(_MenuItemBase):
         description="(Optional) Icon used to represent this submenu. "
         "These may be superqt fonticon keys, such as `fa5s.arrow_down`",
     )
+    enablement: Optional[expressions.Expr] = Field(
+        None,
+        description="(Optional) Condition which must be true to enable the submenu. "
+        "Disabled submenus appear grayed out in the UI, and cannot be selected. By "
+        "default, submenus are enabled.",
+    )
 
 
 class MenuRuleDict(TypedDict, total=False):
