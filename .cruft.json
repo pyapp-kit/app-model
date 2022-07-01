@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/tlambert03/pyrepo-cookiecutter",
-  "commit": "50aa84d9370c84ce53db364b3a68ce00f63f0d13",
+  "commit": "e586f35a285d6012a685c14dcb19c7c8c6c8e7a9",
   "checkout": null,
   "context": {
     "cookiecutter": {
