@@ -1,10 +1,16 @@
 from unittest.mock import Mock
 
 import pytest
-from fonticon_fa5 import FA5S
 
 from app_model import Action, Application
 from app_model.types import SubmenuItem
+
+try:
+    from fonticon_fa5 import FA5S
+
+    UNDO_ICON = FA5S.undo
+except ImportError:
+    UNDO_ICON = "fa5s.undo"
 
 
 class Menus:
@@ -107,7 +113,7 @@ def full_app() -> Application:
             id=Commands.UNDO,
             tooltip="Undo it!",
             title="Undo",
-            icon=FA5S.undo,  # alternate way to specify icon
+            icon=UNDO_ICON,  # testing alternate way to specify icon
             enablement="allow_undo_redo",
             callback=app.mocks.undo,
             menus=[
