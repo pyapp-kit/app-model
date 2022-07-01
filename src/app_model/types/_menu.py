@@ -1,4 +1,13 @@
-from typing import TYPE_CHECKING, NewType, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generator,
+    NewType,
+    Optional,
+    Type,
+    TypeVar,
+)
 
 from pydantic import Field
 
@@ -8,7 +17,7 @@ from ._command import CommandRule
 from ._icon import Icon
 
 MenuIdStr = NewType("MenuIdStr", str)
-
+T = TypeVar("T")
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -45,6 +54,24 @@ class _MenuItemBase(_StrictModel):
         "not part of the plugin schema, plugins may provide it using the group key "
         "and the syntax 'group@order'.  If not provided, items are sorted by title.",
     )
+
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls: Type[T], v: Any) -> Type[T]:
+        """Validate icon."""
+        if isinstance(v, _MenuItemBase):
+            return v
+        if isinstance(v, dict):
+            if "command" in v:
+                return MenuItem(**v)
+            if "id" in v:
+                return MenuRule(**v)
+            if "submenu" in v:
+                return SubmenuItem(**v)
+        raise TypeError(f"Invalid menu item: {v!r}", cls)  # pragma: no cover
 
 
 class MenuRule(_MenuItemBase):
