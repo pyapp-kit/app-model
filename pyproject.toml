@@ -149,6 +149,7 @@ ignore = [
     ".github_changelog_generator",
     ".pre-commit-config.yaml",
     "tests/**/*",
+    "codecov.yml",
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html
