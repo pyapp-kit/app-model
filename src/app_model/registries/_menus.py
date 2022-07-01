@@ -114,18 +114,18 @@ class MenusRegistry:
         Iterator[List[MenuOrSubmenu]]
             Iterator of menu/submenu groups.
         """
-        yield from MenusRegistry._sorted_groups(self.get_menu(menu_id))
+        yield from _sort_groups(self.get_menu(menu_id))
 
-    @staticmethod
-    def _sorted_groups(
-        items: List[MenuOrSubmenu],
-        group_sorter: Callable = lambda x: 0 if x == "navigation" else 1,
-        order_sorter: Callable = lambda x: getattr(x, "order", "") or 0,
-    ) -> Iterator[List[MenuOrSubmenu]]:
-        """Sort a list of menu items based on their .group and .order attributes."""
-        groups: dict[Optional[str], List[MenuOrSubmenu]] = {}
-        for item in items:
-            groups.setdefault(item.group, []).append(item)
 
-        for group_id in sorted(groups, key=group_sorter):
-            yield sorted(groups[group_id], key=order_sorter)
+def _sort_groups(
+    items: List[MenuOrSubmenu],
+    group_key: Callable = lambda x: "0000" if x == "navigation" else x,
+    order_key: Callable = lambda x: getattr(x, "order", "") or 0,
+) -> Iterator[List[MenuOrSubmenu]]:
+    """Sort a list of menu items based on their .group and .order attributes."""
+    groups: dict[Optional[str], List[MenuOrSubmenu]] = {}
+    for item in items:
+        groups.setdefault(item.group, []).append(item)
+
+    for group_id in sorted(groups, key=group_key):
+        yield sorted(groups[group_id], key=order_key)

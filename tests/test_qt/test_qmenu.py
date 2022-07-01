@@ -15,10 +15,10 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp"):
 
     menu = QModelMenu(app.Menus.EDIT, app)
     qtbot.addWidget(menu)
-    menu_texts = [a.text() for a in menu.actions()]
 
     # The "" are separators, according to our group settings in full_app
-    assert menu_texts == ["Undo", "Redo", "", "Copy", "Paste", ""]
+    menu_texts = [a.text() for a in menu.actions()]
+    assert menu_texts == ["AtTop", "", "Undo", "Redo", "", "Copy", "Paste", ""]
 
     # check that triggering the actions calls the associated commands
     for cmd in (app.Commands.UNDO, app.Commands.REDO):
@@ -26,3 +26,5 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp"):
         with qtbot.waitSignal(action.triggered):
             action.trigger()
             getattr(app.mocks, cmd).assert_called_once()
+
+    menu.show()

@@ -40,7 +40,7 @@ class FullApp(Application):
 @pytest.fixture
 def full_app() -> Application:
     """Premade application."""
-    app = FullApp("test_app")
+    app = FullApp("complete_test_app")
 
     actions = [
         Action(
@@ -49,20 +49,7 @@ def full_app() -> Application:
             callback=app.mocks.open,
             menus=[{"id": Menus.FILE}],
         ),
-        Action(
-            id=Commands.UNDO,
-            title="Undo",
-            icon="fa5s.undo",
-            callback=app.mocks.undo,
-            menus=[{"id": Menus.EDIT, "group": "1_undo_redo", "order": 0}],
-        ),
-        Action(
-            id=Commands.REDO,
-            title="Redo",
-            icon="fa5s.redo",
-            callback=app.mocks.redo,
-            menus=[{"id": Menus.EDIT, "group": "1_undo_redo", "order": 0}],
-        ),
+        # putting these above undo redo to make sure that group sorting works
         Action(
             id=Commands.COPY,
             title="Copy",
@@ -77,10 +64,51 @@ def full_app() -> Application:
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
         ),
+        # putting this above UNDO to make sure that order sorting works
+        Action(
+            id=Commands.REDO,
+            title="Redo",
+            tooltip="Redo it!",
+            icon="fa5s.redo",
+            enablement="allow_undo_redo",
+            callback=app.mocks.redo,
+            menus=[
+                {
+                    "id": Menus.EDIT,
+                    "group": "1_undo_redo",
+                    "order": 1,
+                    "when": "not something_to_undo",
+                }
+            ],
+        ),
+        Action(
+            id=Commands.UNDO,
+            tooltip="Undo it!",
+            title="Undo",
+            icon="fa5s.undo",
+            enablement="allow_undo_redo",
+            callback=app.mocks.undo,
+            menus=[
+                {
+                    "id": Menus.EDIT,
+                    "group": "1_undo_redo",
+                    "order": 0,
+                    "when": "something_to_undo",
+                }
+            ],
+        ),
+        # test the navigation key
+        Action(
+            id=Commands.OPEN,
+            title="AtTop",
+            callback=app.mocks.open,
+            menus=[{"id": Menus.EDIT, "group": "navigation"}],
+        ),
     ]
     for action in actions:
         app.register_action(action)
 
-    yield app
-
-    Application.destroy("test_app")
+    try:
+        yield app
+    finally:
+        Application.destroy("complete_test_app")

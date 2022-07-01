@@ -1,24 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Literal, Mapping, Optional, Union
 
+from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QAction
 
 from app_model import Application
 
 if TYPE_CHECKING:
     from qtpy.QtCore import QObject
-    from qtpy.QtGui import QIcon
 
     from app_model.types import CommandIdStr, CommandRule, Icon, MenuItem
 
 
-def to_qicon(icon: Icon) -> QIcon:
+def to_qicon(icon: Icon, theme: Literal["dark", "light"] = "dark") -> QIcon:
     """Create QIcon from Icon."""
     from superqt import fonticon
 
-    assert icon.dark
-    return fonticon.icon(icon.dark)
+    if icn := getattr(icon, theme, ""):
+        return fonticon.icon(icn)
+    return QIcon()
 
 
 class QCommandAction(QAction):
@@ -88,7 +89,11 @@ class QCommandRuleAction(QCommandAction):
 
 
 class QMenuItemAction(QCommandRuleAction):
-    """QAction for a MenuItem."""
+    """QAction for a MenuItem.
+
+    Mostly the same as a CommandRuleAction, but aware of the `menu_item.when` clause
+    to toggle visibility.
+    """
 
     def __init__(
         self,
@@ -97,9 +102,9 @@ class QMenuItemAction(QCommandRuleAction):
         parent: Optional[QObject] = None,
     ):
         super().__init__(menu_item.command, app, parent)
-        self._item = menu_item
+        self._menu_item = menu_item
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""
         super().update_from_context(ctx)
-        self.setVisible(expr.eval(ctx) if (expr := self._item.when) else True)
+        self.setVisible(expr.eval(ctx) if (expr := self._menu_item.when) else True)

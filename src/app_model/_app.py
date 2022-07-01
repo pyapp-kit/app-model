@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import (
     TYPE_CHECKING,
     ClassVar,
@@ -60,11 +61,13 @@ class Application:
     @classmethod
     def destroy(cls, name: str) -> None:
         """Destroy the app named `name`."""
-        cls._instances.pop(name, None)
+        app = cls._instances.pop(name)
+        app.dispose()
 
     def __del__(self) -> None:
         """Remove the app from the registry when it is garbage collected."""
-        Application.destroy(self.name)
+        with contextlib.suppress(KeyError):
+            Application.destroy(self.name)
 
     @property
     def name(self) -> str:
