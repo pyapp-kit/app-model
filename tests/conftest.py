@@ -3,12 +3,21 @@ from unittest.mock import Mock
 import pytest
 
 from app_model import Action, Application
+from app_model.types import SubmenuItem
+
+try:
+    from fonticon_fa5 import FA5S
+
+    UNDO_ICON = FA5S.undo
+except ImportError:
+    UNDO_ICON = "fa5s.undo"
 
 
 class Menus:
     FILE = "file"
     EDIT = "edit"
     HELP = "help"
+    FILE_OPEN_FROM = "file/open_from"
 
 
 class Commands:
@@ -17,6 +26,8 @@ class Commands:
     REDO = "redo"
     COPY = "copy"
     PASTE = "paste"
+    OPEN_FROM_A = "open.from_a"
+    OPEN_FROM_B = "open.from_b"
 
 
 class Mocks:
@@ -26,6 +37,8 @@ class Mocks:
         self.redo = Mock(name=Commands.REDO)
         self.copy = Mock(name=Commands.COPY)
         self.paste = Mock(name=Commands.PASTE)
+        self.open_from_a = Mock(name=Commands.OPEN_FROM_A)
+        self.open_from_b = Mock(name=Commands.OPEN_FROM_B)
 
 
 class FullApp(Application):
@@ -41,6 +54,21 @@ class FullApp(Application):
 def full_app() -> Application:
     """Premade application."""
     app = FullApp("complete_test_app")
+
+    app.menus.append_menu_items(
+        [
+            (
+                Menus.FILE,
+                SubmenuItem(
+                    submenu=Menus.FILE_OPEN_FROM,
+                    title="Open From...",
+                    icon="fa5s.folder-open",
+                    when="not something_open",
+                    enablement="friday",
+                ),
+            )
+        ]
+    )
 
     actions = [
         Action(
@@ -85,7 +113,7 @@ def full_app() -> Application:
             id=Commands.UNDO,
             tooltip="Undo it!",
             title="Undo",
-            icon="fa5s.undo",
+            icon=UNDO_ICON,  # testing alternate way to specify icon
             enablement="allow_undo_redo",
             callback=app.mocks.undo,
             menus=[
@@ -103,6 +131,19 @@ def full_app() -> Application:
             title="AtTop",
             callback=app.mocks.open,
             menus=[{"id": Menus.EDIT, "group": "navigation"}],
+        ),
+        # test submenus
+        Action(
+            id=Commands.OPEN_FROM_A,
+            title="Open from A",
+            callback=app.mocks.open_from_a,
+            menus=[{"id": Menus.FILE_OPEN_FROM}],
+        ),
+        Action(
+            id=Commands.OPEN_FROM_B,
+            title="Open from B",
+            callback=app.mocks.open_from_b,
+            menus=[{"id": Menus.FILE_OPEN_FROM}],
         ),
     ]
     for action in actions:

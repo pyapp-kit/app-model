@@ -75,6 +75,7 @@ class MenusRegistry:
 
     def _render(self) -> List[str]:
         """Return registered menu items as lines of strings."""
+        # this is mostly here as a debugging tool.  Can be removed or improved later.
         lines: List[str] = []
 
         branch = "  ├──"

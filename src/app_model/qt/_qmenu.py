@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Mapping, Optional, Union, overload
+from typing import TYPE_CHECKING, Mapping, Optional, Union
 
-from qtpy.QtCore import QTimer
+from qtpy import QT6
 from qtpy.QtWidgets import QMenu
 
 from app_model import Application
-from app_model.types import MenuItem, SubmenuItem
+from app_model.types import SubmenuItem
 
 from ._qaction import QMenuItemAction
 from ._util import to_qicon
 
 if TYPE_CHECKING:
-    from qtpy.QtCore import QPoint
-    from qtpy.QtWidgets import QAction, QWidget
+    from qtpy.QtWidgets import QWidget
 
     from app_model.types import MenuIdStr
 
@@ -37,12 +36,11 @@ class QModelMenu(QMenu):
         app: Union[str, Application],
         parent: Optional[QWidget] = None,
     ):
+        assert isinstance(menu_id, str), f"Expected str, got {type(menu_id)!r}"
+        self._menu_id = menu_id
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
-
-        self._menu_id = menu_id
-        self._submenu_item: Optional[SubmenuItem] = None
-        self._submenus: List[QModelMenu] = []
+        self.setObjectName(menu_id)
         self.rebuild()
 
     def rebuild(self) -> None:
@@ -55,29 +53,17 @@ class QModelMenu(QMenu):
         for n, group in enumerate(groups):
             for item in group:
                 if isinstance(item, SubmenuItem):
-                    self.addSubmenu(item)
+                    submenu = QModelSubmenu(item, self._app, self)
+                    self.addMenu(submenu)
                 else:
                     action = QMenuItemAction(item, app=self._app, parent=self)
                     self.addAction(action)
-            if n < n_groups:
+            if n < n_groups - 1:
                 self.addSeparator()
 
-    def addSubmenu(self, submenu: SubmenuItem) -> None:
-        """Add submenu to menu.
-
-        Parameters
-        ----------
-        submenu : SubmenuItem
-            types.SubmenuItem instance to add to menu.
-        """
-        sub = QModelMenu(submenu.submenu, self._app, parent=self)
-        sub.setTitle(submenu.title)
-        if submenu.icon:
-            sub.setIcon(to_qicon(submenu.icon))
-        self.addMenu(sub)
-        self._submenus.append(sub)  # save pointer
-
-    def update_from_context(self, ctx: Mapping[str, object]) -> None:
+    def update_from_context(
+        self, ctx: Mapping[str, object], _recurse: bool = True
+    ) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
         See `app_model.expressions` for details on expressions.
@@ -89,29 +75,55 @@ class QModelMenu(QMenu):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
+        _recurse : bool
+            recursion check, internal use only
         """
         for action in self.actions():
             if isinstance(action, QMenuItemAction):
                 action.update_from_context(ctx)
-            elif (menu := action.menu()) and isinstance(menu, QModelMenu):
+            elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
                 menu.update_from_context(ctx)
+            elif isinstance(parent := action.parent(), QModelMenu):
+                # FIXME: this is a hack for Qt6 that I don't entirely understand.
+                # QAction has lost the `.menu()` method, and it's a bit hard to find
+                # how to get to the parent menu now. Checking parent() seems to work,
+                # but I'm not sure if it's the right thing to do, and it leads to a
+                # recursion error.  I stop it with the _recurse flag here, but I wonder
+                # whether that will cause other problems.
+                if _recurse:
+                    parent.update_from_context(ctx, _recurse=False)
 
-    @overload
-    def exec(self) -> Optional[QAction]:  # noqa: D102
-        ...
 
-    @overload
-    def exec(self, pos: QPoint, action: Optional[QAction] = ...) -> Optional[QAction]:
-        ...
+class QModelSubmenu(QModelMenu):
+    """QMenu for a menu_id in an `app_model` MenusRegistry.
 
-    def exec(self, *args: Any, **kwargs: Any) -> Optional[QAction]:
-        """Execute the menu synchronously, and return the action that was selected."""
-        if action := super().exec_(*args, **kwargs):
-            if isinstance(item := action.data(), MenuItem):
+    Parameters
+    ----------
+    submenu : SubmenuItem
+        SubmenuItem for which to create a QMenu.
+    app : Union[str, Application]
+        Application instance or name of application instance.
+    parent : Optional[QWidget]
+        Optional parent widget, by default None
+    """
 
-                def _cb() -> None:
-                    self._app.commands.execute_command(item.command.id)
+    def __init__(
+        self,
+        submenu: SubmenuItem,
+        app: Union[str, Application],
+        parent: Optional[QWidget] = None,
+    ):
+        assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
+        self._submenu = submenu
+        super().__init__(submenu.submenu, app, parent)
+        self.setTitle(submenu.title)
+        if submenu.icon:
+            self.setIcon(to_qicon(submenu.icon))
 
-                QTimer.singleShot(0, _cb)
-            return action
-        return None
+    def update_from_context(
+        self, ctx: Mapping[str, object], _recurse: bool = True
+    ) -> None:
+        """Update the enabled state of this menu item from `ctx`."""
+        super().update_from_context(ctx)
+        self.setEnabled(expr.eval(ctx) if (expr := self._submenu.enablement) else True)
+        self.setVisible(expr.eval(ctx) if (expr := self._submenu.when) else True)
