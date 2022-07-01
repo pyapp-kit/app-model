@@ -79,9 +79,10 @@ jobs:
           python -m pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
-        run: python -m tox -e ${{ matrix.qt-backend }}
+        run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
+          BACKEND: ${{ matrix.qt-backend }}
 
   deploy:
     name: Deploy
