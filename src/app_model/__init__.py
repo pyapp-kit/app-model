@@ -6,5 +6,7 @@ try:
     __version__ = version("app-model")
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "uninstalled"
-__author__ = "Talley Lambert"
-__email__ = "talley.lambert@gmail.com"
+
+from ._app import Application
+
+__all__ = ["__version__", "Application"]

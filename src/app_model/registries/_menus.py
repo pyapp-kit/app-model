@@ -1,33 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 
 from psygnal import Signal
 
-from ..types import MenuItem, SubmenuItem
-
-if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Sequence, Set, Tuple, Union
-
-    DisposeCallable = Callable[[], None]
-    MenuOrSubmenu = Union[MenuItem, SubmenuItem]
+from ..types import MenuItem, MenuOrSubmenu
+from ..types._misc import DisposeCallable
 
 
 class MenusRegistry:
     """Registry for menu and submenu items."""
 
     menus_changed = Signal(set)
-    __instance: Optional[MenusRegistry] = None
 
     def __init__(self) -> None:
         self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
-
-    @classmethod
-    def instance(cls) -> MenusRegistry:
-        """Return global instance of the MenusRegistry."""
-        if cls.__instance is None:
-            cls.__instance = cls()
-        return cls.__instance
 
     def append_menu_items(
         self, items: Sequence[Tuple[str, MenuOrSubmenu]]

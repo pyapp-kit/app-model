@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import TYPE_CHECKING, NewType, Optional
+from typing import NewType, Optional, TypedDict, Union
 
 from pydantic import Field
 
@@ -10,20 +10,8 @@ from ._base import _StrictModel
 WINDOWS = os.name == "nt"
 MACOS = sys.platform == "darwin"
 LINUX = sys.platform.startswith("linux")
+
 KeyCodeStr = NewType("KeyCodeStr", str)
-
-if TYPE_CHECKING:
-    from typing import TypedDict
-
-    class KeybindingRuleDict(TypedDict, total=False):
-        """Typed dict for KeybindingRule kwargs."""
-
-        primary: Optional[KeyCodeStr]
-        win: Optional[KeyCodeStr]
-        linux: Optional[KeyCodeStr]
-        mac: Optional[KeyCodeStr]
-        weight: int
-        when: Optional[expressions.Expr]
 
 
 class KeybindingRule(_StrictModel):
@@ -63,3 +51,17 @@ class KeybindingRule(_StrictModel):
         if LINUX and self.linux:
             return self.linux
         return self.primary
+
+
+class KeybindingRuleDict(TypedDict, total=False):
+    """Typed dict for KeybindingRule kwargs."""
+
+    primary: Optional[KeyCodeStr]
+    win: Optional[KeyCodeStr]
+    linux: Optional[KeyCodeStr]
+    mac: Optional[KeyCodeStr]
+    weight: int
+    when: Optional[expressions.Expr]
+
+
+KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]

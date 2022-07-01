@@ -28,17 +28,9 @@ class KeybindingsRegistry:
     """Registery for keybindings."""
 
     registered = Signal()
-    __instance: Optional[KeybindingsRegistry] = None
 
     def __init__(self) -> None:
-        self._coreKeybindings: List[_RegisteredKeyBinding] = []
-
-    @classmethod
-    def instance(cls) -> KeybindingsRegistry:
-        """Return global instance of the KeybindingsRegistry."""
-        if cls.__instance is None:
-            cls.__instance = cls()
-        return cls.__instance
+        self._keybindings: List[_RegisteredKeyBinding] = []
 
     def register_keybinding_rule(
         self, id: CommandIdStr, rule: KeybindingRule
@@ -64,18 +56,18 @@ class KeybindingsRegistry:
                 weight=rule.weight,
                 when=rule.when,
             )
-            self._coreKeybindings.append(entry)
+            self._keybindings.append(entry)
             self.registered.emit()
 
             def _dispose() -> None:
-                self._coreKeybindings.remove(entry)
+                self._keybindings.remove(entry)
 
             return _dispose
         return None  # pragma: no cover
 
     def __iter__(self) -> Iterator[_RegisteredKeyBinding]:
-        yield from self._coreKeybindings
+        yield from self._keybindings
 
     def __repr__(self) -> str:
         name = self.__class__.__name__
-        return f"<{name} at {hex(id(self))} ({len(self._coreKeybindings)} bindings)>"
+        return f"<{name} at {hex(id(self))} ({len(self._keybindings)} bindings)>"

@@ -1,15 +1,22 @@
 """App-model types."""
-from typing import TYPE_CHECKING
-
 from ._action import Action
 from ._command import CommandIdStr, CommandRule
-from ._icon import Icon, IconCodeStr
-from ._keybinding import KeybindingRule, KeyCodeStr
-from ._menu import MenuIdStr, MenuItem, MenuRule, SubmenuItem
-
-if TYPE_CHECKING:
-    from ._keybinding import KeybindingRuleDict
-    from ._menu import MenuRuleDict
+from ._icon import Icon, IconCodeStr, IconOrDict
+from ._keybinding import (
+    KeybindingRule,
+    KeybindingRuleDict,
+    KeybindingRuleOrDict,
+    KeyCodeStr,
+)
+from ._menu import (
+    MenuIdStr,
+    MenuItem,
+    MenuOrSubmenu,
+    MenuRule,
+    MenuRuleDict,
+    MenuRuleOrDict,
+    SubmenuItem,
+)
 
 __all__ = [
     "Action",
@@ -17,12 +24,16 @@ __all__ = [
     "CommandRule",
     "Icon",
     "IconCodeStr",
+    "IconOrDict",
     "KeybindingRule",
     "KeybindingRuleDict",
+    "KeybindingRuleOrDict",
     "KeyCodeStr",
     "MenuIdStr",
     "MenuItem",
+    "MenuOrSubmenu",
     "MenuRule",
     "MenuRuleDict",
+    "MenuRuleOrDict",
     "SubmenuItem",
 ]
