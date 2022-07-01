@@ -2,8 +2,8 @@ import gc
 from unittest.mock import Mock
 
 import pytest
-from napari.utils.context import Context, create_context, get_context
-from napari.utils.context._context import _OBJ_TO_CONTEXT, SettingsAwareContext
+from app_model.context import Context, create_context, get_context
+from app_model.context._context import _OBJ_TO_CONTEXT
 
 
 def test_create_context():
@@ -69,16 +69,16 @@ def test_context_events():
 
     root["a"] = 1
     # child re-emits parent events
-    assert mock.call_args[0][0].value == {"a"}
+    assert mock.call_args[0][0] == {"a"}
 
     mock.reset_mock()
     scoped["b"] = 1
     # also emits own events
-    assert mock.call_args[0][0].value == {"b"}
+    assert mock.call_args[0][0] == {"b"}
 
     mock.reset_mock()
     del scoped["b"]
-    assert mock.call_args[0][0].value == {"b"}
+    assert mock.call_args[0][0] == {"b"}
 
     # but parent does not emit child events
     mock.reset_mock()
@@ -88,37 +88,3 @@ def test_context_events():
     mock.assert_called_once()
     mock2.assert_not_called()
 
-
-def test_settings_context():
-    """The root context is a SettingsAwareContext."""
-    mock = Mock()
-    root = SettingsAwareContext()
-    root.changed.connect(mock)
-
-    assert isinstance(root["settings.appearance"], dict)
-    assert root["settings.appearance.theme"] == "dark"
-    from napari.settings import get_settings
-
-    get_settings().appearance.theme = "light"
-    assert root["settings.appearance.theme"] == "light"
-    assert dict(root) == {}  # the context itself doesn't have the value
-    event = mock.call_args_list[0][0][0]
-    assert event.value == {"settings.appearance.theme"}
-
-    # any changes made here can't affect the global settings...
-    with pytest.raises(ValueError):
-        root["settings.appearance.theme"] = "dark"
-    assert get_settings().appearance.theme == "light"
-
-    with pytest.raises(KeyError):
-        # can't delete from settings here either
-        del root["settings.appearance.theme"]
-    assert root["settings.appearance.theme"] == "light"
-
-    with pytest.raises(KeyError):
-        # of course, keys not in settings should still raise key error
-        root["not.there"]
-
-    # but can be added like any other context
-    root["there"] = 1
-    assert root["there"] == 1

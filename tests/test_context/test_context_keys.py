@@ -1,5 +1,5 @@
 import pytest
-from napari.utils.context._context_keys import (
+from app_model.context._context_keys import (
     MISSING,
     ContextKey,
     ContextKeyInfo,
