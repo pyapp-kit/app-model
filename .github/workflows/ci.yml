@@ -45,12 +45,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install setuptools tox tox-gh-actions
+          python -m pip install -e .[test]
 
-      - name: Test with tox
-        run: python -m tox
-        env:
-          PLATFORM: ${{ matrix.platform }}
+      - name: Test
+        run: pytest -v -s --cov=app_model --cov-report=xml --color=yes
 
       - name: Coverage
         uses: codecov/codecov-action@v3
@@ -63,7 +61,7 @@ jobs:
       matrix:
         python-version: ["3.8", "3.10"]
         platform: [macos-latest]
-        qt-backend: [pyqt5, pyqt6, pyside2, pyside6]
+        qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
 
     steps:
       - uses: actions/checkout@v3
@@ -76,17 +74,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install setuptools tox tox-gh-actions
+          python -m pip install -e .[test,test_qt]
+          python -m pip install $${{ matrix.qt-backend }}
 
-      - name: Test with tox
-        run: python -m tox
-        env:
-          PLATFORM: ${{ matrix.platform }}
-          BACKEND: ${{ matrix.qt-backend }}
+      - name: Test
+        run: pytest -v -s --cov=app_model --cov-report=xml --color=yes
+
+      - name: Coverage
+        uses: codecov/codecov-action@v3
 
   deploy:
     name: Deploy
-    needs: test
+    needs: [check-manifest,test,test_qt]
     if: "success() && startsWith(github.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
 
@@ -116,21 +115,3 @@ jobs:
       - uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
-
-  # [WIP]
-  # https://python-semantic-release.readthedocs.io/en/latest/automatic-releases/github-actions.html
-  # release:
-  #   runs-on: ubuntu-latest
-  #   concurrency: release
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #     with:
-  #       fetch-depth: 0
-
-  #   - name: Python Semantic Release
-  #     uses: relekang/python-semantic-release@master
-  #     with:
-  #       github_token: ${{ secrets.GITHUB_TOKEN }}
-  #       repository_username: __token__
-  #       repository_password: ${{ secrets.TWINE_API_KEY }}
