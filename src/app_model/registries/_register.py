@@ -231,4 +231,5 @@ def _register_action_obj(
         for d in disposers:
             d()
 
+    app._disposers.append((action.id, _dispose))
     return _dispose

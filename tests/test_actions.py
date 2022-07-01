@@ -1,4 +1,3 @@
-from typing import Callable, Optional
 from unittest.mock import Mock
 
 import pytest
@@ -47,7 +46,6 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     assert not list(app.keybindings)
     assert not list(app.menus)
 
-    dispose: Optional[Callable] = None
     cmd_id = CommandIdStr("cmd.id")
     kwargs["title"] = "Test title"
 
@@ -66,11 +64,11 @@ def test_register_action_decorator(kwargs, app: Application, mode):
             return "hi"
 
         if mode == "str":
-            dispose = app.register_action(cmd_id, run=f2, **kwargs)
+            app.register_action(cmd_id, run=f2, **kwargs)
 
         elif mode == "action":
             action = Action(id=cmd_id, run=f2, **kwargs)
-            dispose = app.register_action(action)
+            app.register_action(action)
 
     # make sure the command is registered
     assert cmd_id in app.commands
@@ -98,17 +96,14 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     else:
         assert not list(app.keybindings)
 
-    # if we're not using the decorator, check that calling the dispose
-    # function removes everything.  (the decorator returns the function, so can't
-    # return the dispose function)
-    if dispose:
-        dispose()
-        assert not list(app.commands)
-        assert not list(app.keybindings)
-        assert not list(app.menus)
+    # check that calling the dispose function removes everything.
+    app.dispose()
+    assert not list(app.commands)
+    assert not list(app.keybindings)
+    assert not list(app.menus)
 
 
-def test_errors(app):
+def test_errors(app: Application):
     with pytest.raises(ValueError, match="'title' is required"):
         app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):

@@ -88,6 +88,7 @@ D100  # missing docstring in public module
 D105  # missing docstring in magic method
 D401  # imperative mood
 W503  # line break before binary operator
+B010
 """
 per-file-ignores = [
     "tests/*: D",
