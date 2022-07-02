@@ -1,5 +1,5 @@
 from enum import IntEnum, auto
-from typing import Dict, Final, NamedTuple, Set
+from typing import Callable, Dict, NamedTuple, Set, Tuple, Type
 
 # flake8: noqa
 # fmt: off
@@ -125,6 +125,17 @@ class KeyCode(IntEnum):
     F12 = auto()
     ScrollLock = auto()
     PauseBreak = auto()
+
+    def __str__(self) -> str:
+        return keycode_to_string(self)
+
+    @classmethod
+    def from_string(cls, string: str) -> 'KeyCode':
+        """Return the KeyCode associated with the given string.
+
+        Returns KeyCode.UNKOWN if no KeyCode is associated with the string.
+        """
+        return keycode_from_string(string)
 
 
 class ScanCode(IntEnum):
@@ -335,175 +346,222 @@ class ScanCode(IntEnum):
     # https://w3c.github.io/uievents-code/#key-legacy
     # none of these are required to conform to the spec, and are omitted for now
 
+    def __str__(self) -> str:
+        return scancode_to_string(self)
 
-class _KM(NamedTuple):
-    scancode: ScanCode
-    scanstr: str
-    keycode: KeyCode
-    keystr: str
-    eventcode: int
-    virtual_key: str
+    @classmethod
+    def from_string(cls, string: str) -> 'ScanCode':
+        """Return the KeyCode associated with the given string.
 
-_: Final = ''
-_MAPPINGS = [
-		_KM(ScanCode.UNIDENTIFIED, 'None', KeyCode.UNKOWN, 'unknown', 0, 'VK_UNKNOWN'),
-		_KM(ScanCode.KeyA, 'KeyA', KeyCode.KeyA, 'A', 65, 'VK_A'),
-		_KM(ScanCode.KeyB, 'KeyB', KeyCode.KeyB, 'B', 66, 'VK_B'),
-		_KM(ScanCode.KeyC, 'KeyC', KeyCode.KeyC, 'C', 67, 'VK_C'),
-		_KM(ScanCode.KeyD, 'KeyD', KeyCode.KeyD, 'D', 68, 'VK_D'),
-		_KM(ScanCode.KeyE, 'KeyE', KeyCode.KeyE, 'E', 69, 'VK_E'),
-		_KM(ScanCode.KeyF, 'KeyF', KeyCode.KeyF, 'F', 70, 'VK_F'),
-		_KM(ScanCode.KeyG, 'KeyG', KeyCode.KeyG, 'G', 71, 'VK_G'),
-		_KM(ScanCode.KeyH, 'KeyH', KeyCode.KeyH, 'H', 72, 'VK_H'),
-		_KM(ScanCode.KeyI, 'KeyI', KeyCode.KeyI, 'I', 73, 'VK_I'),
-		_KM(ScanCode.KeyJ, 'KeyJ', KeyCode.KeyJ, 'J', 74, 'VK_J'),
-		_KM(ScanCode.KeyK, 'KeyK', KeyCode.KeyK, 'K', 75, 'VK_K'),
-		_KM(ScanCode.KeyL, 'KeyL', KeyCode.KeyL, 'L', 76, 'VK_L'),
-		_KM(ScanCode.KeyM, 'KeyM', KeyCode.KeyM, 'M', 77, 'VK_M'),
-		_KM(ScanCode.KeyN, 'KeyN', KeyCode.KeyN, 'N', 78, 'VK_N'),
-		_KM(ScanCode.KeyO, 'KeyO', KeyCode.KeyO, 'O', 79, 'VK_O'),
-		_KM(ScanCode.KeyP, 'KeyP', KeyCode.KeyP, 'P', 80, 'VK_P'),
-		_KM(ScanCode.KeyQ, 'KeyQ', KeyCode.KeyQ, 'Q', 81, 'VK_Q'),
-		_KM(ScanCode.KeyR, 'KeyR', KeyCode.KeyR, 'R', 82, 'VK_R'),
-		_KM(ScanCode.KeyS, 'KeyS', KeyCode.KeyS, 'S', 83, 'VK_S'),
-		_KM(ScanCode.KeyT, 'KeyT', KeyCode.KeyT, 'T', 84, 'VK_T'),
-		_KM(ScanCode.KeyU, 'KeyU', KeyCode.KeyU, 'U', 85, 'VK_U'),
-		_KM(ScanCode.KeyV, 'KeyV', KeyCode.KeyV, 'V', 86, 'VK_V'),
-		_KM(ScanCode.KeyW, 'KeyW', KeyCode.KeyW, 'W', 87, 'VK_W'),
-		_KM(ScanCode.KeyX, 'KeyX', KeyCode.KeyX, 'X', 88, 'VK_X'),
-		_KM(ScanCode.KeyY, 'KeyY', KeyCode.KeyY, 'Y', 89, 'VK_Y'),
-		_KM(ScanCode.KeyZ, 'KeyZ', KeyCode.KeyZ, 'Z', 90, 'VK_Z'),
-		_KM(ScanCode.Digit1, 'Digit1', KeyCode.Digit1, '1', 49, 'VK_1'),
-		_KM(ScanCode.Digit2, 'Digit2', KeyCode.Digit2, '2', 50, 'VK_2'),
-		_KM(ScanCode.Digit3, 'Digit3', KeyCode.Digit3, '3', 51, 'VK_3'),
-		_KM(ScanCode.Digit4, 'Digit4', KeyCode.Digit4, '4', 52, 'VK_4'),
-		_KM(ScanCode.Digit5, 'Digit5', KeyCode.Digit5, '5', 53, 'VK_5'),
-		_KM(ScanCode.Digit6, 'Digit6', KeyCode.Digit6, '6', 54, 'VK_6'),
-		_KM(ScanCode.Digit7, 'Digit7', KeyCode.Digit7, '7', 55, 'VK_7'),
-		_KM(ScanCode.Digit8, 'Digit8', KeyCode.Digit8, '8', 56, 'VK_8'),
-		_KM(ScanCode.Digit9, 'Digit9', KeyCode.Digit9, '9', 57, 'VK_9'),
-		_KM(ScanCode.Digit0, 'Digit0', KeyCode.Digit0, '0', 48, 'VK_0'),
-		_KM(ScanCode.Enter, 'Enter', KeyCode.Enter, 'Enter', 13, 'VK_RETURN'),
-		_KM(ScanCode.Escape, 'Escape', KeyCode.Escape, 'Escape', 27, 'VK_ESCAPE'),
-		_KM(ScanCode.Backspace, 'Backspace', KeyCode.Backspace, 'Backspace', 8, 'VK_BACK'),
-		_KM(ScanCode.Tab, 'Tab', KeyCode.Tab, 'Tab', 9, 'VK_TAB'),
-		_KM(ScanCode.Space, 'Space', KeyCode.Space, 'Space', 32, 'VK_SPACE'),
-		_KM(ScanCode.Minus, 'Minus', KeyCode.Minus, '-', 189, 'VK_OEM_MINUS'),
-		_KM(ScanCode.Equal, 'Equal', KeyCode.Equal, '=', 187, 'VK_OEM_PLUS'),
-		_KM(ScanCode.BracketLeft, 'BracketLeft', KeyCode.BracketLeft, '[', 219, 'VK_OEM_4'),
-		_KM(ScanCode.BracketRight, 'BracketRight', KeyCode.BracketRight, ']', 221, 'VK_OEM_6'),
-		_KM(ScanCode.Backslash, 'Backslash', KeyCode.Backslash, '\\', 220, 'VK_OEM_5'),
-		_KM(ScanCode.Semicolon, 'Semicolon', KeyCode.Semicolon, ';', 186, 'VK_OEM_1'),
-		_KM(ScanCode.Quote, 'Quote', KeyCode.Quote, "'", 222, 'VK_OEM_7'),
-		_KM(ScanCode.Backquote, 'Backquote', KeyCode.Backquote, '`', 192, 'VK_OEM_3'),
-		_KM(ScanCode.Comma, 'Comma', KeyCode.Comma, ',', 188, 'VK_OEM_COMMA'),
-		_KM(ScanCode.Period, 'Period', KeyCode.Period, '.', 190, 'VK_OEM_PERIOD'),
-		_KM(ScanCode.Slash, 'Slash', KeyCode.Slash, '/', 191, 'VK_OEM_2'),
-		_KM(ScanCode.CapsLock, 'CapsLock', KeyCode.CapsLock, 'CapsLock', 20, 'VK_CAPITAL'),
-		_KM(ScanCode.F1, 'F1', KeyCode.F1, 'F1', 112, 'VK_F1'),
-		_KM(ScanCode.F2, 'F2', KeyCode.F2, 'F2', 113, 'VK_F2'),
-		_KM(ScanCode.F3, 'F3', KeyCode.F3, 'F3', 114, 'VK_F3'),
-		_KM(ScanCode.F4, 'F4', KeyCode.F4, 'F4', 115, 'VK_F4'),
-		_KM(ScanCode.F5, 'F5', KeyCode.F5, 'F5', 116, 'VK_F5'),
-		_KM(ScanCode.F6, 'F6', KeyCode.F6, 'F6', 117, 'VK_F6'),
-		_KM(ScanCode.F7, 'F7', KeyCode.F7, 'F7', 118, 'VK_F7'),
-		_KM(ScanCode.F8, 'F8', KeyCode.F8, 'F8', 119, 'VK_F8'),
-		_KM(ScanCode.F9, 'F9', KeyCode.F9, 'F9', 120, 'VK_F9'),
-		_KM(ScanCode.F10, 'F10', KeyCode.F10, 'F10', 121, 'VK_F10'),
-		_KM(ScanCode.F11, 'F11', KeyCode.F11, 'F11', 122, 'VK_F11'),
-		_KM(ScanCode.F12, 'F12', KeyCode.F12, 'F12', 123, 'VK_F12'),
-		_KM(ScanCode.PrintScreen, 'PrintScreen', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.ScrollLock, 'ScrollLock', KeyCode.ScrollLock, 'ScrollLock', 145, 'VK_SCROLL'),
-		_KM(ScanCode.Pause, 'Pause', KeyCode.PauseBreak, 'PauseBreak', 19, 'VK_PAUSE'),
-		_KM(ScanCode.Insert, 'Insert', KeyCode.Insert, 'Insert', 45, 'VK_INSERT'),
-		_KM(ScanCode.Home, 'Home', KeyCode.Home, 'Home', 36, 'VK_HOME'),
-		_KM(ScanCode.PageUp, 'PageUp', KeyCode.PageUp, 'PageUp', 33, 'VK_PRIOR'),
-		_KM(ScanCode.Delete, 'Delete', KeyCode.Delete, 'Delete', 46, 'VK_DELETE'),
-		_KM(ScanCode.End, 'End', KeyCode.End, 'End', 35, 'VK_END'),
-		_KM(ScanCode.PageDown, 'PageDown', KeyCode.PageDown, 'PageDown', 34, 'VK_NEXT'),
-		_KM(ScanCode.ArrowRight, 'ArrowRight', KeyCode.RightArrow, 'RightArrow', 39, 'VK_RIGHT'),
-		_KM(ScanCode.ArrowLeft, 'ArrowLeft', KeyCode.LeftArrow, 'LeftArrow', 37, 'VK_LEFT'),
-		_KM(ScanCode.ArrowDown, 'ArrowDown', KeyCode.DownArrow, 'DownArrow', 40, 'VK_DOWN'),
-		_KM(ScanCode.ArrowUp, 'ArrowUp', KeyCode.UpArrow, 'UpArrow', 38, 'VK_UP'),
-		_KM(ScanCode.NumLock, 'NumLock', KeyCode.NumLock, 'NumLock', 144, 'VK_NUMLOCK'),
-		_KM(ScanCode.NumpadDivide, 'NumpadDivide', KeyCode.NumpadDivide, 'NumPad_Divide', 111, 'VK_DIVIDE'),
-		_KM(ScanCode.NumpadMultiply, 'NumpadMultiply', KeyCode.NumpadMultiply, 'NumPad_Multiply', 106, 'VK_MULTIPLY'),
-		_KM(ScanCode.NumpadSubtract, 'NumpadSubtract', KeyCode.NumpadSubtract, 'NumPad_Subtract', 109, 'VK_SUBTRACT'),
-		_KM(ScanCode.NumpadAdd, 'NumpadAdd', KeyCode.NumpadAdd, 'NumPad_Add', 107, 'VK_ADD'),
-		_KM(ScanCode.NumpadEnter, 'NumpadEnter', KeyCode.Enter, _, 0, _),
-		_KM(ScanCode.Numpad1, 'Numpad1', KeyCode.Numpad1, 'NumPad1', 97, 'VK_NUMPAD1'),
-		_KM(ScanCode.Numpad2, 'Numpad2', KeyCode.Numpad2, 'NumPad2', 98, 'VK_NUMPAD2'),
-		_KM(ScanCode.Numpad3, 'Numpad3', KeyCode.Numpad3, 'NumPad3', 99, 'VK_NUMPAD3'),
-		_KM(ScanCode.Numpad4, 'Numpad4', KeyCode.Numpad4, 'NumPad4', 100, 'VK_NUMPAD4'),
-		_KM(ScanCode.Numpad5, 'Numpad5', KeyCode.Numpad5, 'NumPad5', 101, 'VK_NUMPAD5'),
-		_KM(ScanCode.Numpad6, 'Numpad6', KeyCode.Numpad6, 'NumPad6', 102, 'VK_NUMPAD6'),
-		_KM(ScanCode.Numpad7, 'Numpad7', KeyCode.Numpad7, 'NumPad7', 103, 'VK_NUMPAD7'),
-		_KM(ScanCode.Numpad8, 'Numpad8', KeyCode.Numpad8, 'NumPad8', 104, 'VK_NUMPAD8'),
-		_KM(ScanCode.Numpad9, 'Numpad9', KeyCode.Numpad9, 'NumPad9', 105, 'VK_NUMPAD9'),
-		_KM(ScanCode.Numpad0, 'Numpad0', KeyCode.Numpad0, 'NumPad0', 96, 'VK_NUMPAD0'),
-		_KM(ScanCode.NumpadDecimal, 'NumpadDecimal', KeyCode.NumpadDecimal, 'NumPad_Decimal', 110, 'VK_DECIMAL'),
-		_KM(ScanCode.IntlBackslash, 'IntlBackslash', KeyCode.IntlBackslash, 'OEM_102', 226, 'VK_OEM_102'),
-		_KM(ScanCode.ContextMenu, 'ContextMenu', KeyCode.ContextMenu, 'ContextMenu', 93, _),
-		_KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.Help, 'Help', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.Convert, 'Convert', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.NonConvert, 'NonConvert', KeyCode.UNKOWN, _, 0, _),
-		_KM(ScanCode.UNIDENTIFIED, _, KeyCode.Ctrl, 'Ctrl', 17, 'VK_CONTROL'),
-		_KM(ScanCode.UNIDENTIFIED, _, KeyCode.Shift, 'Shift', 16, 'VK_SHIFT'),
-		_KM(ScanCode.UNIDENTIFIED, _, KeyCode.Alt, 'Alt', 18, 'VK_MENU'),
-		_KM(ScanCode.UNIDENTIFIED, _, KeyCode.Meta, 'Meta', 0, 'VK_COMMAND'),
-		_KM(ScanCode.ControlLeft, 'ControlLeft', KeyCode.Ctrl, _, 0, 'VK_LCONTROL'),
-		_KM(ScanCode.ShiftLeft, 'ShiftLeft', KeyCode.Shift, _, 0, 'VK_LSHIFT'),
-		_KM(ScanCode.AltLeft, 'AltLeft', KeyCode.Alt, _, 0, 'VK_LMENU'),
-		_KM(ScanCode.MetaLeft, 'MetaLeft', KeyCode.Meta, _, 0, 'VK_LWIN'),
-		_KM(ScanCode.ControlRight, 'ControlRight', KeyCode.Ctrl, _, 0, 'VK_RCONTROL'),
-		_KM(ScanCode.ShiftRight, 'ShiftRight', KeyCode.Shift, _, 0, 'VK_RSHIFT'),
-		_KM(ScanCode.AltRight, 'AltRight', KeyCode.Alt, _, 0, 'VK_RMENU'),
-		_KM(ScanCode.MetaRight, 'MetaRight', KeyCode.Meta, _, 0, 'VK_RWIN'),
-]
-
-# fmt: on
-
-SCANCODE_TO_STRING: Dict[ScanCode, str] = {}
-SCANCODE_FROM_STRING: Dict[str, ScanCode] = {}
-SCANCODE_FROM_LOWERCASE_STRING: Dict[str, ScanCode] = {}
-
-KEYCODE_TO_STRING: Dict[KeyCode, str] = {}
-KEYCODE_FROM_STRING: Dict[str, KeyCode] = {}
-KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {}
-
-EVENTCODE_TO_KEYCODE: Dict[int, KeyCode] = {}
-NATIVE_WINDOWS_VK_TO_KEYCODE: Dict[str, KeyCode] = {}
+        Returns ScanCode.UNIDENTIFIED if no match is found.
+        """
+        return scancode_from_string(string)
 
 
-def _make_maps():
+
+
+_EVENTCODE_TO_KEYCODE: Dict[int, KeyCode] = {}
+_NATIVE_WINDOWS_VK_TO_KEYCODE: Dict[str, KeyCode] = {}
+
+
+# build in a closure to prevent modification and declutter namespace
+def _build_maps() -> Tuple[
+    Callable[[KeyCode], str],
+    Callable[[str], KeyCode],
+    Callable[[ScanCode], str],
+    Callable[[str], ScanCode],
+]:
+    class _KM(NamedTuple):
+        scancode: ScanCode
+        scanstr: str
+        keycode: KeyCode
+        keystr: str
+        eventcode: int
+        virtual_key: str
+
+    _ = ''
+    _MAPPINGS = [
+        _KM(ScanCode.UNIDENTIFIED, 'None', KeyCode.UNKOWN, 'unknown', 0, 'VK_UNKNOWN'),
+        _KM(ScanCode.KeyA, 'KeyA', KeyCode.KeyA, 'A', 65, 'VK_A'),
+        _KM(ScanCode.KeyB, 'KeyB', KeyCode.KeyB, 'B', 66, 'VK_B'),
+        _KM(ScanCode.KeyC, 'KeyC', KeyCode.KeyC, 'C', 67, 'VK_C'),
+        _KM(ScanCode.KeyD, 'KeyD', KeyCode.KeyD, 'D', 68, 'VK_D'),
+        _KM(ScanCode.KeyE, 'KeyE', KeyCode.KeyE, 'E', 69, 'VK_E'),
+        _KM(ScanCode.KeyF, 'KeyF', KeyCode.KeyF, 'F', 70, 'VK_F'),
+        _KM(ScanCode.KeyG, 'KeyG', KeyCode.KeyG, 'G', 71, 'VK_G'),
+        _KM(ScanCode.KeyH, 'KeyH', KeyCode.KeyH, 'H', 72, 'VK_H'),
+        _KM(ScanCode.KeyI, 'KeyI', KeyCode.KeyI, 'I', 73, 'VK_I'),
+        _KM(ScanCode.KeyJ, 'KeyJ', KeyCode.KeyJ, 'J', 74, 'VK_J'),
+        _KM(ScanCode.KeyK, 'KeyK', KeyCode.KeyK, 'K', 75, 'VK_K'),
+        _KM(ScanCode.KeyL, 'KeyL', KeyCode.KeyL, 'L', 76, 'VK_L'),
+        _KM(ScanCode.KeyM, 'KeyM', KeyCode.KeyM, 'M', 77, 'VK_M'),
+        _KM(ScanCode.KeyN, 'KeyN', KeyCode.KeyN, 'N', 78, 'VK_N'),
+        _KM(ScanCode.KeyO, 'KeyO', KeyCode.KeyO, 'O', 79, 'VK_O'),
+        _KM(ScanCode.KeyP, 'KeyP', KeyCode.KeyP, 'P', 80, 'VK_P'),
+        _KM(ScanCode.KeyQ, 'KeyQ', KeyCode.KeyQ, 'Q', 81, 'VK_Q'),
+        _KM(ScanCode.KeyR, 'KeyR', KeyCode.KeyR, 'R', 82, 'VK_R'),
+        _KM(ScanCode.KeyS, 'KeyS', KeyCode.KeyS, 'S', 83, 'VK_S'),
+        _KM(ScanCode.KeyT, 'KeyT', KeyCode.KeyT, 'T', 84, 'VK_T'),
+        _KM(ScanCode.KeyU, 'KeyU', KeyCode.KeyU, 'U', 85, 'VK_U'),
+        _KM(ScanCode.KeyV, 'KeyV', KeyCode.KeyV, 'V', 86, 'VK_V'),
+        _KM(ScanCode.KeyW, 'KeyW', KeyCode.KeyW, 'W', 87, 'VK_W'),
+        _KM(ScanCode.KeyX, 'KeyX', KeyCode.KeyX, 'X', 88, 'VK_X'),
+        _KM(ScanCode.KeyY, 'KeyY', KeyCode.KeyY, 'Y', 89, 'VK_Y'),
+        _KM(ScanCode.KeyZ, 'KeyZ', KeyCode.KeyZ, 'Z', 90, 'VK_Z'),
+        _KM(ScanCode.Digit1, 'Digit1', KeyCode.Digit1, '1', 49, 'VK_1'),
+        _KM(ScanCode.Digit2, 'Digit2', KeyCode.Digit2, '2', 50, 'VK_2'),
+        _KM(ScanCode.Digit3, 'Digit3', KeyCode.Digit3, '3', 51, 'VK_3'),
+        _KM(ScanCode.Digit4, 'Digit4', KeyCode.Digit4, '4', 52, 'VK_4'),
+        _KM(ScanCode.Digit5, 'Digit5', KeyCode.Digit5, '5', 53, 'VK_5'),
+        _KM(ScanCode.Digit6, 'Digit6', KeyCode.Digit6, '6', 54, 'VK_6'),
+        _KM(ScanCode.Digit7, 'Digit7', KeyCode.Digit7, '7', 55, 'VK_7'),
+        _KM(ScanCode.Digit8, 'Digit8', KeyCode.Digit8, '8', 56, 'VK_8'),
+        _KM(ScanCode.Digit9, 'Digit9', KeyCode.Digit9, '9', 57, 'VK_9'),
+        _KM(ScanCode.Digit0, 'Digit0', KeyCode.Digit0, '0', 48, 'VK_0'),
+        _KM(ScanCode.Enter, 'Enter', KeyCode.Enter, 'Enter', 13, 'VK_RETURN'),
+        _KM(ScanCode.Escape, 'Escape', KeyCode.Escape, 'Escape', 27, 'VK_ESCAPE'),
+        _KM(ScanCode.Backspace, 'Backspace', KeyCode.Backspace, 'Backspace', 8, 'VK_BACK'),
+        _KM(ScanCode.Tab, 'Tab', KeyCode.Tab, 'Tab', 9, 'VK_TAB'),
+        _KM(ScanCode.Space, 'Space', KeyCode.Space, 'Space', 32, 'VK_SPACE'),
+        _KM(ScanCode.Minus, 'Minus', KeyCode.Minus, '-', 189, 'VK_OEM_MINUS'),
+        _KM(ScanCode.Equal, 'Equal', KeyCode.Equal, '=', 187, 'VK_OEM_PLUS'),
+        _KM(ScanCode.BracketLeft, 'BracketLeft', KeyCode.BracketLeft, '[', 219, 'VK_OEM_4'),
+        _KM(ScanCode.BracketRight, 'BracketRight', KeyCode.BracketRight, ']', 221, 'VK_OEM_6'),
+        _KM(ScanCode.Backslash, 'Backslash', KeyCode.Backslash, '\\', 220, 'VK_OEM_5'),
+        _KM(ScanCode.Semicolon, 'Semicolon', KeyCode.Semicolon, ';', 186, 'VK_OEM_1'),
+        _KM(ScanCode.Quote, 'Quote', KeyCode.Quote, "'", 222, 'VK_OEM_7'),
+        _KM(ScanCode.Backquote, 'Backquote', KeyCode.Backquote, '`', 192, 'VK_OEM_3'),
+        _KM(ScanCode.Comma, 'Comma', KeyCode.Comma, ',', 188, 'VK_OEM_COMMA'),
+        _KM(ScanCode.Period, 'Period', KeyCode.Period, '.', 190, 'VK_OEM_PERIOD'),
+        _KM(ScanCode.Slash, 'Slash', KeyCode.Slash, '/', 191, 'VK_OEM_2'),
+        _KM(ScanCode.CapsLock, 'CapsLock', KeyCode.CapsLock, 'CapsLock', 20, 'VK_CAPITAL'),
+        _KM(ScanCode.F1, 'F1', KeyCode.F1, 'F1', 112, 'VK_F1'),
+        _KM(ScanCode.F2, 'F2', KeyCode.F2, 'F2', 113, 'VK_F2'),
+        _KM(ScanCode.F3, 'F3', KeyCode.F3, 'F3', 114, 'VK_F3'),
+        _KM(ScanCode.F4, 'F4', KeyCode.F4, 'F4', 115, 'VK_F4'),
+        _KM(ScanCode.F5, 'F5', KeyCode.F5, 'F5', 116, 'VK_F5'),
+        _KM(ScanCode.F6, 'F6', KeyCode.F6, 'F6', 117, 'VK_F6'),
+        _KM(ScanCode.F7, 'F7', KeyCode.F7, 'F7', 118, 'VK_F7'),
+        _KM(ScanCode.F8, 'F8', KeyCode.F8, 'F8', 119, 'VK_F8'),
+        _KM(ScanCode.F9, 'F9', KeyCode.F9, 'F9', 120, 'VK_F9'),
+        _KM(ScanCode.F10, 'F10', KeyCode.F10, 'F10', 121, 'VK_F10'),
+        _KM(ScanCode.F11, 'F11', KeyCode.F11, 'F11', 122, 'VK_F11'),
+        _KM(ScanCode.F12, 'F12', KeyCode.F12, 'F12', 123, 'VK_F12'),
+        _KM(ScanCode.PrintScreen, 'PrintScreen', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.ScrollLock, 'ScrollLock', KeyCode.ScrollLock, 'ScrollLock', 145, 'VK_SCROLL'),
+        _KM(ScanCode.Pause, 'Pause', KeyCode.PauseBreak, 'PauseBreak', 19, 'VK_PAUSE'),
+        _KM(ScanCode.Insert, 'Insert', KeyCode.Insert, 'Insert', 45, 'VK_INSERT'),
+        _KM(ScanCode.Home, 'Home', KeyCode.Home, 'Home', 36, 'VK_HOME'),
+        _KM(ScanCode.PageUp, 'PageUp', KeyCode.PageUp, 'PageUp', 33, 'VK_PRIOR'),
+        _KM(ScanCode.Delete, 'Delete', KeyCode.Delete, 'Delete', 46, 'VK_DELETE'),
+        _KM(ScanCode.End, 'End', KeyCode.End, 'End', 35, 'VK_END'),
+        _KM(ScanCode.PageDown, 'PageDown', KeyCode.PageDown, 'PageDown', 34, 'VK_NEXT'),
+        _KM(ScanCode.ArrowRight, 'ArrowRight', KeyCode.RightArrow, 'RightArrow', 39, 'VK_RIGHT'),
+        _KM(ScanCode.ArrowLeft, 'ArrowLeft', KeyCode.LeftArrow, 'LeftArrow', 37, 'VK_LEFT'),
+        _KM(ScanCode.ArrowDown, 'ArrowDown', KeyCode.DownArrow, 'DownArrow', 40, 'VK_DOWN'),
+        _KM(ScanCode.ArrowUp, 'ArrowUp', KeyCode.UpArrow, 'UpArrow', 38, 'VK_UP'),
+        _KM(ScanCode.NumLock, 'NumLock', KeyCode.NumLock, 'NumLock', 144, 'VK_NUMLOCK'),
+        _KM(ScanCode.NumpadDivide, 'NumpadDivide', KeyCode.NumpadDivide, 'NumPad_Divide', 111, 'VK_DIVIDE'),
+        _KM(ScanCode.NumpadMultiply, 'NumpadMultiply', KeyCode.NumpadMultiply, 'NumPad_Multiply', 106, 'VK_MULTIPLY'),
+        _KM(ScanCode.NumpadSubtract, 'NumpadSubtract', KeyCode.NumpadSubtract, 'NumPad_Subtract', 109, 'VK_SUBTRACT'),
+        _KM(ScanCode.NumpadAdd, 'NumpadAdd', KeyCode.NumpadAdd, 'NumPad_Add', 107, 'VK_ADD'),
+        _KM(ScanCode.NumpadEnter, 'NumpadEnter', KeyCode.Enter, _, 0, _),
+        _KM(ScanCode.Numpad1, 'Numpad1', KeyCode.Numpad1, 'NumPad1', 97, 'VK_NUMPAD1'),
+        _KM(ScanCode.Numpad2, 'Numpad2', KeyCode.Numpad2, 'NumPad2', 98, 'VK_NUMPAD2'),
+        _KM(ScanCode.Numpad3, 'Numpad3', KeyCode.Numpad3, 'NumPad3', 99, 'VK_NUMPAD3'),
+        _KM(ScanCode.Numpad4, 'Numpad4', KeyCode.Numpad4, 'NumPad4', 100, 'VK_NUMPAD4'),
+        _KM(ScanCode.Numpad5, 'Numpad5', KeyCode.Numpad5, 'NumPad5', 101, 'VK_NUMPAD5'),
+        _KM(ScanCode.Numpad6, 'Numpad6', KeyCode.Numpad6, 'NumPad6', 102, 'VK_NUMPAD6'),
+        _KM(ScanCode.Numpad7, 'Numpad7', KeyCode.Numpad7, 'NumPad7', 103, 'VK_NUMPAD7'),
+        _KM(ScanCode.Numpad8, 'Numpad8', KeyCode.Numpad8, 'NumPad8', 104, 'VK_NUMPAD8'),
+        _KM(ScanCode.Numpad9, 'Numpad9', KeyCode.Numpad9, 'NumPad9', 105, 'VK_NUMPAD9'),
+        _KM(ScanCode.Numpad0, 'Numpad0', KeyCode.Numpad0, 'NumPad0', 96, 'VK_NUMPAD0'),
+        _KM(ScanCode.NumpadDecimal, 'NumpadDecimal', KeyCode.NumpadDecimal, 'NumPad_Decimal', 110, 'VK_DECIMAL'),
+        _KM(ScanCode.IntlBackslash, 'IntlBackslash', KeyCode.IntlBackslash, 'OEM_102', 226, 'VK_OEM_102'),
+        _KM(ScanCode.ContextMenu, 'ContextMenu', KeyCode.ContextMenu, 'ContextMenu', 93, _),
+        _KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.Help, 'Help', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.Convert, 'Convert', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.NonConvert, 'NonConvert', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Ctrl, 'Ctrl', 17, 'VK_CONTROL'),
+        _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Shift, 'Shift', 16, 'VK_SHIFT'),
+        _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Alt, 'Alt', 18, 'VK_MENU'),
+        _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Meta, 'Meta', 0, 'VK_COMMAND'),
+        _KM(ScanCode.ControlLeft, 'ControlLeft', KeyCode.Ctrl, _, 0, 'VK_LCONTROL'),
+        _KM(ScanCode.ShiftLeft, 'ShiftLeft', KeyCode.Shift, _, 0, 'VK_LSHIFT'),
+        _KM(ScanCode.AltLeft, 'AltLeft', KeyCode.Alt, _, 0, 'VK_LMENU'),
+        _KM(ScanCode.MetaLeft, 'MetaLeft', KeyCode.Meta, _, 0, 'VK_LWIN'),
+        _KM(ScanCode.ControlRight, 'ControlRight', KeyCode.Ctrl, _, 0, 'VK_RCONTROL'),
+        _KM(ScanCode.ShiftRight, 'ShiftRight', KeyCode.Shift, _, 0, 'VK_RSHIFT'),
+        _KM(ScanCode.AltRight, 'AltRight', KeyCode.Alt, _, 0, 'VK_RMENU'),
+        _KM(ScanCode.MetaRight, 'MetaRight', KeyCode.Meta, _, 0, 'VK_RWIN'),
+    ]
+
+    SCANCODE_TO_STRING: Dict[ScanCode, str] = {}
+    SCANCODE_FROM_LOWERCASE_STRING: Dict[str, ScanCode] = {}
+
+    KEYCODE_TO_STRING: Dict[KeyCode, str] = {}
+    KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {}
+
     seen_scancodes: Set[ScanCode] = set()
     seen_keycodes: Set[KeyCode] = set()
-    for km in _MAPPINGS:
+    for i, km in enumerate(_MAPPINGS):
         if km.scancode not in seen_scancodes:
             seen_scancodes.add(km.scancode)
             SCANCODE_TO_STRING[km.scancode] = km.scanstr
-            SCANCODE_FROM_STRING[km.scanstr] = km.scancode
             SCANCODE_FROM_LOWERCASE_STRING[km.scanstr.lower()] = km.scancode
         if km.keycode not in seen_keycodes:
             seen_keycodes.add(km.keycode)
-            if not km.keycode:
+            if not km.keystr:
                 raise ValueError(
-                    f"String representation missing for key code {km.keycode} "
-                    f"around scan code {km.scancode}"
+                    f"String representation missing for key code {km.keycode!r} "
+                    f"around scan code {km.scancode!r} at line {i + 1}"
                 )
             KEYCODE_TO_STRING[km.keycode] = km.keystr
-            KEYCODE_FROM_STRING[km.keystr] = km.keycode
             KEYCODE_FROM_LOWERCASE_STRING[km.keystr.lower()] = km.keycode
         if km.eventcode:
-            EVENTCODE_TO_KEYCODE[km.eventcode] = km.keycode
+            _EVENTCODE_TO_KEYCODE[km.eventcode] = km.keycode
         if km.virtual_key:
-            NATIVE_WINDOWS_VK_TO_KEYCODE[km.virtual_key] = km.keycode
+            _NATIVE_WINDOWS_VK_TO_KEYCODE[km.virtual_key] = km.keycode
+
+    def _keycode_to_string(keycode: KeyCode) -> str:
+        """Return the string representation of a KeyCode."""
+        # sourcery skip
+        return KEYCODE_TO_STRING.get(keycode, "")
+
+    def _keycode_from_string(keystr: str) -> KeyCode:
+        """Return KeyCode for a given string."""
+        # sourcery skip
+        return KEYCODE_FROM_LOWERCASE_STRING.get(str(keystr).lower(), KeyCode.UNKOWN)
+
+    def _scancode_to_string(scancode: ScanCode) -> str:
+        """Return the string representation of a ScanCode."""
+        # sourcery skip
+        return SCANCODE_TO_STRING.get(scancode, "")
+
+    def _scancode_from_string(scanstr: str) -> ScanCode:
+        """Return ScanCode for a given string."""
+        # sourcery skip
+        return SCANCODE_FROM_LOWERCASE_STRING.get(
+            str(scanstr).lower(), ScanCode.UNIDENTIFIED
+        )
+
+    return (
+        _keycode_to_string,
+        _keycode_from_string,
+        _scancode_to_string,
+        _scancode_from_string,
+    )
 
 
-_make_maps()
+(
+    keycode_to_string,
+    keycode_from_string,
+    scancode_to_string,
+    scancode_from_string,
+) = _build_maps()
 
 
 class KeyMod(IntEnum):
@@ -514,7 +572,7 @@ class KeyMod(IntEnum):
 
 
 class KeyChord(int):
-    def __new__(cls, first_part: int, second_part: int):
+    def __new__(cls: Type['KeyChord'], first_part: int, second_part: int) -> 'KeyChord':
         chord_part = ((second_part & 0x0000FFFF) << 16) >> 0
         obj = super().__new__(cls, (first_part | chord_part) >> 0)
         setattr(obj, "_chord_part", chord_part)

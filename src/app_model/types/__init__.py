@@ -2,6 +2,7 @@
 from ._action import Action
 from ._command import CommandIdStr, CommandRule
 from ._icon import Icon, IconCodeStr, IconOrDict
+from ._key_codes import KeyCode, ScanCode
 from ._keybinding import (
     KeybindingRule,
     KeybindingRuleDict,
@@ -28,6 +29,7 @@ __all__ = [
     "KeybindingRule",
     "KeybindingRuleDict",
     "KeybindingRuleOrDict",
+    "KeyCode",
     "KeyCodeStr",
     "MenuIdStr",
     "MenuItem",
@@ -35,5 +37,6 @@ __all__ = [
     "MenuRule",
     "MenuRuleDict",
     "MenuRuleOrDict",
+    "ScanCode",
     "SubmenuItem",
 ]
