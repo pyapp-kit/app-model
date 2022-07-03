@@ -1,5 +1,5 @@
 from enum import IntEnum, auto
-from typing import Callable, Dict, NamedTuple, Set, Tuple, Type
+from typing import Any, Callable, Dict, Generator, NamedTuple, Set, Tuple, Type
 
 __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
@@ -11,6 +11,8 @@ __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
 class KeyCode(IntEnum):
     """Virtual Key Codes, the value does not hold any inherent meaning.
+
+    This is the primary internal representation of a key.
     """
 
     DEPENDS_ON_KEYBOARD_LAYOUT = -1
@@ -141,6 +143,28 @@ class KeyCode(IntEnum):
         Returns KeyCode.UNKOWN if no KeyCode is associated with the string.
         """
         return keycode_from_string(string)
+
+    @classmethod
+    def from_event_code(cls, event_code: int) -> 'KeyCode':
+        """Return the KeyCode associated with the given event code.
+
+        Returns KeyCode.UNKOWN if no KeyCode is associated with the event code.
+        """
+        return _EVENTCODE_TO_KEYCODE.get(event_code, KeyCode.UNKOWN)
+
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable[..., 'KeyCode'], None, None]:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Any) -> 'KeyCode':
+        if isinstance(value, KeyCode):
+            return value
+        if isinstance(value, int):
+            return cls(value)
+        if isinstance(value, str):
+            return cls.from_string(value)
+        raise TypeError(f'cannot convert type {type(value)!r} to KeyCode')
 
 
 class ScanCode(IntEnum):

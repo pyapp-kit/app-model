@@ -123,6 +123,10 @@ pretty = true
 module = ["tests.*"]
 disallow_untyped_defs = false
 
+[[tool.mypy.overrides]]
+module = ["qtpy.*"]
+implicit_reexport = true
+
 [tool.coverage.run]
 source = ["app_model"]
 

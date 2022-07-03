@@ -1,10 +1,10 @@
 import re
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
 from .._constants import OperatingSystem
-from ._key_codes import KeyCode, KeyMod
+from ._key_codes import KeyChord, KeyCode, KeyMod
 
 _re_ctrl = re.compile(r"ctrl[\+|\-]")
 _re_shift = re.compile(r"shift[\+|\-]")
@@ -15,7 +15,7 @@ _re_cmd = re.compile(r"cmd[\+|\-]")
 
 
 class SimpleKeyBinding(BaseModel):
-    """Represent a simple key binding: Combination of key and modifier(s)."""
+    """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
 
     ctrl: bool = False
     shift: bool = False
@@ -51,22 +51,29 @@ class SimpleKeyBinding(BaseModel):
         return out
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ChordKeyBinding):
+        # sourcery skip: remove-unnecessary-cast
+        if not isinstance(other, SimpleKeyBinding):
             try:
-                other = ChordKeyBinding.validate(other)
+                other = SimpleKeyBinding.validate(other)
             except Exception:
                 return NotImplemented
-        return cast(bool, super().__eq__(other))
+        return bool(
+            self.ctrl == other.ctrl
+            and self.shift == other.shift
+            and self.alt == other.alt
+            and self.meta == other.meta
+            and self.key == other.key
+        )
 
     @classmethod
-    def parse_str(cls, key_str: str) -> "SimpleKeyBinding":
+    def from_str(cls, key_str: str) -> "SimpleKeyBinding":
         """Parse a string into a SimpleKeyBinding."""
         mods, remainder = _parse_modifiers(key_str.strip())
         key = KeyCode.from_string(remainder)
         return cls(**mods, key=key)
 
     @classmethod
-    def parse_int(
+    def from_int(
         cls, key_int: int, os: Optional[OperatingSystem] = None
     ) -> "SimpleKeyBinding":
         """Create a SimpleKeyBinding from an integer."""
@@ -82,6 +89,24 @@ class SimpleKeyBinding(BaseModel):
 
         return cls(ctrl=ctrl, shift=shift, alt=alt, meta=meta, key=key)
 
+    def __int__(self) -> int:
+        return int(self.to_int())
+
+    def to_int(self, os: Optional[OperatingSystem] = None) -> int:
+        """Convert this SimpleKeyBinding to an integer representation."""
+        os = OperatingSystem.current() if os is None else os
+
+        out = self.key or 0
+        if self.ctrl:
+            out |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd
+        if self.shift:
+            out |= KeyMod.Shift
+        if self.alt:
+            out |= KeyMod.Alt
+        if self.meta:
+            out |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
+        return out
+
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
         yield cls.validate
@@ -92,9 +117,9 @@ class SimpleKeyBinding(BaseModel):
         if isinstance(v, SimpleKeyBinding):
             return v
         if isinstance(v, str):
-            return cls.parse_str(v)
+            return cls.from_str(v)
         if isinstance(v, int):
-            return cls.parse_int(v)
+            return cls.from_int(v)
         if isinstance(v, dict):
             return cls(**v)
         raise TypeError(f"KeyBinding must be a string or a dict, not {type(v)}")
@@ -118,16 +143,16 @@ class ChordKeyBinding(BaseModel):
                 other = ChordKeyBinding.validate(other)
             except Exception:
                 return NotImplemented
-        return cast(bool, super().__eq__(other))
+        return super().__eq__(other)
 
     @classmethod
-    def parse_str(cls, key_str: str) -> "ChordKeyBinding":
+    def from_str(cls, key_str: str) -> "ChordKeyBinding":
         """Parse a string into a SimpleKeyBinding."""
-        parts = [SimpleKeyBinding.parse_str(part) for part in key_str.split()]
+        parts = [SimpleKeyBinding.from_str(part) for part in key_str.split()]
         return cls(parts=parts)
 
     @classmethod
-    def parse_int(
+    def from_int(
         cls, key_int: int, os: Optional[OperatingSystem] = None
     ) -> "ChordKeyBinding":
         """Create a ChordKeyBinding from an integer."""
@@ -136,11 +161,26 @@ class ChordKeyBinding(BaseModel):
         if chord_part != 0:
             return cls(
                 parts=[
-                    SimpleKeyBinding.parse_int(first_part, os),
-                    SimpleKeyBinding.parse_int(chord_part, os),
+                    SimpleKeyBinding.from_int(first_part, os),
+                    SimpleKeyBinding.from_int(chord_part, os),
                 ]
             )
-        return cls(parts=[SimpleKeyBinding.parse_int(first_part, os)])
+        return cls(parts=[SimpleKeyBinding.from_int(first_part, os)])
+
+    def to_int(self, os: Optional[OperatingSystem] = None) -> int:
+        """Convert this SimpleKeyBinding to an integer representation."""
+        if len(self.parts) > 2:
+            raise NotImplementedError(
+                "Cannot represent chords with more than 2 parts as int"
+            )
+        os = OperatingSystem.current() if os is None else os
+        parts = [part.to_int(os) for part in self.parts]
+        if len(parts) == 2:
+            return KeyChord(*parts)
+        return parts[0]
+
+    def __int__(self) -> int:
+        return int(self.to_int())
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
@@ -152,9 +192,9 @@ class ChordKeyBinding(BaseModel):
         if isinstance(v, ChordKeyBinding):
             return v
         if isinstance(v, int):
-            return cls.parse_int(v)
+            return cls.from_int(v)
         if isinstance(v, str):
-            return cls.parse_str(v)
+            return cls.from_str(v)
         if isinstance(v, dict):
             return cls(**v)
         raise TypeError(f"ChordKeyBinding must be a string or a dict, not {type(v)}")

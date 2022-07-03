@@ -1,8 +1,35 @@
+from typing import Dict
+
 from qtpy.QtCore import Qt
+from qtpy.QtGui import QKeySequence
 
-from ..types._keys._key_codes import KeyCode, KeyMod
+from ..types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
 
-KEY_TO_QT = {
+
+def _simple_kb_to_qkb(skb: SimpleKeyBinding) -> int:
+    out = KEY_TO_QT.get(skb.key, 0)  # type: ignore
+    if skb.ctrl:
+        out |= Qt.KeyboardModifier.ControlModifier
+    if skb.shift:
+        out |= Qt.KeyboardModifier.ShiftModifier
+    if skb.alt:
+        out |= Qt.KeyboardModifier.AltModifier
+    if skb.meta:
+        out |= Qt.KeyboardModifier.MetaModifier
+    return int(out)
+
+
+# maybe ~ 1.5x faster than:
+# QKeySequence.fromString(",".join(str(x) for x in kb.parts))
+class QKeyBindingSequence(QKeySequence):
+    """A QKeySequence based on a KeyBinding instance."""
+
+    def __init__(self, kb: KeyBinding) -> None:
+        ints = [_simple_kb_to_qkb(skb) for skb in kb.parts]
+        super().__init__(*ints)
+
+
+KEY_TO_QT: Dict[KeyCode, Qt.Key] = {
     KeyCode.DEPENDS_ON_KEYBOARD_LAYOUT: Qt.Key.Key_unknown,
     KeyCode.UNKOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,
