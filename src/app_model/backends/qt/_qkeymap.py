@@ -6,8 +6,8 @@ from qtpy import QT6
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
-from ..types._constants import OperatingSystem
-from ..types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
+from ...types._constants import OperatingSystem
+from ...types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
 
 QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
@@ -164,6 +164,8 @@ KEYMOD_TO_QT = {
     KeyMod.WinCtrl: Qt.KeyboardModifier.MetaModifier,
 }
 
+
+# unused/untested
 KEY_FROM_QT = {
     v.toCombined() if hasattr(v, "toCombined") else int(v): k
     for k, v in KEY_TO_QT.items()

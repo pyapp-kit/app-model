@@ -5,7 +5,7 @@ import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QAction, QMainWindow
 
-from app_model.qt import QModelMenu
+from app_model.backends.qt import QModelMenu
 
 if TYPE_CHECKING:
     from pytestqt.plugin import QtBot
