@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 from psygnal import Signal
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..types import CommandIdStr
 
     DisposeCallable = Callable[[], None]
-    CommandCallable = TypeVar("CommandCallable", bound=Callable)
+    CommandCallable = TypeVar("CommandCallable", bound=Union[Callable, str])
 
 
 class _RegisteredCommand:
@@ -28,12 +28,36 @@ class _RegisteredCommand:
         self.id = id
         self.callback = callback
         self.title = title
+        self._resolved_callback = callback if callable(callback) else None
+
+    @property
+    def resolved_callback(self) -> Callable:
+        if self._resolved_callback is None:
+            from ..types._utils import import_python_name
+
+            try:
+                self._resolved_callback = import_python_name(str(self.callback))
+            except ImportError as e:
+                self._resolved_callback = lambda *a, **k: None
+                raise type(e)(
+                    f"Command pointer {self.callback!r} registered for Command "
+                    f"{self.id!r} was not importable: {e}"
+                ) from e
+
+            if not callable(self._resolved_callback):
+                # don't try to import again, just create a no-op
+                self._resolved_callback = lambda *a, **k: None
+                raise TypeError(
+                    f"Command pointer {self.callback!r} registered for Command "
+                    f"{self.id!r} did not resolve to a callble object."
+                )
+        return self._resolved_callback
 
     @cached_property
     def run_injected(self) -> Callable:
         # from .._injection import inject_dependencies
         # return inject_dependencies(self.run)
-        return self.callback
+        return self.resolved_callback
 
 
 class CommandsRegistry:

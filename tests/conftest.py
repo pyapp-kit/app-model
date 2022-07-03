@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -11,6 +13,8 @@ try:
     UNDO_ICON = FA5S.undo
 except ImportError:
     UNDO_ICON = "fa5s.undo"
+
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 class Menus:
@@ -28,17 +32,44 @@ class Commands:
     PASTE = "paste"
     OPEN_FROM_A = "open.from_a"
     OPEN_FROM_B = "open.from_b"
+    UNIMPORTABLE = "unimportable"
+    NOT_CALLABLE = "not.callable"
+    RAISES = "raises.error"
+
+
+def _raise_an_error():
+    raise ValueError("This is an error")
 
 
 class Mocks:
     def __init__(self) -> None:
-        self.open = Mock(name=Commands.OPEN, side_effect=lambda: print("open"))
-        self.undo = Mock(name=Commands.UNDO, side_effect=lambda: print("undo"))
-        self.redo = Mock(name=Commands.REDO, side_effect=lambda: print("redo"))
-        self.copy = Mock(name=Commands.COPY, side_effect=lambda: print("copy"))
-        self.paste = Mock(name=Commands.PASTE, side_effect=lambda: print("paste"))
+        self.open = Mock(name=Commands.OPEN)
+        self.undo = Mock(name=Commands.UNDO)
+        self.copy = Mock(name=Commands.COPY)
+        self.paste = Mock(name=Commands.PASTE)
         self.open_from_a = Mock(name=Commands.OPEN_FROM_A)
         self.open_from_b = Mock(name=Commands.OPEN_FROM_B)
+
+    @property
+    def redo(self) -> Mock:
+        """This tests that we can lazily import a callback.
+
+        There is a function called `run_me` in fixtures/fake_module.py that calls the
+        global mock in that module.  In the redo action below, we declare:
+        `callback="fake_module:run_me"`
+
+        So, whenever the redo action is triggered, it should import that module, and
+        then call the mock.  We can also access it here at `mocks.redo`... but the
+        fixtures directory must be added to sys path during the test (as we do below)
+        """
+        try:
+            from fake_module import GLOBAL_MOCK  # noqa
+
+            return GLOBAL_MOCK
+        except ImportError as e:
+            raise ImportError(
+                "This mock must be run with the fixutres directory added to sys.path."
+            ) from e
 
 
 class FullApp(Application):
@@ -50,8 +81,8 @@ class FullApp(Application):
         self.mocks = Mocks()
 
 
-def build_app() -> Application:
-    app = FullApp("complete_test_app")
+def build_app(name: str = "complete_test_app") -> FullApp:
+    app = FullApp(name)
     app.menus.append_menu_items(
         [
             (
@@ -99,7 +130,7 @@ def build_app() -> Application:
             tooltip="Redo it!",
             icon="fa5s.redo",
             enablement="allow_undo_redo",
-            callback=app.mocks.redo,
+            callback="fake_module:run_me",  # this is a function in fixtures
             keybindings=[{"primary": "Ctrl+Shift+Z"}],
             menus=[
                 {
@@ -147,6 +178,21 @@ def build_app() -> Application:
             callback=app.mocks.open_from_b,
             menus=[{"id": Menus.FILE_OPEN_FROM}],
         ),
+        Action(
+            id=Commands.UNIMPORTABLE,
+            title="Can't be found",
+            callback="unresolvable:function",
+        ),
+        Action(
+            id=Commands.NOT_CALLABLE,
+            title="Will Never Work",
+            callback="fake_module:attr",
+        ),
+        Action(
+            id=Commands.RAISES,
+            title="Will raise an error",
+            callback=_raise_an_error,
+        ),
     ]
     for action in actions:
         app.register_action(action)
@@ -155,10 +201,17 @@ def build_app() -> Application:
 
 
 @pytest.fixture
-def full_app() -> Application:
+def full_app(monkeypatch) -> Application:
     """Premade application."""
-    app = build_app()
     try:
-        yield app
+        app = build_app()
+        with monkeypatch.context() as m:
+            # mock path to add fake_module
+            m.setattr(sys, "path", [str(FIXTURES)] + sys.path)
+            # make sure it's not already in sys.modules
+            sys.modules.pop("fake_module", None)
+            yield app
+            # clear the global mock if it's been called
+            app.mocks.redo.reset_mock()
     finally:
         Application.destroy("complete_test_app")
