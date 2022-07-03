@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
@@ -26,7 +26,7 @@ def _simple_kb_to_qkb(
         out |= Qt.KeyboardModifier.AltModifier
     if skb.meta:
         out |= QCTRL if os.is_mac else QMETA
-    return int(out)
+    return cast(int, out.toCombined()) if hasattr(out, "toCombined") else int(out)
 
 
 # maybe ~ 1.5x faster than:
