@@ -14,7 +14,7 @@ LINUX = sys.platform.startswith("linux")
 KeyCodeStr = NewType("KeyCodeStr", str)
 
 
-class KeybindingRule(_StrictModel):
+class KeyBindingRule(_StrictModel):
     """Data representing a keybinding and when it should be active.
 
     This model lacks a corresponding command. That gets linked up elsewhere,
@@ -53,7 +53,7 @@ class KeybindingRule(_StrictModel):
         return self.primary
 
 
-class KeybindingRuleDict(TypedDict, total=False):
+class KeyBindingRuleDict(TypedDict, total=False):
     """Typed dict for KeybindingRule kwargs."""
 
     primary: Optional[KeyCodeStr]
@@ -64,4 +64,4 @@ class KeybindingRuleDict(TypedDict, total=False):
     when: Optional[expressions.Expr]
 
 
-KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]
+KeyBindingRuleOrDict = Union[KeyBindingRule, KeyBindingRuleDict]

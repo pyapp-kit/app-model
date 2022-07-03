@@ -1,6 +1,11 @@
 from enum import IntEnum, auto
 from typing import Callable, Dict, NamedTuple, Set, Tuple, Type
 
+__all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
+
+# TODO:
+# https://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes/16125341#16125341
+
 # flake8: noqa
 # fmt: off
 
@@ -564,11 +569,26 @@ def _build_maps() -> Tuple[
 ) = _build_maps()
 
 
+
+# Keys with modifiers are expressed
+# with a 16-bit binary encoding
+#
+#    1111 11
+#    5432 1098 7654 3210
+#    ---- CSAW KKKK KKKK
+#  C = bit 11   -> ctrlCmd flag
+#  S = bit 10   -> shift flag
+#  A = bit 9    -> alt flag
+#  W = bit 8    -> winCtrl flag
+#  K = bits 0-7 -> key code
+
+
 class KeyMod(IntEnum):
-    WinCtrl = 2**8
-    Alt = 2**9
-    Shift = 2**10
-    CtrlCmd = 2**11
+    NONE = 0
+    CtrlCmd = 1<<11  # command on a mac, control on windows
+    Shift   = 1<<10  # shift key
+    Alt     = 1<<9   # alt option
+    WinCtrl = 1<<8   # meta key on windows, ctrl key on mac
 
 
 class KeyChord(int):

@@ -4,7 +4,7 @@ from pydantic import Field
 from typing_extensions import ParamSpec
 
 from ._command import CommandRule
-from ._keybinding import KeybindingRule
+from ._keybinding import KeyBindingRule
 from ._menu import MenuRule
 
 P = ParamSpec("P")
@@ -29,7 +29,7 @@ class Action(CommandRule, Generic[P, R]):
         None,
         description="(Optional) Menus to which this action should be added.",
     )
-    keybindings: Optional[List[KeybindingRule]] = Field(
+    keybindings: Optional[List[KeyBindingRule]] = Field(
         None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )

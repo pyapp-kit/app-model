@@ -2,13 +2,13 @@
 from ._action import Action
 from ._command import CommandIdStr, CommandRule
 from ._icon import Icon, IconCodeStr, IconOrDict
-from ._key_codes import KeyCode, ScanCode
 from ._keybinding import (
-    KeybindingRule,
-    KeybindingRuleDict,
-    KeybindingRuleOrDict,
+    KeyBindingRule,
+    KeyBindingRuleDict,
+    KeyBindingRuleOrDict,
     KeyCodeStr,
 )
+from ._keys import KeyBinding, KeyChord, KeyCode, KeyMod, SimpleKeyBinding
 from ._menu import (
     MenuIdStr,
     MenuItem,
@@ -26,11 +26,14 @@ __all__ = [
     "Icon",
     "IconCodeStr",
     "IconOrDict",
-    "KeybindingRule",
-    "KeybindingRuleDict",
-    "KeybindingRuleOrDict",
+    "KeyBinding",
+    "KeyBindingRule",
+    "KeyBindingRuleDict",
+    "KeyBindingRuleOrDict",
+    "KeyChord",
     "KeyCode",
     "KeyCodeStr",
+    "KeyMod",
     "MenuIdStr",
     "MenuItem",
     "MenuOrSubmenu",
@@ -38,5 +41,6 @@ __all__ = [
     "MenuRuleDict",
     "MenuRuleOrDict",
     "ScanCode",
+    "SimpleKeyBinding",
     "SubmenuItem",
 ]

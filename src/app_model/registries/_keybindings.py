@@ -71,3 +71,8 @@ class KeybindingsRegistry:
     def __repr__(self) -> str:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._keybindings)} bindings)>"
+
+    def get_keybinding(self, key: CommandIdStr) -> Optional[_RegisteredKeyBinding]:
+        return next(
+            (entry for entry in self._keybindings if entry.command_id == key), None
+        )
