@@ -115,7 +115,8 @@ class MenusRegistry:
         Iterator[List[MenuOrSubmenu]]
             Iterator of menu/submenu groups.
         """
-        yield from _sort_groups(self.get_menu(menu_id))
+        if menu_id in self:
+            yield from _sort_groups(self.get_menu(menu_id))
 
 
 def _sort_groups(
