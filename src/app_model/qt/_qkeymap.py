@@ -1,5 +1,8 @@
+import operator
+from functools import reduce
 from typing import Dict, Optional, cast
 
+from qtpy import QT6
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
@@ -9,33 +12,43 @@ from ..types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
 QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
 
+MAC = OperatingSystem.current().is_mac
+_QMOD_LOOKUP: Dict[str, Qt.KeyboardModifier] = {
+    "ctrl": QMETA if MAC else QCTRL,
+    "shift": Qt.KeyboardModifier.ShiftModifier,
+    "alt": Qt.KeyboardModifier.AltModifier,
+    "meta": QCTRL if MAC else QMETA,
+}
 
-def _simple_kb_to_qkb(
-    skb: SimpleKeyBinding, os: Optional[OperatingSystem] = None
-) -> int:
-    """Create Qt Key integer from a SimpleKeyBinding."""
-    os = OperatingSystem.current() if os is None else os
 
-    out = KEY_TO_QT.get(skb.key, 0)
+if QT6:
+    from qtpy.QtCore import QKeyCombination
 
-    if skb.ctrl:
-        out |= QMETA if os.is_mac else QCTRL
-    if skb.shift:
-        out |= Qt.KeyboardModifier.ShiftModifier
-    if skb.alt:
-        out |= Qt.KeyboardModifier.AltModifier
-    if skb.meta:
-        out |= QCTRL if os.is_mac else QMETA
-    return cast(int, out.toCombined()) if hasattr(out, "toCombined") else int(out)
+    def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
+        """Create Qt Key integer from a SimpleKeyBinding."""
+        key = KEY_TO_QT.get(skb.key, 0)
+        mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
+        combo = QKeyCombination(reduce(operator.or_, mods), key)
+        return cast(int, combo.toCombined())
+
+else:
+
+    def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
+        """Create Qt Key integer from a SimpleKeyBinding."""
+        out = KEY_TO_QT.get(skb.key, 0)
+        mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
+        out = reduce(operator.or_, mods, out)
+        return int(out)
 
 
 # maybe ~ 1.5x faster than:
 # QKeySequence.fromString(",".join(str(x) for x in kb.parts))
+# but the string version might be more reliable?
 class QKeyBindingSequence(QKeySequence):
     """A QKeySequence based on a KeyBinding instance."""
 
     def __init__(self, kb: KeyBinding) -> None:
-        ints = [_simple_kb_to_qkb(skb) for skb in kb.parts]
+        ints = [simple_keybinding_to_qint(skb) for skb in kb.parts]
         super().__init__(*ints)
 
 
