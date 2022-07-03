@@ -1,3 +1,4 @@
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -12,6 +13,8 @@ if TYPE_CHECKING:
     from conftest import FullApp
 
 SEP = ""
+MAC = sys.platform == "darwin"
+META = Qt.KeyboardModifier.ControlModifier if MAC else Qt.KeyboardModifier.MetaModifier
 
 
 def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
@@ -106,8 +109,8 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     copy_action = menu.findChild(QAction, app.Commands.COPY)
     with qtbot.waitSignal(copy_action.triggered, timeout=1000):
-        qtbot.keyClicks(win, "C", Qt.KeyboardModifier.ControlModifier)
+        qtbot.keyClicks(win, "C", META)
 
     paste_action = menu.findChild(QAction, app.Commands.PASTE)
     with qtbot.waitSignal(paste_action.triggered, timeout=1000):
-        qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
+        qtbot.keyClicks(win, "V", META)
