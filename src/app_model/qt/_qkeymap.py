@@ -40,7 +40,7 @@ class QKeyBindingSequence(QKeySequence):
 
 
 KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
-    None: 0,
+    None: Qt.Key.Key_unknown,
     KeyCode.DEPENDS_ON_KEYBOARD_LAYOUT: Qt.Key.Key_unknown,
     KeyCode.UNKOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,
@@ -152,4 +152,7 @@ KEYMOD_TO_QT = {
     KeyMod.WinCtrl: Qt.KeyboardModifier.MetaModifier,
 }
 
-KEY_FROM_QT = {int(v): k for k, v in KEY_TO_QT.items()}
+KEY_FROM_QT = {
+    v.toCombined() if hasattr(v, "toCombined") else int(v): k
+    for k, v in KEY_TO_QT.items()
+}
