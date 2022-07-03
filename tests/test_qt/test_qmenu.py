@@ -91,24 +91,6 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
     assert submenu.isEnabled()
 
 
-# def _qkeys_from_str(seq: str) -> Iterator[Tuple[int, Qt.KeyboardModifiers]]:
-#     for key in QKeySequence.fromString(seq):
-#         mod = 0
-#         if key & Qt.Modifier.ALT:
-#             mod |= Qt.Modifier.ALT
-#             key ^= Qt.Modifier.ALT
-#         if key & Qt.Modifier.CTRL:
-#             mod |= Qt.Modifier.CTRL
-#             key ^= Qt.Modifier.CTRL
-#         if key & Qt.Modifier.SHIFT:
-#             mod |= Qt.Modifier.SHIFT
-#             key ^= Qt.Modifier.SHIFT
-#         if key & Qt.Modifier.META:
-#             mod |= Qt.Modifier.META
-#             key ^= Qt.Modifier.META
-#         yield int(key), Qt.KeyboardModifiers(mod)
-
-
 @pytest.mark.filterwarnings("ignore:QPixmapCache.find:")
 def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
     app = full_app
