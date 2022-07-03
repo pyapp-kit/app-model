@@ -15,7 +15,7 @@ def _validate_python_name(name: str) -> str:
             "be of the form '{obj.__module__}:{obj.__qualname__}' (e.g. "
             "'my_package.a_module:some_function')."
         )
-        if ".<locals>." in name:
+        if ".<locals>." in name:  # pragma: no cover
             *_, a, b = name.split(".<locals>.")
             a = a.split(":")[-1]
             msg += (
@@ -41,4 +41,6 @@ def import_python_name(python_name: str) -> Any:
         module_name, funcname = match.groups()
         mod = import_module(module_name)
         return getattr(mod, funcname)
-    raise ValueError(f"Could not parse python_name: {python_name!r}")
+    raise ValueError(  # pragma: no cover
+        f"Could not parse python_name: {python_name!r}"
+    )

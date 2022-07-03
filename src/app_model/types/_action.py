@@ -50,4 +50,4 @@ class Action(CommandRule, Generic[P, R]):
             return callback
         elif isinstance(callback, str):
             return _validate_python_name(str(callback))
-        raise TypeError("callback must be a callable or a string")
+        raise TypeError("callback must be a callable or a string")  # pragma: no cover
