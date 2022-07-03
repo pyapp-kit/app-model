@@ -15,23 +15,23 @@ from typing import (
 
 from .registries import (
     CommandsRegistry,
-    KeybindingsRegistry,
+    KeyBindingsRegistry,
     MenusRegistry,
     register_action,
 )
 
 if TYPE_CHECKING:
     from . import expressions
-    from .registries._commands import CommandCallable
+    from .registries._commands_reg import CommandCallable
     from .registries._register import CommandDecorator
     from .types import (
         Action,
         CommandIdStr,
         IconOrDict,
-        KeybindingRuleOrDict,
+        KeyBindingRuleOrDict,
         MenuRuleOrDict,
     )
-    from .types._misc import DisposeCallable
+    from .types._constants import DisposeCallable
 
 
 class Application:
@@ -48,7 +48,7 @@ class Application:
             )
         Application._instances[name] = self
 
-        self.keybindings = KeybindingsRegistry()
+        self.keybindings = KeyBindingsRegistry()
         self.menus = MenusRegistry()
         self.commands = CommandsRegistry()
         self._disposers: List[Tuple[CommandIdStr, DisposeCallable]] = []
@@ -99,7 +99,7 @@ class Application:
         icon: Optional[IconOrDict] = None,
         enablement: Optional[expressions.Expr] = None,
         menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
         add_to_command_palette: bool = True,
     ) -> CommandDecorator:
         ...
@@ -116,7 +116,7 @@ class Application:
         icon: Optional[IconOrDict] = None,
         enablement: Optional[expressions.Expr] = None,
         menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
         add_to_command_palette: bool = True,
     ) -> DisposeCallable:
         ...
@@ -132,7 +132,7 @@ class Application:
         icon: Optional[IconOrDict] = None,
         enablement: Optional[expressions.Expr] = None,
         menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
         add_to_command_palette: bool = True,
     ) -> Union[CommandDecorator, DisposeCallable]:
         """Register an action and return a dispose function."""

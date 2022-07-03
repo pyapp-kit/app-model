@@ -1,24 +1,13 @@
-from typing import (
-    Any,
-    Callable,
-    Generator,
-    NewType,
-    Optional,
-    Type,
-    TypedDict,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, Generator, NewType, Optional, Type, TypedDict, Union
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
-from ._command import CommandRule
+from ._command_rule import CommandRule
 from ._icon import Icon
 
 MenuIdStr = NewType("MenuIdStr", str)
-T = TypeVar("T")
 
 
 class _MenuItemBase(_StrictModel):
@@ -47,7 +36,7 @@ class _MenuItemBase(_StrictModel):
         yield cls.validate
 
     @classmethod
-    def validate(cls: Type[T], v: Any) -> Type[T]:
+    def validate(cls: Type["_MenuItemBase"], v: Any) -> "_MenuItemBase":
         """Validate icon."""
         if isinstance(v, _MenuItemBase):
             return v

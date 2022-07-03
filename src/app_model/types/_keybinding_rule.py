@@ -1,36 +1,37 @@
-import os
-import sys
 from typing import NewType, Optional, TypedDict, Union
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
-
-WINDOWS = os.name == "nt"
-MACOS = sys.platform == "darwin"
-LINUX = sys.platform.startswith("linux")
+from ._constants import OperatingSystem
 
 KeyCodeStr = NewType("KeyCodeStr", str)
+KeyEncoding = Union[int, str]
+
+_OS = OperatingSystem.current()
+_WIN = _OS.is_windows
+_MAC = _OS.is_mac
+_LINUX = _OS.is_linux
 
 
-class KeybindingRule(_StrictModel):
+class KeyBindingRule(_StrictModel):
     """Data representing a keybinding and when it should be active.
 
     This model lacks a corresponding command. That gets linked up elsewhere,
     such as below in `Action`.
     """
 
-    primary: Optional[KeyCodeStr] = Field(
+    primary: Optional[KeyEncoding] = Field(
         None, description="(Optional) Key combo, (e.g. Ctrl+O)."
     )
-    win: Optional[KeyCodeStr] = Field(
+    win: Optional[KeyEncoding] = Field(
         None, description="(Optional) Windows specific key combo."
     )
-    linux: Optional[KeyCodeStr] = Field(
+    linux: Optional[KeyEncoding] = Field(
         None, description="(Optional) Linux specific key combo."
     )
-    mac: Optional[KeyCodeStr] = Field(
+    mac: Optional[KeyEncoding] = Field(
         None, description="(Optional) MacOS specific key combo."
     )
     when: Optional[expressions.Expr] = Field(
@@ -43,18 +44,18 @@ class KeybindingRule(_StrictModel):
         "This is not part of the plugin schema",
     )
 
-    def _bind_to_current_platform(self) -> Optional[KeyCodeStr]:
-        if WINDOWS and self.win:
+    def _bind_to_current_platform(self) -> Optional[KeyEncoding]:
+        if _WIN and self.win:
             return self.win
-        if MACOS and self.mac:
+        if _MAC and self.mac:
             return self.mac
-        if LINUX and self.linux:
+        if _LINUX and self.linux:
             return self.linux
         return self.primary
 
 
-class KeybindingRuleDict(TypedDict, total=False):
-    """Typed dict for KeybindingRule kwargs."""
+class KeyBindingRuleDict(TypedDict, total=False):
+    """Typed dict for KeyBindingRule kwargs."""
 
     primary: Optional[KeyCodeStr]
     win: Optional[KeyCodeStr]
@@ -64,4 +65,4 @@ class KeybindingRuleDict(TypedDict, total=False):
     when: Optional[expressions.Expr]
 
 
-KeybindingRuleOrDict = Union[KeybindingRule, KeybindingRuleDict]
+KeyBindingRuleOrDict = Union[KeyBindingRule, KeyBindingRuleDict]

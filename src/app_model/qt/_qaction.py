@@ -6,6 +6,7 @@ from qtpy.QtWidgets import QAction
 
 from app_model import Application
 
+from ._qkeymap import QKeyBindingSequence
 from ._util import to_qicon
 
 if TYPE_CHECKING:
@@ -36,6 +37,8 @@ class QCommandAction(QAction):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
+        if kb := self._app.keybindings.get_keybinding(command_id):
+            self.setShortcut(QKeyBindingSequence(kb.keybinding))
         self.triggered.connect(self._on_triggered)
 
     def _on_triggered(self, checked: bool) -> None:
@@ -66,8 +69,8 @@ class QCommandRuleAction(QCommandAction):
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
         self.setObjectName(command_rule.id)
-        if use_short_title:
-            self.setText(command_rule.short_title)
+        if use_short_title and command_rule.short_title:
+            self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
         if command_rule.icon:

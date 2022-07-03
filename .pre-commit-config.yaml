@@ -37,7 +37,7 @@ repos:
         args: [--py38-plus, --keep-runtime-typing]
 
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
 
@@ -56,3 +56,5 @@ repos:
     hooks:
       - id: mypy
         files: "^src/"
+        additional_dependencies:
+          - pydantic

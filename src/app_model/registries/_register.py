@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
     from .. import expressions
     from .._app import Application
-    from ..types import CommandIdStr, IconOrDict, KeybindingRuleOrDict, MenuRuleOrDict
-    from ..types._misc import DisposeCallable
-    from ._commands import CommandCallable
+    from ..types import CommandIdStr, IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
+    from ..types._constants import DisposeCallable
+    from ._commands_reg import CommandCallable
 
     CommandDecorator = Callable[[Callable], Callable]
 
@@ -35,7 +35,7 @@ def register_action(
     icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
-    keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+    keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,
 ) -> CommandDecorator:
     ...
@@ -53,7 +53,7 @@ def register_action(
     icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
-    keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+    keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,
 ) -> DisposeCallable:
     ...
@@ -70,7 +70,7 @@ def register_action(
     icon: Optional[IconOrDict] = None,
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
-    keybindings: Optional[List[KeybindingRuleOrDict]] = None,
+    keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
     add_to_command_palette: bool = True,
 ) -> Union[CommandDecorator, DisposeCallable]:
     """Register an action.
@@ -84,7 +84,7 @@ def register_action(
     - :class:`~app_model._types.Action`
     - :class:`~app_model._types.CommandRule`
     - :class:`~app_model._types.MenuRule`
-    - :class:`~app_model._types.KeybindingRule`
+    - :class:`~app_model._types.KeyBindingRule`
 
     This function can be used directly or as a decorator:
 
@@ -125,8 +125,8 @@ def register_action(
     menus : Optional[List[MenuRuleOrDict]]
         :class:`~app_model._types.MenuRule` or `dicts` containing menu
         placements for this action, by default None
-    keybindings : Optional[List[KeybindingRuleOrDict]]
-        :class:`~app_model._types.KeybindingRule` or `dicts` containing
+    keybindings : Optional[List[KeyBindingRuleOrDict]]
+        :class:`~app_model._types.KeyBindingRule` or `dicts` containing
         default keybindings for this action, by default None
     add_to_command_palette : bool
         Whether to adds this command to the Command Palette, by default True

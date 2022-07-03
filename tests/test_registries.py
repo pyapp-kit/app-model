@@ -1,4 +1,4 @@
-from app_model.registries import CommandsRegistry, KeybindingsRegistry, MenusRegistry
+from app_model.registries import CommandsRegistry, KeyBindingsRegistry, MenusRegistry
 from app_model.types import MenuItem
 
 
@@ -14,7 +14,7 @@ def test_menus_registry():
 
 
 def test_keybindings_registry():
-    reg = KeybindingsRegistry()
+    reg = KeyBindingsRegistry()
     assert "(0 bindings)" in repr(reg)
 
 

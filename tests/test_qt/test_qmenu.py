@@ -1,7 +1,9 @@
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
-from qtpy.QtWidgets import QAction
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QAction, QMainWindow
 
 from app_model.qt import QModelMenu
 
@@ -11,6 +13,7 @@ if TYPE_CHECKING:
     from conftest import FullApp
 
 SEP = ""
+LINUX = sys.platform.startswith("linux")
 
 
 def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
@@ -88,3 +91,26 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
     menu.update_from_context({"something_open": True, "friday": True})
     assert not submenu.isVisible()
     assert submenu.isEnabled()
+
+
+@pytest.mark.filterwarnings("ignore:QPixmapCache.find:")
+@pytest.mark.skipif(LINUX, reason="Linux keytest not working")
+def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
+    app = full_app
+
+    win = QMainWindow()
+    menu = QModelMenu(app.Menus.EDIT, app=app, title="Edit", parent=win)
+    win.menuBar().addMenu(menu)
+    qtbot.addWidget(win)
+    qtbot.addWidget(menu)
+
+    with qtbot.waitExposed(win):
+        win.show()
+
+    copy_action = menu.findChild(QAction, app.Commands.COPY)
+    with qtbot.waitSignal(copy_action.triggered, timeout=1000):
+        qtbot.keyClicks(win, "C", Qt.KeyboardModifier.ControlModifier)
+
+    paste_action = menu.findChild(QAction, app.Commands.PASTE)
+    with qtbot.waitSignal(paste_action.triggered, timeout=1000):
+        qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
