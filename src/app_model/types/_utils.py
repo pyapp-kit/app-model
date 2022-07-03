@@ -11,7 +11,7 @@ def _validate_python_name(name: str) -> str:
     """Assert that `name` is a valid python name: e.g. `module.submodule:funcname`."""
     if name and not PYTHON_NAME_PATTERN.match(name):
         msg = (
-            f"{name!r} is not a valid python_name.  A python_name must "
+            f"{name!r} is not a valid python_name. A python_name must "
             "be of the form '{obj.__module__}:{obj.__qualname__}' (e.g. "
             "'my_package.a_module:some_function')."
         )

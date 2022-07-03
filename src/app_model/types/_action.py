@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, List, Optional, TypeVar, Union
+from typing import Callable, Generic, List, Optional, TypeVar, Union
 
 from pydantic import Field, validator
 from typing_extensions import ParamSpec
@@ -44,6 +44,10 @@ class Action(CommandRule, Generic[P, R]):
     )
 
     @validator("callback")
-    def _validate_callback(callback: Any) -> Union[Callable, str]:
+    def _validate_callback(callback: object) -> Union[Callable, str]:
         """Assert that `callback` is a callable or valid fully qualified name."""
-        return callback if callable(callback) else _validate_python_name(str(callback))
+        if callable(callback):
+            return callback
+        elif isinstance(callback, str):
+            return _validate_python_name(str(callback))
+        raise TypeError("callback must be a callable or a string")
