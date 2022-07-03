@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable, Generator, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, cast
 
 from pydantic import BaseModel, Field
 
@@ -160,7 +160,7 @@ class ChordKeyBinding(BaseModel):
         raise TypeError(f"ChordKeyBinding must be a string or a dict, not {type(v)}")
 
 
-def _parse_modifiers(input: str) -> Tuple[dict[str, bool], str]:
+def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
     """Parse modifiers from a string (case insensitive).
 
     modifiers must start at the beginning of the string, and be separated by
