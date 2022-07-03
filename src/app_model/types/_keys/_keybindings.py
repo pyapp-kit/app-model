@@ -55,7 +55,7 @@ class SimpleKeyBinding(BaseModel):
         if not isinstance(other, SimpleKeyBinding):
             try:
                 other = SimpleKeyBinding.validate(other)
-            except Exception:
+            except TypeError:
                 return NotImplemented
         return bool(
             self.ctrl == other.ctrl
@@ -95,17 +95,16 @@ class SimpleKeyBinding(BaseModel):
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
         os = OperatingSystem.current() if os is None else os
-
-        out = self.key or 0
+        mods: KeyMod = KeyMod.NONE
         if self.ctrl:
-            out |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd
+            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd  # type: ignore
         if self.shift:
-            out |= KeyMod.Shift
+            mods |= KeyMod.Shift
         if self.alt:
-            out |= KeyMod.Alt
+            mods |= KeyMod.Alt
         if self.meta:
-            out |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
-        return out
+            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl  # type: ignore
+        return mods | self.key or 0
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
@@ -145,9 +144,12 @@ class KeyBinding(BaseModel):
         if not isinstance(other, KeyBinding):
             try:
                 other = KeyBinding.validate(other)
-            except Exception:
+            except Exception:  # pragma: no cover
                 return NotImplemented
         return super().__eq__(other)
+
+    def __len__(self) -> int:
+        return len(self.parts)
 
     @property
     def part0(self) -> SimpleKeyBinding:
@@ -168,8 +170,11 @@ class KeyBinding(BaseModel):
         cls, key_int: int, os: Optional[OperatingSystem] = None
     ) -> "KeyBinding":
         """Create a KeyBinding from an integer."""
+        # a multi keybinding is represented as an integer
+        # with the first_part in the lowest 16 bits,
+        # the second_part in the next 16 bits, etc.
         first_part = key_int & 0x0000FFFF
-        chord_part = key_int & 0xFFFF0000
+        chord_part = (key_int & 0xFFFF0000) >> 16
         if chord_part != 0:
             return cls(
                 parts=[
@@ -181,7 +186,7 @@ class KeyBinding(BaseModel):
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
-        if len(self.parts) > 2:
+        if len(self.parts) > 2:  # pragma: no cover
             raise NotImplementedError(
                 "Cannot represent chords with more than 2 parts as int"
             )
@@ -203,13 +208,17 @@ class KeyBinding(BaseModel):
         """Validate a SimpleKeyBinding."""
         if isinstance(v, KeyBinding):
             return v
+        if isinstance(v, SimpleKeyBinding):
+            return cls(parts=[v])
         if isinstance(v, int):
             return cls.from_int(v)
         if isinstance(v, str):
             return cls.from_str(v)
         if isinstance(v, dict):
             return cls(**v)
-        raise TypeError(f"KeyBinding must be a string or a dict, not {type(v)}")
+        raise TypeError(  # pragma: no cover
+            f"KeyBinding must be a string or a dict, not {type(v)}"
+        )
 
 
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
