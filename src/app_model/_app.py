@@ -22,7 +22,7 @@ from .registries import (
 
 if TYPE_CHECKING:
     from . import expressions
-    from .registries._commands import CommandCallable
+    from .registries._commands_reg import CommandCallable
     from .registries._register import CommandDecorator
     from .types import (
         Action,
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         KeyBindingRuleOrDict,
         MenuRuleOrDict,
     )
-    from .types._misc import DisposeCallable
+    from .types._constants import DisposeCallable
 
 
 class Application:

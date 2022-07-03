@@ -1,8 +1,8 @@
 """App-model types."""
 from ._action import Action
-from ._command import CommandIdStr, CommandRule
+from ._command_rule import CommandIdStr, CommandRule
 from ._icon import Icon, IconCodeStr, IconOrDict
-from ._keybinding import (
+from ._keybinding_rule import (
     KeyBindingRule,
     KeyBindingRuleDict,
     KeyBindingRuleOrDict,

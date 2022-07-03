@@ -125,8 +125,12 @@ class SimpleKeyBinding(BaseModel):
         raise TypeError(f"KeyBinding must be a string or a dict, not {type(v)}")
 
 
-class ChordKeyBinding(BaseModel):
-    """Multi-part key binding "Chord".
+class KeyBinding(BaseModel):
+    """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
+
+    This is the primary representation of a fully resolved keybinding. For consistency
+    in the downstream API, it should  be preferred to :class:`SimplyKeyBinding`, even
+    when there is only a single part in the keybinding (i.e. when it is not a chord.)
 
     Chords (two separate keypress actions) are expressed as a string by separating
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
@@ -138,15 +142,23 @@ class ChordKeyBinding(BaseModel):
         return " ".join(str(part) for part in self.parts)
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ChordKeyBinding):
+        if not isinstance(other, KeyBinding):
             try:
-                other = ChordKeyBinding.validate(other)
+                other = KeyBinding.validate(other)
             except Exception:
                 return NotImplemented
         return super().__eq__(other)
 
+    @property
+    def part0(self) -> SimpleKeyBinding:
+        """Return the first part of this keybinding.
+
+        All keybindings have at least one part.
+        """
+        return self.parts[0]
+
     @classmethod
-    def from_str(cls, key_str: str) -> "ChordKeyBinding":
+    def from_str(cls, key_str: str) -> "KeyBinding":
         """Parse a string into a SimpleKeyBinding."""
         parts = [SimpleKeyBinding.from_str(part) for part in key_str.split()]
         return cls(parts=parts)
@@ -154,8 +166,8 @@ class ChordKeyBinding(BaseModel):
     @classmethod
     def from_int(
         cls, key_int: int, os: Optional[OperatingSystem] = None
-    ) -> "ChordKeyBinding":
-        """Create a ChordKeyBinding from an integer."""
+    ) -> "KeyBinding":
+        """Create a KeyBinding from an integer."""
         first_part = key_int & 0x0000FFFF
         chord_part = key_int & 0xFFFF0000
         if chord_part != 0:
@@ -187,9 +199,9 @@ class ChordKeyBinding(BaseModel):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v: Any) -> "ChordKeyBinding":
+    def validate(cls, v: Any) -> "KeyBinding":
         """Validate a SimpleKeyBinding."""
-        if isinstance(v, ChordKeyBinding):
+        if isinstance(v, KeyBinding):
             return v
         if isinstance(v, int):
             return cls.from_int(v)
@@ -197,7 +209,7 @@ class ChordKeyBinding(BaseModel):
             return cls.from_str(v)
         if isinstance(v, dict):
             return cls(**v)
-        raise TypeError(f"ChordKeyBinding must be a string or a dict, not {type(v)}")
+        raise TypeError(f"KeyBinding must be a string or a dict, not {type(v)}")
 
 
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:

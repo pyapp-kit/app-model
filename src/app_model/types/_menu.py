@@ -4,7 +4,7 @@ from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
-from ._command import CommandRule
+from ._command_rule import CommandRule
 from ._icon import Icon
 
 MenuIdStr = NewType("MenuIdStr", str)

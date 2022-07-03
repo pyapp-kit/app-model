@@ -1,11 +1,12 @@
-from ._chords import ChordKeyBinding as KeyBinding
-from ._chords import SimpleKeyBinding
-from ._key_codes import KeyChord, KeyCode, KeyMod
+from ._key_codes import KeyChord, KeyCode, KeyCombo, KeyMod, ScanCode
+from ._keybindings import KeyBinding, SimpleKeyBinding
 
 __all__ = [
+    "KeyBinding",
     "KeyChord",
     "KeyCode",
+    "KeyCombo",
     "KeyMod",
+    "ScanCode",
     "SimpleKeyBinding",
-    "KeyBinding",
 ]

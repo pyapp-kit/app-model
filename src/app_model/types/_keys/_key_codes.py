@@ -1,4 +1,4 @@
-from enum import IntEnum, auto
+from enum import IntEnum, IntFlag, auto
 from typing import Any, Callable, Dict, Generator, NamedTuple, Set, Tuple, Type
 
 __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
@@ -15,7 +15,6 @@ class KeyCode(IntEnum):
     This is the primary internal representation of a key.
     """
 
-    DEPENDS_ON_KEYBOARD_LAYOUT = -1
     UNKOWN = 0
 
     # -----------------------   Writing System Keys   -----------------------
@@ -181,7 +180,6 @@ class ScanCode(IntEnum):
     implementations to support special keyboards (such as multimedia or
     legacy keyboards).
     """
-    DEPENDS_ON_KEYBOARD_LAYOUT = -1
     UNIDENTIFIED = 0        # This value code should be used when no other value given in this specification is appropriate.
 
     # -----------------------   Writing System Keys   -----------------------
@@ -510,6 +508,7 @@ def _build_maps() -> Tuple[
         _KM(ScanCode.ContextMenu, 'ContextMenu', KeyCode.ContextMenu, 'ContextMenu', 93, _),
         _KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKOWN, _, 0, _),
         _KM(ScanCode.Help, 'Help', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.IntlRo, 'IntlRo', KeyCode.UNKOWN, _, 193, 'VK_ABNT_C1'),
         _KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKOWN, _, 0, _),
         _KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKOWN, _, 0, _),
         _KM(ScanCode.Convert, 'Convert', KeyCode.UNKOWN, _, 0, _),
@@ -543,7 +542,7 @@ def _build_maps() -> Tuple[
             SCANCODE_FROM_LOWERCASE_STRING[km.scanstr.lower()] = km.scancode
         if km.keycode not in seen_keycodes:
             seen_keycodes.add(km.keycode)
-            if not km.keystr:
+            if not km.keystr:  # pragma: no cover
                 raise ValueError(
                     f"String representation missing for key code {km.keycode!r} "
                     f"around scan code {km.scancode!r} at line {i + 1}"
@@ -593,6 +592,7 @@ def _build_maps() -> Tuple[
 ) = _build_maps()
 
 
+# fmt: on
 
 # Keys with modifiers are expressed
 # with a 16-bit binary encoding
@@ -607,24 +607,53 @@ def _build_maps() -> Tuple[
 #  K = bits 0-7 -> key code
 
 
-class KeyMod(IntEnum):
+class KeyMod(IntFlag):
+    """A Flag indicating keyboard modifiers."""
+
     NONE = 0
-    CtrlCmd = 1<<11  # command on a mac, control on windows
-    Shift   = 1<<10  # shift key
-    Alt     = 1<<9   # alt option
-    WinCtrl = 1<<8   # meta key on windows, ctrl key on mac
+    CtrlCmd = 1 << 11  # command on a mac, control on windows
+    Shift = 1 << 10  # shift key
+    Alt = 1 << 9  # alt option
+    WinCtrl = 1 << 8  # meta key on windows, ctrl key on mac
+
+    def __or__(self, other: object) -> int:  # type: ignore [override]
+        if isinstance(other, self.__class__):
+            return self.__class__(self._value_ | other._value_)
+        if isinstance(other, KeyCode):
+            return KeyCombo(self, other)
+        return NotImplemented  # pragma: no cover
+
+
+class KeyCombo(int):
+    """KeyCombo is an integer combination of one or more KeyMod and KeyCode."""
+
+    def __new__(
+        cls: Type["KeyCombo"], modifiers: KeyMod, key: KeyCode = KeyCode.UNKOWN
+    ) -> "KeyCombo":
+        return super().__new__(cls, int(modifiers) | int(key))
+
+    def __init__(self, modifiers: KeyMod, key: KeyCode = KeyCode.UNKOWN):
+        self._modifiers = modifiers
+        self._key = key
+
+    def __repr__(self) -> str:
+        name = self.__class__.__name__
+        mods_repr = repr(self._modifiers).split(":", 1)[0].split(".", 1)[1]
+        return f"<{name}.{mods_repr}|{self._key.name}: {int(self)}>"
 
 
 class KeyChord(int):
-    def __new__(cls: Type['KeyChord'], first_part: int, second_part: int) -> 'KeyChord':
+    """KeyChord is an integer combination of two KeyCombos, KeyCodes, or integers."""
+
+    def __new__(cls: Type["KeyChord"], first_part: int, second_part: int) -> "KeyChord":
+        # shift the second part 16 bits to the left
         chord_part = ((second_part & 0x0000FFFF) << 16) >> 0
-        obj = super().__new__(cls, (first_part | chord_part) >> 0)
-        setattr(obj, "_chord_part", chord_part)
-        return obj
+        # then combine then to make the full chord
+        return super().__new__(cls, (first_part | chord_part) >> 0)
 
     def __init__(self, first_part: int, second_part: int):
         self._first_part = first_part
         self._second_part = second_part
 
     def __repr__(self) -> str:
-        return f"KeyChord({self._first_part}, {self._second_part})"
+        return f"KeyChord({self._first_part!r}, {self._second_part!r})"

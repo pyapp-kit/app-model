@@ -5,7 +5,7 @@ from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tupl
 from psygnal import Signal
 
 from ..types import MenuIdStr, MenuItem, MenuOrSubmenu
-from ..types._misc import DisposeCallable
+from ..types._constants import DisposeCallable
 
 
 class MenusRegistry:

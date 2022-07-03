@@ -3,8 +3,8 @@ from typing import Callable, Generic, List, Optional, TypeVar
 from pydantic import Field
 from typing_extensions import ParamSpec
 
-from ._command import CommandRule
-from ._keybinding import KeyBindingRule
+from ._command_rule import CommandRule
+from ._keybinding_rule import KeyBindingRule
 from ._menu import MenuRule
 
 P = ParamSpec("P")
@@ -38,7 +38,3 @@ class Action(CommandRule, Generic[P, R]):
         description="Whether to add this command to the global Command Palette "
         "during registration.",
     )
-
-    def run(self, *args: P.args, **kwargs: P.kwargs) -> R:
-        """Run the command."""
-        return self.callback(*args, **kwargs)

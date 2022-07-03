@@ -16,4 +16,4 @@ def to_qicon(icon: Icon, theme: Literal["dark", "light"] = "dark") -> QIcon:
 
     if icn := getattr(icon, theme, ""):
         return fonticon.icon(icn)
-    return QIcon()
+    return QIcon()  # pragma: no cover

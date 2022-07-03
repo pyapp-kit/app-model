@@ -10,8 +10,8 @@ if TYPE_CHECKING:
     from .. import expressions
     from .._app import Application
     from ..types import CommandIdStr, IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
-    from ..types._misc import DisposeCallable
-    from ._commands import CommandCallable
+    from ..types._constants import DisposeCallable
+    from ._commands_reg import CommandCallable
 
     CommandDecorator = Callable[[Callable], Callable]
 

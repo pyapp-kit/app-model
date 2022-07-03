@@ -54,7 +54,6 @@ class QKeyBindingSequence(QKeySequence):
 
 KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
     None: Qt.Key.Key_unknown,
-    KeyCode.DEPENDS_ON_KEYBOARD_LAYOUT: Qt.Key.Key_unknown,
     KeyCode.UNKOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,
     KeyCode.Backslash: Qt.Key.Key_Backslash,

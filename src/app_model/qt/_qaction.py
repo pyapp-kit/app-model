@@ -69,8 +69,8 @@ class QCommandRuleAction(QCommandAction):
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
         self.setObjectName(command_rule.id)
-        if use_short_title:
-            self.setText(command_rule.short_title)
+        if use_short_title and command_rule.short_title:
+            self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
         if command_rule.icon:
