@@ -58,6 +58,3 @@ repos:
         files: "^src/"
         additional_dependencies:
           - pydantic
-          - qtpy
-          - superqt
-          - pyside2
