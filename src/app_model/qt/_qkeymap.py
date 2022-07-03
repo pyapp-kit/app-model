@@ -1,21 +1,31 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
+from ..types._constants import OperatingSystem
 from ..types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
 
+QMETA = Qt.KeyboardModifier.MetaModifier
+QCTRL = Qt.KeyboardModifier.ControlModifier
 
-def _simple_kb_to_qkb(skb: SimpleKeyBinding) -> int:
-    out = KEY_TO_QT.get(skb.key, 0)  # type: ignore
+
+def _simple_kb_to_qkb(
+    skb: SimpleKeyBinding, os: Optional[OperatingSystem] = None
+) -> int:
+    """Create Qt Key integer from a SimpleKeyBinding."""
+    os = OperatingSystem.current() if os is None else os
+
+    out = KEY_TO_QT.get(skb.key, 0)
+
     if skb.ctrl:
-        out |= Qt.KeyboardModifier.ControlModifier
+        out |= QMETA if os.is_mac else QCTRL
     if skb.shift:
         out |= Qt.KeyboardModifier.ShiftModifier
     if skb.alt:
         out |= Qt.KeyboardModifier.AltModifier
     if skb.meta:
-        out |= Qt.KeyboardModifier.MetaModifier
+        out |= QCTRL if os.is_mac else QMETA
     return int(out)
 
 
@@ -29,7 +39,8 @@ class QKeyBindingSequence(QKeySequence):
         super().__init__(*ints)
 
 
-KEY_TO_QT: Dict[KeyCode, Qt.Key] = {
+KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
+    None: 0,
     KeyCode.DEPENDS_ON_KEYBOARD_LAYOUT: Qt.Key.Key_unknown,
     KeyCode.UNKOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,

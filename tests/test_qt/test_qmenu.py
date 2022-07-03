@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
 import pytest
-from qtpy.QtWidgets import QAction
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QAction, QMainWindow
 
 from app_model.qt import QModelMenu
 
@@ -88,3 +89,39 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
     menu.update_from_context({"something_open": True, "friday": True})
     assert not submenu.isVisible()
     assert submenu.isEnabled()
+
+
+# def _qkeys_from_str(seq: str) -> Iterator[Tuple[int, Qt.KeyboardModifiers]]:
+#     for key in QKeySequence.fromString(seq):
+#         mod = 0
+#         if key & Qt.Modifier.ALT:
+#             mod |= Qt.Modifier.ALT
+#             key ^= Qt.Modifier.ALT
+#         if key & Qt.Modifier.CTRL:
+#             mod |= Qt.Modifier.CTRL
+#             key ^= Qt.Modifier.CTRL
+#         if key & Qt.Modifier.SHIFT:
+#             mod |= Qt.Modifier.SHIFT
+#             key ^= Qt.Modifier.SHIFT
+#         if key & Qt.Modifier.META:
+#             mod |= Qt.Modifier.META
+#             key ^= Qt.Modifier.META
+#         yield int(key), Qt.KeyboardModifiers(mod)
+
+
+@pytest.mark.filterwarnings("ignore:QPixmapCache.find:")
+def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
+    app = full_app
+
+    win = QMainWindow()
+    menu = QModelMenu(app.Menus.EDIT, app=app, title="Edit", parent=win)
+    win.menuBar().addMenu(menu)
+    qtbot.addWidget(win)
+    qtbot.addWidget(menu)
+
+    with qtbot.waitExposed(win):
+        win.show()
+
+    copy_action = menu.findChild(QAction, app.Commands.COPY)
+    with qtbot.waitSignal(copy_action.triggered, timeout=500):
+        qtbot.keyClicks(win, "C", Qt.KeyboardModifier.MetaModifier)

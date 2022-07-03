@@ -36,7 +36,7 @@ class Mocks:
         self.undo = Mock(name=Commands.UNDO, side_effect=lambda: print("undo"))
         self.redo = Mock(name=Commands.REDO, side_effect=lambda: print("redo"))
         self.copy = Mock(name=Commands.COPY, side_effect=lambda: print("copy"))
-        self.paste = Mock(name=Commands.PASTE)
+        self.paste = Mock(name=Commands.PASTE, side_effect=lambda: print("paste"))
         self.open_from_a = Mock(name=Commands.OPEN_FROM_A)
         self.open_from_b = Mock(name=Commands.OPEN_FROM_B)
 
@@ -50,11 +50,8 @@ class FullApp(Application):
         self.mocks = Mocks()
 
 
-@pytest.fixture
-def full_app() -> Application:
-    """Premade application."""
+def build_app() -> Application:
     app = FullApp("complete_test_app")
-
     app.menus.append_menu_items(
         [
             (
@@ -93,7 +90,7 @@ def full_app() -> Application:
             icon="fa5s.paste",
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
-            keybindings=[{"primary": "Ctrl+V"}],
+            keybindings=[{"primary": "Ctrl+V", "mac": "Cmd+V"}],
         ),
         # putting this above UNDO to make sure that order sorting works
         Action(
@@ -154,6 +151,13 @@ def full_app() -> Application:
     for action in actions:
         app.register_action(action)
 
+    return app
+
+
+@pytest.fixture
+def full_app() -> Application:
+    """Premade application."""
+    app = build_app()
     try:
         yield app
     finally:

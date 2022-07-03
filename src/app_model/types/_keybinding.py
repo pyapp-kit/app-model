@@ -7,7 +7,7 @@ from ._base import _StrictModel
 from ._constants import OperatingSystem
 
 KeyCodeStr = NewType("KeyCodeStr", str)
-KeyEncoding = Union[str, int]
+KeyEncoding = Union[int, str]
 
 _OS = OperatingSystem.current()
 _WIN = _OS.is_windows

@@ -34,6 +34,7 @@ class QModelMenu(QMenu):
         self,
         menu_id: MenuIdStr,
         app: Union[str, Application],
+        title: Optional[str] = None,
         parent: Optional[QWidget] = None,
     ):
         assert isinstance(menu_id, str), f"Expected str, got {type(menu_id)!r}"
@@ -41,6 +42,8 @@ class QModelMenu(QMenu):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self.setObjectName(menu_id)
+        if title is not None:
+            self.setTitle(title)
         self.rebuild()
 
     def rebuild(self) -> None:
@@ -115,8 +118,9 @@ class QModelSubmenu(QModelMenu):
     ):
         assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
         self._submenu = submenu
-        super().__init__(submenu.submenu, app, parent)
-        self.setTitle(submenu.title)
+        super().__init__(
+            menu_id=submenu.submenu, app=app, title=submenu.title, parent=parent
+        )
         if submenu.icon:
             self.setIcon(to_qicon(submenu.icon))
 
