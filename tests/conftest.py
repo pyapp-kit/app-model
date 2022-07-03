@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from app_model import Action, Application
-from app_model.types import SubmenuItem
+from app_model.types import KeyCode, KeyMod, SubmenuItem
 
 try:
     from fonticon_fa5 import FA5S
@@ -32,10 +32,10 @@ class Commands:
 
 class Mocks:
     def __init__(self) -> None:
-        self.open = Mock(name=Commands.OPEN)
-        self.undo = Mock(name=Commands.UNDO)
-        self.redo = Mock(name=Commands.REDO)
-        self.copy = Mock(name=Commands.COPY)
+        self.open = Mock(name=Commands.OPEN, side_effect=lambda: print("open"))
+        self.undo = Mock(name=Commands.UNDO, side_effect=lambda: print("undo"))
+        self.redo = Mock(name=Commands.REDO, side_effect=lambda: print("redo"))
+        self.copy = Mock(name=Commands.COPY, side_effect=lambda: print("copy"))
         self.paste = Mock(name=Commands.PASTE)
         self.open_from_a = Mock(name=Commands.OPEN_FROM_A)
         self.open_from_b = Mock(name=Commands.OPEN_FROM_B)
@@ -76,6 +76,7 @@ def full_app() -> Application:
             title="Open...",
             callback=app.mocks.open,
             menus=[{"id": Menus.FILE}],
+            keybindings=[{"primary": "Ctrl+O"}],
         ),
         # putting these above undo redo to make sure that group sorting works
         Action(
@@ -84,6 +85,7 @@ def full_app() -> Application:
             icon="fa5s.copy",
             callback=app.mocks.copy,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
+            keybindings=[{"primary": KeyMod.CtrlCmd | KeyCode.KeyC}],
         ),
         Action(
             id=Commands.PASTE,
@@ -91,6 +93,7 @@ def full_app() -> Application:
             icon="fa5s.paste",
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
+            keybindings=[{"primary": "Ctrl+V"}],
         ),
         # putting this above UNDO to make sure that order sorting works
         Action(
@@ -100,6 +103,7 @@ def full_app() -> Application:
             icon="fa5s.redo",
             enablement="allow_undo_redo",
             callback=app.mocks.redo,
+            keybindings=[{"primary": "Ctrl+Shift+Z"}],
             menus=[
                 {
                     "id": Menus.EDIT,
@@ -116,6 +120,7 @@ def full_app() -> Application:
             icon=UNDO_ICON,  # testing alternate way to specify icon
             enablement="allow_undo_redo",
             callback=app.mocks.undo,
+            keybindings=[{"primary": "Ctrl+Z"}],
             menus=[
                 {
                     "id": Menus.EDIT,

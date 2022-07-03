@@ -35,7 +35,7 @@ class OperatingSystem(Enum):
 _CURRENT = OperatingSystem.UNKNOWN
 if os.name == "nt":
     _CURRENT = OperatingSystem.WINDOWS
-if sys.platform == "linux":
+if sys.platform.startswith("linux"):
     _CURRENT = OperatingSystem.LINUX
 elif sys.platform == "darwin":
     _CURRENT = OperatingSystem.MACOS

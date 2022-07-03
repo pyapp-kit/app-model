@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable, Generator, List, Optional, Tuple
+from typing import Any, Callable, Generator, List, Optional, Tuple, cast
 
 from pydantic import BaseModel, Field
 
@@ -49,6 +49,14 @@ class SimpleKeyBinding(BaseModel):
         if self.key:
             out += str(self.key)
         return out
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, ChordKeyBinding):
+            try:
+                other = ChordKeyBinding.validate(other)
+            except Exception:
+                return NotImplemented
+        return cast(bool, super().__eq__(other))
 
     @classmethod
     def parse_str(cls, key_str: str) -> "SimpleKeyBinding":
@@ -104,6 +112,14 @@ class ChordKeyBinding(BaseModel):
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, ChordKeyBinding):
+            try:
+                other = ChordKeyBinding.validate(other)
+            except Exception:
+                return NotImplemented
+        return cast(bool, super().__eq__(other))
+
     @classmethod
     def parse_str(cls, key_str: str) -> "ChordKeyBinding":
         """Parse a string into a SimpleKeyBinding."""
@@ -135,10 +151,10 @@ class ChordKeyBinding(BaseModel):
         """Validate a SimpleKeyBinding."""
         if isinstance(v, ChordKeyBinding):
             return v
-        if isinstance(v, str):
-            return cls.parse_str(v)
         if isinstance(v, int):
             return cls.parse_int(v)
+        if isinstance(v, str):
+            return cls.parse_str(v)
         if isinstance(v, dict):
             return cls(**v)
         raise TypeError(f"ChordKeyBinding must be a string or a dict, not {type(v)}")

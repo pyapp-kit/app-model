@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Mapping, Optional, Union
 
+from qtpy.QtGui import QKeySequence
 from qtpy.QtWidgets import QAction
 
 from app_model import Application
@@ -36,6 +37,8 @@ class QCommandAction(QAction):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
+        if kb := self._app.keybindings.get_keybinding(command_id):
+            self.setShortcut(QKeySequence(str(kb.keybinding)))
         self.triggered.connect(self._on_triggered)
 
     def _on_triggered(self, checked: bool) -> None:
