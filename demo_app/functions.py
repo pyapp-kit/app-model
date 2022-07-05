@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QFileDialog, QApplication
+from qtpy.QtWidgets import QApplication, QFileDialog
 
 
 def open_file():

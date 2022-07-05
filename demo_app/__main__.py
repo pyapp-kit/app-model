@@ -1,4 +1,5 @@
 from qtpy.QtWidgets import QApplication
+
 from .app import MyApp
 
 qapp = QApplication([])

@@ -1,6 +1,8 @@
+from qtpy.QtWidgets import QMainWindow
+
 from app_model import Application
 from app_model.backends.qt import QModelMenu
-from qtpy.QtWidgets import QMainWindow
+
 from .actions import ACTIONS
 from .constants import MenuId
 
@@ -19,4 +21,3 @@ class MyApp(Application):
 
     def show(self):
         self._main_window.show()
-

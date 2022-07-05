@@ -1,8 +1,11 @@
 from typing import List
-from app_model.types import Action, MenuRule, KeyBindingRule, KeyCode, KeyMod
+
+from fonticon_fa5 import FA5S
+
+from app_model.types import Action, KeyBindingRule, KeyCode, KeyMod, MenuRule
+
 from . import functions
 from .constants import CommandId, MenuId
-from fonticon_fa5 import FA5S
 
 ACTIONS: List[Action] = [
     Action(
@@ -26,7 +29,7 @@ ACTIONS: List[Action] = [
         title="Undo",
         icon=FA5S.undo,
         callback=functions.undo,
-        menus=[MenuRule(id=MenuId.EDIT, group='1_undo_redo')],
+        menus=[MenuRule(id=MenuId.EDIT, group="1_undo_redo")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyZ)],
     ),
     Action(
@@ -34,7 +37,7 @@ ACTIONS: List[Action] = [
         title="Redo",
         icon=FA5S.redo,
         callback=functions.redo,
-        menus=[MenuRule(id=MenuId.EDIT, group='1_undo_redo')],
+        menus=[MenuRule(id=MenuId.EDIT, group="1_undo_redo")],
         keybindings=[
             KeyBindingRule(primary=KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyZ)
         ],
@@ -44,7 +47,7 @@ ACTIONS: List[Action] = [
         title="Cut",
         icon=FA5S.cut,
         callback=functions.cut,
-        menus=[MenuRule(id=MenuId.EDIT, group='3_copypaste')],
+        menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyX)],
     ),
     Action(
@@ -52,7 +55,7 @@ ACTIONS: List[Action] = [
         title="Copy",
         icon=FA5S.copy,
         callback=functions.copy,
-        menus=[MenuRule(id=MenuId.EDIT, group='3_copypaste')],
+        menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyC)],
     ),
     Action(
@@ -60,7 +63,7 @@ ACTIONS: List[Action] = [
         title="Paste",
         icon=FA5S.paste,
         callback=functions.paste,
-        menus=[MenuRule(id=MenuId.EDIT, group='3_copypaste')],
+        menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyV)],
     ),
 ]
