@@ -3,6 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from app_model import Application
+from app_model.registries import register_action
 from app_model.types import Action, CommandIdStr
 
 PRIMARY_KEY = "ctrl+a"
@@ -51,7 +52,7 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     # register the action
     if mode == "decorator":
 
-        @app.register_action(cmd_id, **kwargs)
+        @register_action(app=app, id_or_action=cmd_id, **kwargs)
         def f1():
             return "hi"
 
@@ -63,7 +64,7 @@ def test_register_action_decorator(kwargs, app: Application, mode):
             return "hi"
 
         if mode == "str":
-            app.register_action(cmd_id, callback=f2, **kwargs)
+            register_action(app=app, id_or_action=cmd_id, callback=f2, **kwargs)
 
         elif mode == "action":
             action = Action(id=cmd_id, callback=f2, **kwargs)

@@ -50,7 +50,7 @@ class _RegisteredCommand:
             try:
                 self._resolved_callback = import_python_name(str(self.callback))
             except ImportError as e:
-                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
+                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
                 raise type(e)(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} was not importable: {e}"
@@ -58,7 +58,7 @@ class _RegisteredCommand:
 
             if not callable(self._resolved_callback):
                 # don't try to import again, just create a no-op
-                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
+                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
                 raise TypeError(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} did not resolve to a callble object."
@@ -68,7 +68,7 @@ class _RegisteredCommand:
     @cached_property
     def run_injected(self) -> Callable[P, R]:
         out = self._injection_store.inject_dependencies(self.resolved_callback)
-        return cast(Callable[P, R], out)
+        return cast("Callable[P, R]", out)
 
 
 class CommandsRegistry:
