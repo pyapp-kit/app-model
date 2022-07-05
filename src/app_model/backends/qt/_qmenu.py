@@ -52,7 +52,6 @@ class QModelMenu(QMenu):
 
         groups = list(self._app.menus.iter_menu_groups(self._menu_id))
         n_groups = len(groups)
-
         for n, group in enumerate(groups):
             for item in group:
                 if isinstance(item, SubmenuItem):

@@ -1,17 +1,9 @@
 from __future__ import annotations
 
 import contextlib
-from typing import (
-    TYPE_CHECKING,
-    ClassVar,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple
+
+import in_n_out as ino
 
 from .registries import (
     CommandsRegistry,
@@ -21,16 +13,7 @@ from .registries import (
 )
 
 if TYPE_CHECKING:
-    from . import expressions
-    from .registries._commands_reg import CommandCallable
-    from .registries._register import CommandDecorator
-    from .types import (
-        Action,
-        CommandIdStr,
-        IconOrDict,
-        KeyBindingRuleOrDict,
-        MenuRuleOrDict,
-    )
+    from .types import Action, CommandIdStr
     from .types._constants import DisposeCallable
 
 
@@ -51,6 +34,10 @@ class Application:
         self.keybindings = KeyBindingsRegistry()
         self.menus = MenusRegistry()
         self.commands = CommandsRegistry()
+
+        self.injection_store = ino.Store.create(name)
+        self.injection_store.on_unannotated_required_args = "ignore"
+
         self._disposers: List[Tuple[CommandIdStr, DisposeCallable]] = []
 
     @classmethod
@@ -63,6 +50,7 @@ class Application:
         """Destroy the app named `name`."""
         app = cls._instances.pop(name)
         app.dispose()
+        app.injection_store.destroy(name)
 
     def __del__(self) -> None:
         """Remove the app from the registry when it is garbage collected."""
@@ -83,69 +71,9 @@ class Application:
             dispose()
         self._disposers.clear()
 
-    @overload
-    def register_action(self, id_or_action: Action) -> DisposeCallable:
-        ...
+    def register_action(self, action: Action) -> DisposeCallable:
+        """Register `action` with this application.
 
-    @overload
-    def register_action(
-        self,
-        id_or_action: CommandIdStr,
-        title: str,
-        *,
-        callback: Literal[None] = None,
-        category: Optional[str] = None,
-        tooltip: Optional[str] = None,
-        icon: Optional[IconOrDict] = None,
-        enablement: Optional[expressions.Expr] = None,
-        menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-        add_to_command_palette: bool = True,
-    ) -> CommandDecorator:
-        ...
-
-    @overload
-    def register_action(
-        self,
-        id_or_action: CommandIdStr,
-        title: str,
-        *,
-        callback: CommandCallable,
-        category: Optional[str] = None,
-        tooltip: Optional[str] = None,
-        icon: Optional[IconOrDict] = None,
-        enablement: Optional[expressions.Expr] = None,
-        menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-        add_to_command_palette: bool = True,
-    ) -> DisposeCallable:
-        ...
-
-    def register_action(
-        self,
-        id_or_action: Union[CommandIdStr, Action],
-        title: Optional[str] = None,
-        *,
-        callback: Optional[CommandCallable] = None,
-        category: Optional[str] = None,
-        tooltip: Optional[str] = None,
-        icon: Optional[IconOrDict] = None,
-        enablement: Optional[expressions.Expr] = None,
-        menus: Optional[List[MenuRuleOrDict]] = None,
-        keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-        add_to_command_palette: bool = True,
-    ) -> Union[CommandDecorator, DisposeCallable]:
-        """Register an action and return a dispose function."""
-        return register_action(
-            self,
-            id_or_action,  # type: ignore
-            title=title,  # type: ignore
-            callback=callback,  # type: ignore
-            category=category,
-            tooltip=tooltip,
-            icon=icon,
-            enablement=enablement,
-            menus=menus,
-            keybindings=keybindings,
-            add_to_command_palette=add_to_command_palette,
-        )
+        See docs for register_action() in app_model.registries
+        """
+        return register_action(self, id_or_action=action)

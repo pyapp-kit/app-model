@@ -2,17 +2,22 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
+from in_n_out import Store
 from psygnal import Signal
 
 if TYPE_CHECKING:
     from typing import Dict, Iterator, List, Tuple, TypeVar
 
+    from typing_extensions import ParamSpec
+
     from ..types import CommandIdStr
 
+    P = ParamSpec("P")
+    R = TypeVar("R")
+
     DisposeCallable = Callable[[], None]
-    CommandCallable = TypeVar("CommandCallable", bound=Union[Callable, str])
 
 
 class _RegisteredCommand:
@@ -24,21 +29,28 @@ class _RegisteredCommand:
     the attribute: `del cmd.run_injected`
     """
 
-    def __init__(self, id: CommandIdStr, callback: CommandCallable, title: str) -> None:
+    def __init__(
+        self,
+        id: CommandIdStr,
+        callback: Union[str, Callable[P, R]],
+        title: str,
+        store: Optional[Store],
+    ) -> None:
         self.id = id
         self.callback = callback
         self.title = title
         self._resolved_callback = callback if callable(callback) else None
+        self._injection_store: Store = store or Store.get_store()
 
     @property
-    def resolved_callback(self) -> Callable:
+    def resolved_callback(self) -> Callable[P, R]:
         if self._resolved_callback is None:
             from ..types._utils import import_python_name
 
             try:
                 self._resolved_callback = import_python_name(str(self.callback))
             except ImportError as e:
-                self._resolved_callback = lambda *a, **k: None
+                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
                 raise type(e)(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} was not importable: {e}"
@@ -46,7 +58,7 @@ class _RegisteredCommand:
 
             if not callable(self._resolved_callback):
                 # don't try to import again, just create a no-op
-                self._resolved_callback = lambda *a, **k: None
+                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
                 raise TypeError(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} did not resolve to a callble object."
@@ -54,10 +66,9 @@ class _RegisteredCommand:
         return self._resolved_callback
 
     @cached_property
-    def run_injected(self) -> Callable:
-        # from .._injection import inject_dependencies
-        # return inject_dependencies(self.run)
-        return self.resolved_callback
+    def run_injected(self) -> Callable[P, R]:
+        out = self._injection_store.inject_dependencies(self.resolved_callback)
+        return cast("Callable[P, R]", out)
 
 
 class CommandsRegistry:
@@ -71,8 +82,9 @@ class CommandsRegistry:
     def register_command(
         self,
         id: CommandIdStr,
-        callback: CommandCallable,
+        callback: Union[str, Callable[P, R]],
         title: str = "",
+        store: Optional[Store] = None,
     ) -> DisposeCallable:
         """Register a callable as the handler for command `id`.
 
@@ -84,6 +96,9 @@ class CommandsRegistry:
             Callable to be called when the command is executed
         title : str
             Optional title for the command.
+        store: Optional[in_n_out.Store]
+            Optional store to use for dependency injection.  If not provided,
+            the global store will be used.
 
         Returns
         -------
@@ -92,7 +107,7 @@ class CommandsRegistry:
         """
         commands = self._commands.setdefault(id, [])
 
-        cmd = _RegisteredCommand(id, callback, title)
+        cmd = _RegisteredCommand(id, callback, title, store)
         commands.insert(0, cmd)
 
         def _dispose() -> None:
@@ -156,7 +171,6 @@ class CommandsRegistry:
             raise KeyError(
                 f'Command "{id}" has no registered callbacks'
             )  # pragma: no cover
-
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:
                 return executor.submit(cmd, *args, **kwargs)
