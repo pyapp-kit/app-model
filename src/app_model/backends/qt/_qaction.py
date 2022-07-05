@@ -65,6 +65,7 @@ class QCommandRuleAction(QCommandAction):
         parent: Optional[QObject] = None,
         *,
         use_short_title: bool = False,
+        show_icon: bool = False,
     ):
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
@@ -73,7 +74,7 @@ class QCommandRuleAction(QCommandAction):
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
-        if command_rule.icon:
+        if command_rule.icon and show_icon:
             self.setIcon(to_qicon(command_rule.icon))
         if command_rule.tooltip:
             self.setToolTip(command_rule.tooltip)
@@ -96,7 +97,7 @@ class QMenuItemAction(QCommandRuleAction):
         app: Union[str, Application],
         parent: Optional[QObject] = None,
     ):
-        super().__init__(menu_item.command, app, parent)
+        super().__init__(menu_item.command, app, parent, show_icon=False)
         self._menu_item = menu_item
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
