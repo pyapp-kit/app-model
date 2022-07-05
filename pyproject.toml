@@ -66,6 +66,8 @@ zip-safe = false
 include-package-data = true
 packages = { find = { where = ["src"], exclude = [] } }
 
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
 
 # https://github.com/pypa/setuptools_scm/#pyprojecttoml-usage
 [tool.setuptools_scm]
