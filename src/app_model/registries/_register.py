@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
 from ..types import Action, MenuItem
 
@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from .._app import Application
     from ..types import CommandIdStr, IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
     from ..types._constants import DisposeCallable
-    from ._commands_reg import CommandCallable
 
+    CommandCallable = TypeVar("CommandCallable", bound=Callable[..., Any])
     CommandDecorator = Callable[[Callable], Callable]
 
 
@@ -204,7 +204,9 @@ def _register_action_obj(
 
     # command
     disposers = [
-        app.commands.register_command(action.id, action.callback, action.title)
+        app.commands.register_command(
+            action.id, action.callback, action.title, app.injection_store
+        )
     ]
 
     # menu
