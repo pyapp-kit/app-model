@@ -58,3 +58,4 @@ repos:
         files: "^src/"
         additional_dependencies:
           - pydantic
+          - in-n-out

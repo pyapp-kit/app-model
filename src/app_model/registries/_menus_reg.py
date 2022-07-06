@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple
+from typing import Callable, Dict, Final, Iterator, List, Optional, Sequence, Set, Tuple
 
 from psygnal import Signal
 
@@ -11,6 +11,7 @@ from ..types._constants import DisposeCallable
 class MenusRegistry:
     """Registry for menu and submenu items."""
 
+    COMMAND_PALETTE_ID: Final = "_command_pallet_"
     menus_changed = Signal(set)
 
     def __init__(self) -> None:
@@ -33,12 +34,11 @@ class MenusRegistry:
         """
         changed_ids: Set[str] = set()
         disposers: List[Callable[[], None]] = []
-
-        for id, item in items:
+        for menu_id, item in items:
             item = MenuItem.validate(item)  # type: ignore
-            menu_list = self._menu_items.setdefault(id, [])
+            menu_list = self._menu_items.setdefault(menu_id, [])
             menu_list.append(item)
-            changed_ids.add(id)
+            changed_ids.add(menu_id)
             disposers.append(lambda: menu_list.remove(item))
 
         def _dispose() -> None:

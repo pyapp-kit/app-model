@@ -30,12 +30,12 @@ class Application:
                 f"`Application.get_or_create({name!r})`."
             )
         Application._instances[name] = self
+        self.injection_store = ino.Store.create(name)
 
         self.keybindings = KeyBindingsRegistry()
         self.menus = MenusRegistry()
-        self.commands = CommandsRegistry()
+        self.commands = CommandsRegistry(self.injection_store)
 
-        self.injection_store = ino.Store.create(name)
         self.injection_store.on_unannotated_required_args = "ignore"
 
         self._disposers: List[Tuple[str, DisposeCallable]] = []
