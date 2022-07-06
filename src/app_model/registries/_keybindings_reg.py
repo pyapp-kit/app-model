@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from typing import Iterator, List, TypeVar
 
     from .. import expressions
-    from ..types import CommandIdStr, KeyBindingRule
+    from ..types import KeyBindingRule
 
     DisposeCallable = Callable[[], None]
     CommandDecorator = Callable[[Callable], Callable]
@@ -21,7 +21,7 @@ class _RegisteredKeyBinding(NamedTuple):
     """Internal object representing a fully registered keybinding."""
 
     keybinding: KeyBinding  # the keycode to bind to
-    command_id: CommandIdStr  # the command to run
+    command_id: str  # the command to run
     weight: int  # the weight of the binding, for prioritization
     when: Optional[expressions.Expr] = None  # condition to enable keybinding
 
@@ -35,13 +35,13 @@ class KeyBindingsRegistry:
         self._keybindings: List[_RegisteredKeyBinding] = []
 
     def register_keybinding_rule(
-        self, id: CommandIdStr, rule: KeyBindingRule
+        self, id: str, rule: KeyBindingRule
     ) -> Optional[DisposeCallable]:
         """Register a new keybinding rule.
 
         Parameters
         ----------
-        id : CommandIdStr
+        id : str
             Command identifier that should be run when the keybinding is triggered
         rule : KeyBindingRule
             KeyBinding information
@@ -75,7 +75,7 @@ class KeyBindingsRegistry:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._keybindings)} bindings)>"
 
-    def get_keybinding(self, key: CommandIdStr) -> Optional[_RegisteredKeyBinding]:
+    def get_keybinding(self, key: str) -> Optional[_RegisteredKeyBinding]:
         """Return the first keybinding that matches the given command ID."""
         # TODO: improve me.
         return next(

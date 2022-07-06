@@ -14,8 +14,6 @@ from ._util import to_qicon
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QWidget
 
-    from app_model.types import MenuIdStr
-
 
 class QModelMenu(QMenu):
     """QMenu for a menu_id in an `app_model` MenusRegistry.
@@ -32,7 +30,7 @@ class QModelMenu(QMenu):
 
     def __init__(
         self,
-        menu_id: MenuIdStr,
+        menu_id: str,
         app: Union[str, Application],
         title: Optional[str] = None,
         parent: Optional[QWidget] = None,

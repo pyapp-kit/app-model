@@ -13,7 +13,7 @@ from .registries import (
 )
 
 if TYPE_CHECKING:
-    from .types import Action, CommandIdStr
+    from .types import Action
     from .types._constants import DisposeCallable
 
 
@@ -38,7 +38,7 @@ class Application:
         self.injection_store = ino.Store.create(name)
         self.injection_store.on_unannotated_required_args = "ignore"
 
-        self._disposers: List[Tuple[CommandIdStr, DisposeCallable]] = []
+        self._disposers: List[Tuple[str, DisposeCallable]] = []
 
     @classmethod
     def get_or_create(cls, name: str) -> Application:

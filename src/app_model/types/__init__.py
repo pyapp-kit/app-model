@@ -1,7 +1,7 @@
 """App-model types."""
 from ._action import Action
-from ._command_rule import CommandIdStr, CommandRule
-from ._icon import Icon, IconCodeStr, IconOrDict
+from ._command_rule import CommandRule
+from ._icon import Icon, IconOrDict
 from ._keybinding_rule import (
     KeyBindingRule,
     KeyBindingRuleDict,
@@ -10,7 +10,6 @@ from ._keybinding_rule import (
 )
 from ._keys import KeyBinding, KeyChord, KeyCode, KeyMod, SimpleKeyBinding
 from ._menu import (
-    MenuIdStr,
     MenuItem,
     MenuOrSubmenu,
     MenuRule,
@@ -21,10 +20,8 @@ from ._menu import (
 
 __all__ = [
     "Action",
-    "CommandIdStr",
     "CommandRule",
     "Icon",
-    "IconCodeStr",
     "IconOrDict",
     "KeyBinding",
     "KeyBindingRule",
@@ -34,7 +31,6 @@ __all__ = [
     "KeyCode",
     "KeyCodeStr",
     "KeyMod",
-    "MenuIdStr",
     "MenuItem",
     "MenuOrSubmenu",
     "MenuRule",

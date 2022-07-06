@@ -12,7 +12,7 @@ from ._util import to_qicon
 if TYPE_CHECKING:
     from qtpy.QtCore import QObject
 
-    from app_model.types import CommandIdStr, CommandRule, MenuItem
+    from app_model.types import CommandRule, MenuItem
 
 
 class QCommandAction(QAction):
@@ -30,7 +30,7 @@ class QCommandAction(QAction):
 
     def __init__(
         self,
-        command_id: CommandIdStr,
+        command_id: str,
         app: Union[str, Application],
         parent: Optional[QObject] = None,
     ):

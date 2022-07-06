@@ -1,12 +1,10 @@
-from typing import NewType, Optional
+from typing import Optional
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
 from ._icon import Icon
-
-CommandIdStr = NewType("CommandIdStr", str)
 
 
 class CommandRule(_StrictModel):
@@ -19,7 +17,7 @@ class CommandRule(_StrictModel):
     category label.
     """
 
-    id: CommandIdStr = Field(..., description="A global identifier for the command.")
+    id: str = Field(..., description="A global identifier for the command.")
     title: str = Field(
         ...,
         description="Title by which the command is represented in the UI.",
