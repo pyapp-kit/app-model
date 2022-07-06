@@ -7,6 +7,8 @@ from ._qmenu import QModelMenu
 
 
 class QModelMenuBar(QMenuBar):
+    """QMenuBar that is built from a list of model menu ids."""
+
     def __init__(
         self,
         menus: List[str],

@@ -8,6 +8,8 @@ from ._qmenubar import QModelMenuBar
 
 
 class QModelMainWindow(QMainWindow):
+    """QMainWindow with app-model support."""
+
     def __init__(
         self, app: Union[str, Application], parent: Optional[QWidget] = None
     ) -> None:
@@ -15,5 +17,6 @@ class QModelMainWindow(QMainWindow):
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
 
     def setModelMenuBar(self, menu_ids: List[str]) -> None:
+        """Set the menu bar to a list of menu ids."""
         menu_bar = QModelMenuBar(menu_ids, self._app, self)
         self.setMenuBar(menu_bar)
