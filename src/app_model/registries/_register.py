@@ -203,26 +203,34 @@ def _register_action_obj(
     app = app if isinstance(app, Application) else Application.get_or_create(app)
 
     # command
-    disposers = [
-        app.commands.register_command(
-            action.id, action.callback, action.title, app.injection_store
-        )
-    ]
+    disp_cmd = app.commands.register_command(action.id, action.callback, action.title)
+    disposers = [disp_cmd]
 
     # menu
-
     items = []
     for rule in action.menus or ():
         menu_item = MenuItem(
             command=action, when=rule.when, group=rule.group, order=rule.order
         )
         items.append((rule.id, menu_item))
-
     disposers.append(app.menus.append_menu_items(items))
+
+    if action.add_to_command_palette:
+        menu_item = MenuItem(command=action, when=action.enablement)
+        disp = app.menus.append_menu_items([(app.menus.COMMAND_PALETTE_ID, menu_item)])
+        disposers.append(disp)
 
     # keybinding
     for keyb in action.keybindings or ():
-        if _d := app.keybindings.register_keybinding_rule(action.id, keyb):
+        if action.enablement is not None:
+            _keyb = keyb.copy()
+            if _keyb.when is None:
+                _keyb.when = action.enablement
+            else:
+                _keyb.when = action.enablement | _keyb.when
+        else:
+            _keyb = keyb
+        if _d := app.keybindings.register_keybinding_rule(action.id, _keyb):
             disposers.append(_d)
 
     def _dispose() -> None:

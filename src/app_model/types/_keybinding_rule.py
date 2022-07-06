@@ -1,4 +1,4 @@
-from typing import NewType, Optional, TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 from pydantic import Field
 
@@ -6,7 +6,6 @@ from .. import expressions
 from ._base import _StrictModel
 from ._constants import OperatingSystem
 
-KeyCodeStr = NewType("KeyCodeStr", str)
 KeyEncoding = Union[int, str]
 
 _OS = OperatingSystem.current()
@@ -57,10 +56,10 @@ class KeyBindingRule(_StrictModel):
 class KeyBindingRuleDict(TypedDict, total=False):
     """Typed dict for KeyBindingRule kwargs."""
 
-    primary: Optional[KeyCodeStr]
-    win: Optional[KeyCodeStr]
-    linux: Optional[KeyCodeStr]
-    mac: Optional[KeyCodeStr]
+    primary: Optional[str]
+    win: Optional[str]
+    linux: Optional[str]
+    mac: Optional[str]
     weight: int
     when: Optional[expressions.Expr]
 

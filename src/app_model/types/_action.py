@@ -5,7 +5,7 @@ from typing_extensions import ParamSpec
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule
-from ._menu import MenuRule
+from ._menu_rule import MenuRule
 from ._utils import _validate_python_name
 
 P = ParamSpec("P")

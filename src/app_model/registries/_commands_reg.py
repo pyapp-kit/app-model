@@ -2,23 +2,22 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, Union, cast
 
 from in_n_out import Store
 from psygnal import Signal
+from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Tuple, TypeVar
-
-    from typing_extensions import ParamSpec
-
-    P = ParamSpec("P")
-    R = TypeVar("R")
+    from typing import Dict, Iterator, List, Tuple
 
     DisposeCallable = Callable[[], None]
 
+P = ParamSpec("P")
+R = TypeVar("R")
 
-class _RegisteredCommand:
+
+class _RegisteredCommand(Generic[P, R]):
     """Small object to represent a command in the CommandsRegistry.
 
     Only used internally by the CommandsRegistry.
@@ -32,7 +31,7 @@ class _RegisteredCommand:
         id: str,
         callback: Union[str, Callable[P, R]],
         title: str,
-        store: Optional[Store],
+        store: Optional[Store] = None,
     ) -> None:
         self.id = id
         self.callback = callback
@@ -48,7 +47,7 @@ class _RegisteredCommand:
             try:
                 self._resolved_callback = import_python_name(str(self.callback))
             except ImportError as e:
-                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
+                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
                 raise type(e)(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} was not importable: {e}"
@@ -56,7 +55,7 @@ class _RegisteredCommand:
 
             if not callable(self._resolved_callback):
                 # don't try to import again, just create a no-op
-                self._resolved_callback = cast("Callable[P, R]", lambda *a, **k: None)
+                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
                 raise TypeError(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} did not resolve to a callble object."
@@ -65,8 +64,7 @@ class _RegisteredCommand:
 
     @cached_property
     def run_injected(self) -> Callable[P, R]:
-        out = self._injection_store.inject(self.resolved_callback, processors=True)
-        return cast("Callable[P, R]", out)
+        return self._injection_store.inject(self.resolved_callback, processors=True)
 
 
 class CommandsRegistry:
@@ -74,15 +72,12 @@ class CommandsRegistry:
 
     registered = Signal(str)
 
-    def __init__(self) -> None:
+    def __init__(self, injection_store: Optional[Store] = None) -> None:
         self._commands: Dict[str, List[_RegisteredCommand]] = {}
+        self._injection_store = injection_store
 
     def register_command(
-        self,
-        id: str,
-        callback: Union[str, Callable[P, R]],
-        title: str = "",
-        store: Optional[Store] = None,
+        self, id: str, callback: Union[str, Callable[P, R]], title: str
     ) -> DisposeCallable:
         """Register a callable as the handler for command `id`.
 
@@ -93,10 +88,7 @@ class CommandsRegistry:
         callback : Callable
             Callable to be called when the command is executed
         title : str
-            Optional title for the command.
-        store: Optional[in_n_out.Store]
-            Optional store to use for dependency injection.  If not provided,
-            the global store will be used.
+            Title for the command.
 
         Returns
         -------
@@ -105,7 +97,7 @@ class CommandsRegistry:
         """
         commands = self._commands.setdefault(id, [])
 
-        cmd = _RegisteredCommand(id, callback, title, store)
+        cmd = _RegisteredCommand(id, callback, title, self._injection_store)
         commands.insert(0, cmd)
 
         def _dispose() -> None:

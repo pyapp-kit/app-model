@@ -21,6 +21,7 @@ KWARGS = [
         ]
     ),
     dict(keybindings=[{"primary": "ctrl+a"}], menus=[{"id": MENUID}]),
+    dict(add_to_command_palette=False),
 ]
 
 
@@ -80,12 +81,18 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     assert app.commands.execute_command(cmd_id).result() == "hi"
 
     # make sure menus are registered if specified
+    menus = kwargs.get("menus", [])
     if menus := kwargs.get("menus"):
         for entry in menus:
             assert entry["id"] in app.menus
-            app.menus_changed.assert_called_with({entry["id"]})
+            app.menus_changed.assert_any_call({entry["id"]})
     else:
-        assert not list(app.menus)
+        menus = list(app.menus)
+        if kwargs.get("add_to_command_palette") is not False:
+            assert app.menus.COMMAND_PALETTE_ID in app.menus
+            assert len(menus) == 1
+        else:
+            assert not list(app.menus)
 
     # make sure keybindings are registered if specified
     if keybindings := kwargs.get("keybindings"):
