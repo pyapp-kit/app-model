@@ -1,6 +1,5 @@
+from demo_app.app import MyApp
 from qtpy.QtWidgets import QApplication
-
-from .app import MyApp
 
 qapp = QApplication([])
 app = MyApp()
