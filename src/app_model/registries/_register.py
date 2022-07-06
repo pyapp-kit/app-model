@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
     from .. import expressions
     from .._app import Application
-    from ..types import CommandIdStr, IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
+    from ..types import IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
     from ..types._constants import DisposeCallable
 
     CommandCallable = TypeVar("CommandCallable", bound=Callable[..., Any])
@@ -26,7 +26,7 @@ def register_action(
 @overload
 def register_action(
     app: Union[Application, str],
-    id_or_action: CommandIdStr,
+    id_or_action: str,
     title: str,
     *,
     callback: Literal[None] = None,
@@ -44,7 +44,7 @@ def register_action(
 @overload
 def register_action(
     app: Union[Application, str],
-    id_or_action: CommandIdStr,
+    id_or_action: str,
     title: str,
     *,
     callback: CommandCallable,
@@ -61,7 +61,7 @@ def register_action(
 
 def register_action(
     app: Union[Application, str],
-    id_or_action: Union[CommandIdStr, Action],
+    id_or_action: Union[str, Action],
     title: Optional[str] = None,
     *,
     callback: Optional[CommandCallable] = None,

@@ -4,7 +4,7 @@ import pytest
 
 from app_model import Application
 from app_model.registries import register_action
-from app_model.types import Action, CommandIdStr
+from app_model.types import Action
 
 PRIMARY_KEY = "ctrl+a"
 OS_KEY = "ctrl+b"
@@ -46,7 +46,7 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     assert not list(app.keybindings)
     assert not list(app.menus)
 
-    cmd_id = CommandIdStr("cmd.id")
+    cmd_id = "cmd.id"
     kwargs["title"] = "Test title"
 
     # register the action

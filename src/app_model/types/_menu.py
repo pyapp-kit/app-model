@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generator, NewType, Optional, Type, TypedDict, Union
+from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
 
 from pydantic import Field
 
@@ -6,8 +6,6 @@ from .. import expressions
 from ._base import _StrictModel
 from ._command_rule import CommandRule
 from ._icon import Icon
-
-MenuIdStr = NewType("MenuIdStr", str)
 
 
 class _MenuItemBase(_StrictModel):
@@ -56,7 +54,7 @@ class MenuRule(_MenuItemBase):
     It does not define an actual command. That is done in either `MenuItem` or `Action`.
     """
 
-    id: MenuIdStr = Field(..., description="Menu in which to place this item.")
+    id: str = Field(..., description="Menu in which to place this item.")
 
 
 class MenuItem(_MenuItemBase):
@@ -80,7 +78,7 @@ class MenuItem(_MenuItemBase):
 class SubmenuItem(_MenuItemBase):
     """Point to another Menu that will be displayed as a submenu."""
 
-    submenu: MenuIdStr = Field(..., description="Menu to insert as a submenu.")
+    submenu: str = Field(..., description="Menu to insert as a submenu.")
     title: str = Field(..., description="Title of this submenu, shown in the UI.")
     icon: Optional[Icon] = Field(
         None,
@@ -104,7 +102,7 @@ class MenuRuleDict(TypedDict, total=False):
     when: Optional[expressions.Expr]
     group: str
     order: Optional[float]
-    id: MenuIdStr
+    id: str
 
 
 MenuRuleOrDict = Union[MenuRule, MenuRuleDict]

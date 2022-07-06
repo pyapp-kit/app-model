@@ -95,7 +95,7 @@ W503  # line break before binary operator
 B010
 """
 per-file-ignores = [
-    "tests/*: D",
+    "tests/*,demo_app/*: D",
     "src/app_model/_registries.py,src/app_model/context/_expressions.py: D10",
 ]
 
@@ -156,6 +156,7 @@ ignore = [
     ".pre-commit-config.yaml",
     "tests/**/*",
     "codecov.yml",
+    "demo_app/**/*"
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html

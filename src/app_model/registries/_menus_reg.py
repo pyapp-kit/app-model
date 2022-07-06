@@ -4,7 +4,7 @@ from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set, Tupl
 
 from psygnal import Signal
 
-from ..types import MenuIdStr, MenuItem, MenuOrSubmenu
+from ..types import MenuItem, MenuOrSubmenu
 from ..types._constants import DisposeCallable
 
 
@@ -14,16 +14,16 @@ class MenusRegistry:
     menus_changed = Signal(set)
 
     def __init__(self) -> None:
-        self._menu_items: Dict[MenuIdStr, List[MenuOrSubmenu]] = {}
+        self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
 
     def append_menu_items(
-        self, items: Sequence[Tuple[MenuIdStr, MenuOrSubmenu]]
+        self, items: Sequence[Tuple[str, MenuOrSubmenu]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
         Parameters
         ----------
-        items : Sequence[Tuple[MenuIdStr, MenuOrSubmenu]]
+        items : Sequence[Tuple[str, MenuOrSubmenu]]
             Items to append.
 
         Returns
@@ -31,7 +31,7 @@ class MenusRegistry:
         DisposeCallable
             A function that can be called to unregister the menu items.
         """
-        changed_ids: Set[MenuIdStr] = set()
+        changed_ids: Set[str] = set()
         disposers: List[Callable[[], None]] = []
 
         for id, item in items:
@@ -62,7 +62,7 @@ class MenusRegistry:
     def __contains__(self, id: object) -> bool:
         return id in self._menu_items
 
-    def get_menu(self, menu_id: MenuIdStr) -> List[MenuOrSubmenu]:
+    def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
         return self._menu_items[menu_id]
 
@@ -99,7 +99,7 @@ class MenusRegistry:
             lines.append("")
         return lines
 
-    def iter_menu_groups(self, menu_id: MenuIdStr) -> Iterator[List[MenuOrSubmenu]]:
+    def iter_menu_groups(self, menu_id: str) -> Iterator[List[MenuOrSubmenu]]:
         """Iterate over menu groups for `menu_id`.
 
         Groups are broken into sections (lists of menu or submenu items) based on

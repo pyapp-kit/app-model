@@ -12,8 +12,6 @@ if TYPE_CHECKING:
 
     from typing_extensions import ParamSpec
 
-    from ..types import CommandIdStr
-
     P = ParamSpec("P")
     R = TypeVar("R")
 
@@ -31,7 +29,7 @@ class _RegisteredCommand:
 
     def __init__(
         self,
-        id: CommandIdStr,
+        id: str,
         callback: Union[str, Callable[P, R]],
         title: str,
         store: Optional[Store],
@@ -77,11 +75,11 @@ class CommandsRegistry:
     registered = Signal(str)
 
     def __init__(self) -> None:
-        self._commands: Dict[CommandIdStr, List[_RegisteredCommand]] = {}
+        self._commands: Dict[str, List[_RegisteredCommand]] = {}
 
     def register_command(
         self,
-        id: CommandIdStr,
+        id: str,
         callback: Union[str, Callable[P, R]],
         title: str = "",
         store: Optional[Store] = None,
@@ -118,7 +116,7 @@ class CommandsRegistry:
         self.registered.emit(id)
         return _dispose
 
-    def __iter__(self) -> Iterator[Tuple[CommandIdStr, List[_RegisteredCommand]]]:
+    def __iter__(self) -> Iterator[Tuple[str, List[_RegisteredCommand]]]:
         yield from self._commands.items()
 
     def __contains__(self, id: str) -> bool:
@@ -128,13 +126,13 @@ class CommandsRegistry:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._commands)} commands)>"
 
-    def __getitem__(self, id: CommandIdStr) -> List[_RegisteredCommand]:
+    def __getitem__(self, id: str) -> List[_RegisteredCommand]:
         """Retrieve commands registered under a given ID."""
         return self._commands[id]
 
     def execute_command(
         self,
-        id: CommandIdStr,
+        id: str,
         *args: Any,
         execute_asychronously: bool = False,
         **kwargs: Any,

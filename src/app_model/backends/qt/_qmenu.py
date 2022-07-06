@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Mapping, Optional, Set, Union
 
 from qtpy import QT6
 from qtpy.QtWidgets import QMenu
@@ -13,8 +13,6 @@ from ._util import to_qicon
 
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QWidget
-
-    from app_model.types import MenuIdStr
 
 
 class QModelMenu(QMenu):
@@ -32,7 +30,7 @@ class QModelMenu(QMenu):
 
     def __init__(
         self,
-        menu_id: MenuIdStr,
+        menu_id: str,
         app: Union[str, Application],
         title: Optional[str] = None,
         parent: Optional[QWidget] = None,
@@ -45,6 +43,15 @@ class QModelMenu(QMenu):
         if title is not None:
             self.setTitle(title)
         self.rebuild()
+        self._app.menus.menus_changed.connect(self._on_registry_changed)
+        self.destroyed.connect(self._disconnect)
+
+    def _disconnect(self) -> None:
+        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+
+    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+        if self._menu_id in changed_ids:
+            self.rebuild()
 
     def rebuild(self) -> None:
         """Rebuild menu by looking up self._menu_id in menu_registry."""

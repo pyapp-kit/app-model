@@ -1,10 +1,8 @@
-from typing import Any, Callable, Generator, NewType, Optional, TypedDict, Union
+from typing import Any, Callable, Generator, Optional, TypedDict, Union
 
 from pydantic import Field
 
 from ._base import _StrictModel
-
-IconCodeStr = NewType("IconCodeStr", str)
 
 
 class Icon(_StrictModel):
@@ -14,12 +12,12 @@ class Icon(_StrictModel):
     in all theme types.
     """
 
-    dark: Optional[IconCodeStr] = Field(
+    dark: Optional[str] = Field(
         None,
         description="Icon path when a dark theme is used. These may be superqt "
         "fonticon keys, such as `fa5s.arrow_down`",
     )
-    light: Optional[IconCodeStr] = Field(
+    light: Optional[str] = Field(
         None,
         description="Icon path when a light theme is used. These may be superqt "
         "fonticon keys, such as `fa5s.arrow_down`",
@@ -41,8 +39,8 @@ class Icon(_StrictModel):
 class IconDict(TypedDict):
     """Icon dictionary."""
 
-    dark: Optional[IconCodeStr]
-    light: Optional[IconCodeStr]
+    dark: Optional[str]
+    light: Optional[str]
 
 
 IconOrDict = Union[Icon, IconDict]
