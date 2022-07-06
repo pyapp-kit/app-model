@@ -67,7 +67,7 @@ class _RegisteredCommand:
 
     @cached_property
     def run_injected(self) -> Callable[P, R]:
-        out = self._injection_store.inject(self.resolved_callback)
+        out = self._injection_store.inject(self.resolved_callback, processors=True)
         return cast("Callable[P, R]", out)
 
 
