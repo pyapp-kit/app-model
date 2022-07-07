@@ -2,22 +2,23 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 from in_n_out import Store
 from psygnal import Signal
-from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Tuple
+    from typing import Dict, Iterator, List, Tuple, TypeVar
+
+    from typing_extensions import ParamSpec
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
     DisposeCallable = Callable[[], None]
 
-P = ParamSpec("P")
-R = TypeVar("R")
 
-
-class _RegisteredCommand(Generic[P, R]):
+class _RegisteredCommand:
     """Small object to represent a command in the CommandsRegistry.
 
     Only used internally by the CommandsRegistry.
@@ -64,7 +65,9 @@ class _RegisteredCommand(Generic[P, R]):
 
     @cached_property
     def run_injected(self) -> Callable[P, R]:
-        return self._injection_store.inject(self.resolved_callback, processors=True)
+        return self._injection_store.inject(
+            self.resolved_callback, processors=True  # type: ignore
+        )
 
 
 class CommandsRegistry:
