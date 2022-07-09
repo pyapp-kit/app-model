@@ -1,17 +1,9 @@
-# App Model Documentation
+# Overview
 
-## Action
+`app-model` is a declarative, backend-agnostic schema for a GUI-based application.
 
-| Field | Type | Description  |
-| ----  | ---- | -----------  |
-{% for field in Action.__fields__.values() -%}
-| {{field.name}} | `{{ field.outer_type_ }}` | {{ field.field_info.description }}  |
-{% endfor %}
+The primary goal of this library is to provide a set of types that enable
+an application developer to declare the commands, keybindings, macros, etc.
+that make up their application.
 
-::: app_model.types.Action
-    options:
-      members:
-        - title
-        - dict
-      show_root_heading: false
-      show_source: false
+As an example, take the following minimal Qt-based Application (from the Qt )

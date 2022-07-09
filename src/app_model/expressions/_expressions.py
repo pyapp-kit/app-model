@@ -99,32 +99,23 @@ def safe_eval(expr: str, context: Optional[Mapping] = None) -> Any:
 class Expr(ast.AST, Generic[T]):
     """Base Expression class providing dunder and convenience methods.
 
-    This class is not meant to be instantiated.
-    Instead, use :func:`parse_expression`, or the `Expr.parse` classmethod
-    to create an expression instance.
+    This class is not meant to be instantiated directly. Instead, use
+    [`parse_expression`][app_model.expressions._expressions.parse_expression], or the
+    [`Expr.parse`][app_model.expressions.Expr.parse] classmethod to create an expression
+    instance.
 
     Once created, an expression can be joined with other expressions, or
     constants.
 
-    Methods
-    -------
-    Outside of the dunder methods providing operator support, key methods are:
-
-    eval(context: dict) -> Any
-        Evaluate this expression in the `context` namespace.
-    parse(expr: str) -> Expr
-        (classmethod) - Parse a string to create a new expression
-    _serialize() -> str
-        serialize the expression to a string
 
     Examples
     --------
     >>> expr = parse_expression('myvar > 5')
 
-    # combine expressions with operators
+    combine expressions with operators
     >>> new_expr = expr & parse_expression('v2')
 
-    # nice repr
+    nice `repr`
     >>> new_expr
     BoolOp(
         op=And(),
@@ -137,29 +128,29 @@ class Expr(ast.AST, Generic[T]):
                 Constant(value=5)]),
             Name(id='v2', ctx=Load())])
 
-    # evaluate in some context
+    evaluate in some context
     >>> new_expr.eval(dict(v2='hello!', myvar=8))
     'hello!'
 
-    # serialize
-    >>> print(new_expr)
-    myvar > 5 and v2
+    serialize
+    >>> str(new_expr)
+    'myvar > 5 and v2'
 
-    One reason you might want to use this is to capture named expressions
+    One reason you might want to use this object is to capture named expressions
     that can be evaluated repeatedly as some underlying context changes.
 
-    .. code-block:: python
+    ```python
+    light_is_green = Name[bool]('light_is_green')
+    count = Name[int]('count')
+    is_ready = light_is_green & count > 5
 
-        light_is_green = Name[bool]('light_is_green')
-        count = Name[int]('count')
-        is_ready = light_is_green & count > 5
-
-        assert is_ready.eval({'count': 4, 'light_is_green': True}) == False
-        assert is_ready.eval({'count': 7, 'light_is_green': False}) == False
-        assert is_ready.eval({'count': 7, 'light_is_green': True}) == True
+    assert is_ready.eval({'count': 4, 'light_is_green': True}) == False
+    assert is_ready.eval({'count': 7, 'light_is_green': False}) == False
+    assert is_ready.eval({'count': 7, 'light_is_green': True}) == True
+    ```
 
     this will also preserve type information:
-    `reveal_type(is_ready())`  # revealed type is `bool`
+    >>> reveal_type(is_ready())  # revealed type is `bool`
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -185,7 +176,8 @@ class Expr(ast.AST, Generic[T]):
     def parse(cls, expr: str) -> Expr:
         """Parse string into Expr (classmethod).
 
-        see docstring of :func:`parse_expression` for details.
+        see docstring of [`parse_expression`][app_model.expressions.parse_expression]
+        for details.
         """
         return parse_expression(str(expr))  # sourcery skip: remove-unnecessary-cast
 

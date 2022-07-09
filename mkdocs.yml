@@ -1,13 +1,32 @@
 site_name: My Docs
 
+watch:
+  - src
+
 plugins:
   - search
-  - mkdocstrings
   - macros:
       module_name: docs/_macros
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: numpy
+            show_bases: false
+            merge_init_into_class: yes
+            show_source: no
+            show_root_full_path: no
+            show_root_heading: yes
+            docstring_section_style: list
+
 
 markdown_extensions:
   - tables
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 theme:
   name: material
