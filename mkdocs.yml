@@ -1,0 +1,13 @@
+site_name: My Docs
+
+plugins:
+  - search
+  - mkdocstrings
+  - macros:
+      module_name: docs/_macros
+
+markdown_extensions:
+  - tables
+
+theme:
+  name: material

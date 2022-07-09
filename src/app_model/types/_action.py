@@ -37,7 +37,7 @@ class Action(CommandRule, Generic[P, R]):
         None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )
-    add_to_command_palette: bool = Field(
+    palette: bool = Field(
         True,
         description="Whether to add this command to the global Command Palette "
         "during registration.",
