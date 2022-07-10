@@ -27,11 +27,11 @@ class KeyBindingRule(_StrictModel):
     win: Optional[KeyEncoding] = Field(
         None, description="(Optional) Windows specific key combo."
     )
-    linux: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Linux specific key combo."
-    )
     mac: Optional[KeyEncoding] = Field(
         None, description="(Optional) MacOS specific key combo."
+    )
+    linux: Optional[KeyEncoding] = Field(
+        None, description="(Optional) Linux specific key combo."
     )
     when: Optional[expressions.Expr] = Field(
         None,
