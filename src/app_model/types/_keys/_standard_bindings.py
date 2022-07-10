@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from collections import namedtuple
 from typing import TYPE_CHECKING, Dict
+from ._key_codes import KeyCode, KeyMod
 
 if TYPE_CHECKING:
     from .._keybinding_rule import KeyBindingRule
@@ -9,7 +10,6 @@ if TYPE_CHECKING:
 class StandardKeyBinding(Enum):
     AddTab = auto()
     Back = auto()
-    Backspace = auto()
     Bold = auto()
     Cancel = auto()
     Close = auto()
@@ -27,10 +27,7 @@ class StandardKeyBinding(Enum):
     Forward = auto()
     FullScreen = auto()
     HelpContents = auto()
-    InsertLineSeparator = auto()
-    InsertParagraphSeparator = auto()
     Italic = auto()
-    MoveToEndOfBlock = auto()
     MoveToEndOfDocument = auto()
     MoveToEndOfLine = auto()
     MoveToNextChar = auto()
@@ -41,7 +38,6 @@ class StandardKeyBinding(Enum):
     MoveToPreviousLine = auto()
     MoveToPreviousPage = auto()
     MoveToPreviousWord = auto()
-    MoveToStartOfBlock = auto()
     MoveToStartOfDocument = auto()
     MoveToStartOfLine = auto()
     New = auto()
@@ -58,7 +54,6 @@ class StandardKeyBinding(Enum):
     Save = auto()
     SaveAs = auto()
     SelectAll = auto()
-    SelectEndOfBlock = auto()
     SelectEndOfDocument = auto()
     SelectEndOfLine = auto()
     SelectNextChar = auto()
@@ -69,7 +64,6 @@ class StandardKeyBinding(Enum):
     SelectPreviousLine = auto()
     SelectPreviousPage = auto()
     SelectPreviousWord = auto()
-    SelectStartOfBlock = auto()
     SelectStartOfDocument = auto()
     SelectStartOfLine = auto()
     Underline = auto()
@@ -85,84 +79,80 @@ class StandardKeyBinding(Enum):
         return KeyBindingRule(**_STANDARD_KEY_MAP[self])
 
 
-_ = ""
-SK = namedtuple("SK", "sk, win, mac, gnome")
+_ = None
+SK = namedtuple("SK", "sk, primary, win, mac, gnome", defaults=(_, _, _, _, _))
 
 # fmt: off
+# flake8: noqa
+
 _STANDARD_KEYS = [
-    SK(StandardKeyBinding.AddTab, "Ctrl+T", "Ctrl+T", "Ctrl+T"),
-    SK(StandardKeyBinding.Back, "Alt+Left, Backspace", "Ctrl+[", "Alt+Left"),
-    SK(StandardKeyBinding.Backspace, _, "Meta+H", _),
-    SK(StandardKeyBinding.Bold, "Ctrl+B", "Ctrl+B", "Ctrl+B"),
-    SK(StandardKeyBinding.Cancel, "Escape", "Escape, Ctrl+.", "Escape"),
-    SK(StandardKeyBinding.Close, "Ctrl+F4, Ctrl+W", "Ctrl+W, Ctrl+F4", "Ctrl+W"),
-    SK(StandardKeyBinding.Copy, "Ctrl+C, Ctrl+Ins", "Ctrl+C", "Ctrl+C, F16, Ctrl+Ins"),
-    SK(StandardKeyBinding.Cut, "Ctrl+X Shift+Del", "Ctrl+X Meta+K", "Ctrl+X F20 Shift+Del"),
-    SK(StandardKeyBinding.Delete, "Del", "Del, Meta+D", "Del, Ctrl+D"),
-    SK(StandardKeyBinding.DeleteCompleteLine, _, _, "Ctrl+U"),
-    SK(StandardKeyBinding.DeleteEndOfLine, _, _, "Ctrl+K"),
-    SK(StandardKeyBinding.DeleteEndOfWord, "Ctrl+Del", _, "Ctrl+Del"),
-    SK(StandardKeyBinding.DeleteStartOfWord, "Ctrl+Backspace", "Alt+Backspace", "Ctrl+Backspace"),
-    SK(StandardKeyBinding.Deselect, _, _, "Ctrl+Shift+A"),
-    SK(StandardKeyBinding.Find, "Ctrl+F", "Ctrl+F", "Ctrl+F"),
-    SK(StandardKeyBinding.FindNext, "F3, Ctrl+G", "Ctrl+G", "Ctrl+G, F3"),
-    SK(StandardKeyBinding.FindPrevious, "Shift+F3 Ctrl+Shift+G", "Ctrl+Shift+G", "Ctrl+Shift+G Shift+F3"),
-    SK(StandardKeyBinding.Forward, "Alt+Right, Shift+Backspace", "Ctrl+]", "Alt+Right"),
-    SK(StandardKeyBinding.FullScreen, "F11, Alt+Enter", "Ctrl+Meta+F", "Ctrl+F11"),
-    SK(StandardKeyBinding.HelpContents, "F1", "Ctrl+?", "F1"),
-    SK(StandardKeyBinding.InsertLineSeparator, "Shift+Enter", "Meta+Enter Meta+O", "Shift+Enter"),
-    SK(StandardKeyBinding.InsertParagraphSeparator, "Enter", "Enter", "Enter"),
-    SK(StandardKeyBinding.Italic, "Ctrl+I", "Ctrl+I", "Ctrl+I"),
-    SK(StandardKeyBinding.MoveToEndOfBlock, _, "Alt+Down, Meta+E", _),
-    SK(StandardKeyBinding.MoveToEndOfDocument, "Ctrl+End", "Ctrl+Down, End", "Ctrl+End"),
-    SK(StandardKeyBinding.MoveToEndOfLine, "End", "Ctrl+Right Meta+Right", "End Ctrl+E"),
-    SK(StandardKeyBinding.MoveToNextChar, "Right", "Right, Meta+F", "Right"),
-    SK(StandardKeyBinding.MoveToNextLine, "Down", "Down, Meta+N", "Down"),
-    SK(StandardKeyBinding.MoveToNextPage, "PgDown", "PgDown Alt+PgDown Meta+Down Meta+PgDown Meta+V", "PgDown"),
-    SK(StandardKeyBinding.MoveToNextWord, "Ctrl+Right", "Alt+Right", "Ctrl+Right"),
-    SK(StandardKeyBinding.MoveToPreviousChar, "Left", "Left, Meta+B", "Left"),
-    SK(StandardKeyBinding.MoveToPreviousLine, "Up", "Up, Meta+P", "Up"),
-    SK(StandardKeyBinding.MoveToPreviousPage, "PgUp", "PgUp Alt+PgUp Meta+Up Meta+PgUp", "PgUp"),
-    SK(StandardKeyBinding.MoveToPreviousWord, "Ctrl+Left", "Alt+Left", "Ctrl+Left"),
-    SK(StandardKeyBinding.MoveToStartOfBlock, _, "Alt+Up, Meta+A", _),
-    SK(StandardKeyBinding.MoveToStartOfDocument, "Ctrl+Home", "Ctrl+Up Home", "Ctrl+Home"),
-    SK(StandardKeyBinding.MoveToStartOfLine, "Home", "Ctrl+Left, Meta+Left", "Home"),
-    SK(StandardKeyBinding.New, "Ctrl+N", "Ctrl+N", "Ctrl+N"),
-    SK(StandardKeyBinding.NextChild, "Ctrl+Tab Forward Ctrl+F6", "Ctrl+} Forward Ctrl+Tab", "Ctrl+Tab Forward"),
-    SK(StandardKeyBinding.Open, "Ctrl+O", "Ctrl+O", "Ctrl+O"),
-    SK(StandardKeyBinding.Paste, "Ctrl+V Shift+Ins", "Ctrl+V Meta+Y", "Ctrl+V F18 Shift+Ins"),
-    SK(StandardKeyBinding.Preferences, _, "Ctrl+,", _),
-    SK(StandardKeyBinding.PreviousChild, "Ctrl+Shift+Tab Back Ctrl+Shift+F6", "Ctrl+{ Back Ctrl+Shift+Tab", "Ctrl+Shift+Tab Back"),
-    SK(StandardKeyBinding.Print, "Ctrl+P", "Ctrl+P", "Ctrl+P"),
-    SK(StandardKeyBinding.Quit, _, "Ctrl+Q", "Ctrl+Q"),
-    SK(StandardKeyBinding.Redo, "Ctrl+Y Shift+Ctrl+Z Alt+Shift+Backspace", "Ctrl+Shift+Z", "Ctrl+Shift+Z"),
-    SK(StandardKeyBinding.Refresh, "F5", "F5", "Ctrl+R, F5"),
-    SK(StandardKeyBinding.Replace, "Ctrl+H", _, "Ctrl+H"),
-    SK(StandardKeyBinding.Save, "Ctrl+S", "Ctrl+S", "Ctrl+S"),
-    SK(StandardKeyBinding.SaveAs, _, "Ctrl+Shift+S", "Ctrl+Shift+S"),
-    SK(StandardKeyBinding.SelectAll, "Ctrl+A", "Ctrl+A", "Ctrl+A"),
-    SK(StandardKeyBinding.SelectEndOfBlock, _, "Alt+Shift+Down Meta+Shift+E", _),
-    SK(StandardKeyBinding.SelectEndOfDocument, "Ctrl+Shift+End", "Ctrl+Shift+Down Shift+End", "Ctrl+Shift+End"),
-    SK(StandardKeyBinding.SelectEndOfLine, "Shift+End", "Ctrl+Shift+Right", "Shift+End"),
-    SK(StandardKeyBinding.SelectNextChar, "Shift+Right", "Shift+Right", "Shift+Right"),
-    SK(StandardKeyBinding.SelectNextLine, "Shift+Down", "Shift+Down", "Shift+Down"),
-    SK(StandardKeyBinding.SelectNextPage, "Shift+PgDown", "Shift+PgDown", "Shift+PgDown"),
-    SK(StandardKeyBinding.SelectNextWord, "Ctrl+Shift+Right", "Alt+Shift+Right", "Ctrl+Shift+Right"),
-    SK(StandardKeyBinding.SelectPreviousChar, "Shift+Left", "Shift+Left", "Shift+Left"),
-    SK(StandardKeyBinding.SelectPreviousLine, "Shift+Up", "Shift+Up", "Shift+Up"),
-    SK(StandardKeyBinding.SelectPreviousPage, "Shift+PgUp", "Shift+PgUp", "Shift+PgUp"),
-    SK(StandardKeyBinding.SelectPreviousWord, "Ctrl+Shift+Left", "Alt+Shift+Left", "Ctrl+Shift+Left"),
-    SK(StandardKeyBinding.SelectStartOfBlock, _, "Alt+Shift+Up Meta+Shift+A", _),
-    SK(StandardKeyBinding.SelectStartOfDocument, "Ctrl+Shift+Home", "Ctrl+Shift+Up Shift+Home", "Ctrl+Shift+Home"),
-    SK(StandardKeyBinding.SelectStartOfLine, "Shift+Home", "Ctrl+Shift+Left", "Shift+Home"),
-    SK(StandardKeyBinding.Underline, "Ctrl+U", "Ctrl+U", "Ctrl+U"),
-    SK(StandardKeyBinding.Undo, "Ctrl+Z, Alt+Backspace", "Ctrl+Z", "Ctrl+Z, F14"),
-    SK(StandardKeyBinding.WhatsThis, "Shift+F1", "Shift+F1", "Shift+F1"),
-    SK(StandardKeyBinding.ZoomIn, "Ctrl+Plus", "Ctrl+Plus", "Ctrl+Plus"),
-    SK(StandardKeyBinding.ZoomOut, "Ctrl+Minus", "Ctrl+Minus", "Ctrl+Minus"),
+    SK(StandardKeyBinding.AddTab, KeyMod.CtrlCmd | KeyCode.KeyT),
+    SK(StandardKeyBinding.Back, KeyMod.Alt | KeyCode.LeftArrow, _, KeyMod.CtrlCmd | KeyCode.BracketLeft),
+    SK(StandardKeyBinding.Bold, KeyMod.CtrlCmd | KeyCode.KeyB),
+    SK(StandardKeyBinding.Cancel, KeyCode.Escape),
+    SK(StandardKeyBinding.Close, KeyMod.CtrlCmd | KeyCode.KeyW),
+    SK(StandardKeyBinding.Copy, KeyMod.CtrlCmd | KeyCode.KeyC),
+    SK(StandardKeyBinding.Cut, KeyMod.CtrlCmd | KeyCode.KeyX),
+    SK(StandardKeyBinding.Delete, KeyCode.Delete),
+    SK(StandardKeyBinding.DeleteCompleteLine, _, _, _, KeyMod.CtrlCmd | KeyCode.KeyU),
+    SK(StandardKeyBinding.DeleteEndOfLine, _, _, _, KeyMod.CtrlCmd | KeyCode.KeyK),
+    SK(StandardKeyBinding.DeleteEndOfWord, _, KeyMod.CtrlCmd | KeyCode.Delete, _, KeyMod.CtrlCmd | KeyCode.Delete),
+    SK(StandardKeyBinding.DeleteStartOfWord, _, KeyMod.CtrlCmd | KeyCode.Backspace, KeyMod.Alt | KeyCode.Backspace, KeyMod.CtrlCmd | KeyCode.Backspace),
+    SK(StandardKeyBinding.Deselect, _, _, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyA),
+    SK(StandardKeyBinding.Find, KeyMod.CtrlCmd | KeyCode.KeyF),
+    SK(StandardKeyBinding.FindNext, KeyMod.CtrlCmd | KeyCode.KeyG),
+    SK(StandardKeyBinding.FindPrevious, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyG),
+    SK(StandardKeyBinding.Forward, _, KeyMod.Alt | KeyCode.RightArrow, KeyMod.CtrlCmd | KeyCode.BracketRight, KeyMod.Alt | KeyCode.RightArrow),
+    SK(StandardKeyBinding.FullScreen, _, KeyMod.Alt | KeyCode.Enter, KeyMod.WinCtrl | KeyMod.CtrlCmd | KeyCode.KeyF, KeyMod.CtrlCmd | KeyCode.F11),
+    SK(StandardKeyBinding.HelpContents, KeyCode.F1, _, KeyMod.CtrlCmd | KeyCode.Slash),
+    SK(StandardKeyBinding.Italic, KeyMod.CtrlCmd | KeyCode.KeyI),
+    SK(StandardKeyBinding.MoveToEndOfDocument, KeyMod.CtrlCmd | KeyCode.End, _, KeyMod.CtrlCmd | KeyCode.DownArrow),
+    SK(StandardKeyBinding.MoveToEndOfLine, KeyCode.End, _, KeyMod.CtrlCmd | KeyCode.RightArrow),
+    SK(StandardKeyBinding.MoveToNextChar, KeyCode.RightArrow),
+    SK(StandardKeyBinding.MoveToNextLine, KeyCode.DownArrow),
+    SK(StandardKeyBinding.MoveToNextPage, KeyCode.PageDown),
+    SK(StandardKeyBinding.MoveToNextWord, KeyMod.CtrlCmd | KeyCode.RightArrow, _, KeyMod.Alt | KeyCode.RightArrow),
+    SK(StandardKeyBinding.MoveToPreviousChar, KeyCode.LeftArrow),
+    SK(StandardKeyBinding.MoveToPreviousLine, KeyCode.UpArrow),
+    SK(StandardKeyBinding.MoveToPreviousPage, KeyCode.PageUp),
+    SK(StandardKeyBinding.MoveToPreviousWord, KeyMod.CtrlCmd | KeyCode.LeftArrow, _, KeyMod.Alt | KeyCode.LeftArrow),
+    SK(StandardKeyBinding.MoveToStartOfDocument, KeyMod.CtrlCmd | KeyCode.Home, _, KeyCode.Home),
+    SK(StandardKeyBinding.MoveToStartOfLine, KeyCode.Home, _, KeyMod.CtrlCmd | KeyCode.LeftArrow),
+    SK(StandardKeyBinding.New, KeyMod.CtrlCmd | KeyCode.KeyN),
+    SK(StandardKeyBinding.NextChild, KeyMod.CtrlCmd | KeyCode.Tab, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.BracketRight),
+    SK(StandardKeyBinding.Open, KeyMod.CtrlCmd | KeyCode.KeyO),
+    SK(StandardKeyBinding.Paste, KeyMod.CtrlCmd | KeyCode.KeyV),
+    SK(StandardKeyBinding.Preferences, _, _, KeyMod.CtrlCmd, KeyCode.Comma),
+    SK(StandardKeyBinding.PreviousChild, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Tab, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.BracketLeft),
+    SK(StandardKeyBinding.Print, KeyMod.CtrlCmd | KeyCode.KeyP),
+    SK(StandardKeyBinding.Quit, KeyMod.CtrlCmd | KeyCode.KeyQ),
+    SK(StandardKeyBinding.Redo, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyZ, KeyMod.CtrlCmd | KeyCode.KeyY),
+    SK(StandardKeyBinding.Refresh, KeyMod.CtrlCmd | KeyCode.KeyR),
+    SK(StandardKeyBinding.Replace, KeyMod.CtrlCmd | KeyCode.KeyH),
+    SK(StandardKeyBinding.Save, KeyMod.CtrlCmd | KeyCode.KeyS),
+    SK(StandardKeyBinding.SaveAs, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyS),
+    SK(StandardKeyBinding.SelectAll, KeyMod.CtrlCmd | KeyCode.KeyA),
+    SK(StandardKeyBinding.SelectEndOfDocument, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.End),
+    SK(StandardKeyBinding.SelectEndOfLine, KeyMod.Shift | KeyCode.End, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.RightArrow),
+    SK(StandardKeyBinding.SelectNextChar, KeyMod.Shift | KeyCode.RightArrow),
+    SK(StandardKeyBinding.SelectNextLine,  KeyMod.Shift | KeyCode.DownArrow),
+    SK(StandardKeyBinding.SelectNextPage,  KeyMod.Shift | KeyCode.PageDown),
+    SK(StandardKeyBinding.SelectNextWord, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.RightArrow, _, KeyMod.Alt | KeyMod.Shift | KeyCode.RightArrow),
+    SK(StandardKeyBinding.SelectPreviousChar, KeyMod.Shift | KeyCode.LeftArrow),
+    SK(StandardKeyBinding.SelectPreviousLine, KeyMod.Shift | KeyCode.UpArrow),
+    SK(StandardKeyBinding.SelectPreviousPage, KeyMod.Shift | KeyCode.PageUp),
+    SK(StandardKeyBinding.SelectPreviousWord, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.LeftArrow, _, KeyMod.Alt | KeyMod.Shift | KeyCode.LeftArrow),
+    SK(StandardKeyBinding.SelectStartOfDocument, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Home),
+    SK(StandardKeyBinding.SelectStartOfLine, KeyMod.Shift | KeyCode.Home, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.LeftArrow),
+    SK(StandardKeyBinding.Underline, KeyMod.CtrlCmd | KeyCode.KeyU),
+    SK(StandardKeyBinding.Undo, KeyMod.CtrlCmd | KeyCode.KeyZ),
+    SK(StandardKeyBinding.WhatsThis, KeyMod.Shift | KeyCode.F1),
+    SK(StandardKeyBinding.ZoomIn, KeyMod.CtrlCmd | KeyCode.Equal),
+    SK(StandardKeyBinding.ZoomOut, KeyMod.CtrlCmd | KeyCode.Minus),
 ]
 
 # fmt: on
 _STANDARD_KEY_MAP: Dict[StandardKeyBinding, Dict[str, str]] = {
-    nt.sk: {"win": nt.win, "mac": nt.mac, "linux": nt.gnome} for nt in _STANDARD_KEYS
+    nt.sk: {"primary": nt.primary, "win": nt.win, "mac": nt.mac, "linux": nt.gnome}
+    for nt in _STANDARD_KEYS
 }

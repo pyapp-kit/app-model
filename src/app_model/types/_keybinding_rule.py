@@ -1,11 +1,11 @@
-from typing import Optional, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
 from ._constants import OperatingSystem
-
+from ._keys import StandardKeyBinding
 KeyEncoding = Union[int, str]
 
 _OS = OperatingSystem.current()
@@ -52,6 +52,12 @@ class KeyBindingRule(_StrictModel):
             return self.linux
         return self.primary
 
+    @classmethod
+    def validate(cls, value: Any) -> 'KeyBindingRule':
+        if isinstance(value, StandardKeyBinding):
+            return value.to_keybinding_rule()
+        return super().validate(value)
+    
 
 class KeyBindingRuleDict(TypedDict, total=False):
     """Typed dict for KeyBindingRule kwargs."""

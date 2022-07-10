@@ -2,8 +2,6 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-from argparse import ArgumentParser, RawTextHelpFormatter
-import sys
 from fonticon_fa6 import FA6S
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, QTextStream, Qt
@@ -32,8 +30,6 @@ class MainWindow(QMainWindow):
         self.create_menus()
         self.create_tool_bars()
         self.create_status_bar()
-
-        self._text_edit.document().contentsChanged.connect(self.document_was_modified)
 
         self.set_current_file("")
 
@@ -66,9 +62,6 @@ class MainWindow(QMainWindow):
             "modern GUI applications using Qt, with a menu bar, "
             "toolbars, and a status bar.",
         )
-
-    def document_was_modified(self):
-        self.setWindowModified(self._text_edit.document().isModified())
 
     def create_actions(self):
         self._new_act = QAction(
@@ -259,15 +252,9 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    argument_parser = ArgumentParser(
-        description="Application Example", formatter_class=RawTextHelpFormatter
-    )
-    argument_parser.add_argument("file", help="File", nargs="?", type=str)
-    options = argument_parser.parse_args()
 
-    app = QApplication(sys.argv)
+    qapp = QApplication([])
+    qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow()
-    if options.file:
-        main_win.load_file(options.file)
     main_win.show()
-    sys.exit(app.exec())
+    qapp.exec_()

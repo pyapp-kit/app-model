@@ -161,6 +161,7 @@ class CommandsRegistry:
             raise KeyError(
                 f'Command "{id}" has no registered callbacks'
             )  # pragma: no cover
+
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:
                 return executor.submit(cmd, *args, **kwargs)
@@ -169,6 +170,7 @@ class CommandsRegistry:
             try:
                 future.set_result(cmd(*args, **kwargs))
             except Exception as e:
+                print(e)
                 future.set_exception(e)
             return future
 

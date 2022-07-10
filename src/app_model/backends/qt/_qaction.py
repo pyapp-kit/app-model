@@ -78,8 +78,6 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.tooltip:
             self.setToolTip(command_rule.tooltip)
 
-        self.setIconVisibleInMenu(False)
-
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
         self.setEnabled(expr.eval(ctx) if (expr := self._cmd_rule.enablement) else True)
