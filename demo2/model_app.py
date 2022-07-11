@@ -27,10 +27,10 @@ class MainWindow(QModelMainWindow):
 
         self._ctx = create_context(self)
         self._ctx.changed.connect(self._on_context_changed)
-        self._ctx['copyAvailable'] = False
+        self._ctx["copyAvailable"] = False
 
     def _update_context(self, available: bool):
-        self._ctx['copyAvailable'] = available
+        self._ctx["copyAvailable"] = available
 
     def _on_context_changed(self):
         self.menuBar().update_from_context(self._ctx)
