@@ -120,6 +120,9 @@ class MainWindow(QModelMainWindow):
     def paste(self):
         self._text_edit.paste()
 
+    def close(self):
+        super().close()
+
 
 # Actions defined declaratively outside of QMainWindow class ...
 # menus and toolbars will be made and added automatically
