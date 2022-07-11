@@ -1,3 +1,5 @@
+import pytest
+
 from app_model.registries import CommandsRegistry, KeyBindingsRegistry, MenusRegistry
 from app_model.types import MenuItem
 
@@ -23,3 +25,6 @@ def test_commands_registry():
     reg.register_command("my.id", lambda: None, "My Title")
     assert "(1 commands)" in repr(reg)
     assert "my.id" in str(reg)
+
+    with pytest.raises(ValueError, match="Command 'my.id' already registered"):
+        reg.register_command("my.id", lambda: None, "My Title")
