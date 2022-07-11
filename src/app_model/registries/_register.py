@@ -223,11 +223,13 @@ def _register_action_obj(
     # keybinding
     for keyb in action.keybindings or ():
         if action.enablement is not None:
-            _keyb = keyb.copy()
-            if _keyb.when is None:
-                _keyb.when = action.enablement
-            else:
-                _keyb.when = action.enablement | _keyb.when
+            kwargs = keyb.dict()
+            kwargs["when"] = (
+                action.enablement
+                if keyb.when is None
+                else action.enablement | keyb.when
+            )
+            _keyb = type(keyb)(**kwargs)
         else:
             _keyb = keyb
         if _d := app.keybindings.register_keybinding_rule(action.id, _keyb):
