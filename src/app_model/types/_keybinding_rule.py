@@ -1,10 +1,11 @@
-from typing import Optional, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
 from ._constants import OperatingSystem
+from ._keys import StandardKeyBinding
 
 KeyEncoding = Union[int, str]
 
@@ -27,11 +28,11 @@ class KeyBindingRule(_StrictModel):
     win: Optional[KeyEncoding] = Field(
         None, description="(Optional) Windows specific key combo."
     )
-    linux: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Linux specific key combo."
-    )
     mac: Optional[KeyEncoding] = Field(
         None, description="(Optional) MacOS specific key combo."
+    )
+    linux: Optional[KeyEncoding] = Field(
+        None, description="(Optional) Linux specific key combo."
     )
     when: Optional[expressions.Expr] = Field(
         None,
@@ -51,6 +52,13 @@ class KeyBindingRule(_StrictModel):
         if _LINUX and self.linux:
             return self.linux
         return self.primary
+
+    @classmethod
+    def validate(cls, value: Any) -> "KeyBindingRule":
+        """Validate keybinding rule."""
+        if isinstance(value, StandardKeyBinding):
+            return value.to_keybinding_rule()
+        return super().validate(value)
 
 
 class KeyBindingRuleDict(TypedDict, total=False):
