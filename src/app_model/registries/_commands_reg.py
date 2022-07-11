@@ -9,7 +9,7 @@ from psygnal import Signal
 from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
-    from typing import Dict, Iterator, List, Tuple
+    from typing import Dict, Iterator, Tuple
 
     DisposeCallable = Callable[[], None]
 
@@ -73,7 +73,7 @@ class CommandsRegistry:
     registered = Signal(str)
 
     def __init__(self, injection_store: Optional[Store] = None) -> None:
-        self._commands: Dict[str, List[_RegisteredCommand]] = {}
+        self._commands: Dict[str, _RegisteredCommand] = {}
         self._injection_store = injection_store
 
     def register_command(
@@ -95,20 +95,19 @@ class CommandsRegistry:
         DisposeCallable
             A function that can be called to unregister the command.
         """
-        commands = self._commands.setdefault(id, [])
+        if id in self._commands:
+            raise ValueError(f"Command {id!r} already registered")
 
         cmd = _RegisteredCommand(id, callback, title, self._injection_store)
-        commands.insert(0, cmd)
+        self._commands[id] = cmd
 
         def _dispose() -> None:
-            commands.remove(cmd)
-            if not commands:
-                del self._commands[id]
+            self._commands.pop(id, None)
 
         self.registered.emit(id)
         return _dispose
 
-    def __iter__(self) -> Iterator[Tuple[str, List[_RegisteredCommand]]]:
+    def __iter__(self) -> Iterator[Tuple[str, _RegisteredCommand]]:
         yield from self._commands.items()
 
     def __contains__(self, id: str) -> bool:
@@ -118,7 +117,7 @@ class CommandsRegistry:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._commands)} commands)>"
 
-    def __getitem__(self, id: str) -> List[_RegisteredCommand]:
+    def __getitem__(self, id: str) -> _RegisteredCommand:
         """Retrieve commands registered under a given ID."""
         return self._commands[id]
 
@@ -145,7 +144,7 @@ class CommandsRegistry:
 
         Returns
         -------
-        Future: conconrent.futures.Future
+        Future: concurrent.futures.Future
             Future object containing the result of the command
 
         Raises
@@ -153,14 +152,11 @@ class CommandsRegistry:
         KeyError
             If the command is not registered or has no callbacks.
         """
-        if cmds := self[id]:
-            # TODO: decide whether we'll ever have more than one command
-            # and if so, how to handle it
-            cmd = cmds[0].run_injected
-        else:
-            raise KeyError(
-                f'Command "{id}" has no registered callbacks'
-            )  # pragma: no cover
+        try:
+            cmd = self._commands[id].run_injected
+        except KeyError as e:
+            raise KeyError(f"Command {id!r} not registered") from e
+
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:
                 return executor.submit(cmd, *args, **kwargs)
@@ -173,7 +169,5 @@ class CommandsRegistry:
             return future
 
     def __str__(self) -> str:
-        lines: list = []
-        for id, cmds in self:
-            lines.extend(f"{id!r:<32} -> {cmd.title!r}" for cmd in cmds)
+        lines = [f"{id!r:<32} -> {cmd.title!r}" for id, cmd in self]
         return "\n".join(lines)

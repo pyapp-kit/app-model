@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from typing import List
 from unittest.mock import Mock
 
 import pytest
@@ -25,6 +26,7 @@ class Menus:
 
 
 class Commands:
+    TOP = "top"
     OPEN = "open"
     UNDO = "undo"
     REDO = "redo"
@@ -98,7 +100,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         ]
     )
 
-    actions = [
+    actions: List[Action] = [
         Action(
             id=Commands.OPEN,
             title="Open...",
@@ -160,9 +162,9 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         ),
         # test the navigation key
         Action(
-            id=Commands.OPEN,
+            id=Commands.TOP,
             title="AtTop",
-            callback=app.mocks.open,
+            callback=lambda: None,
             menus=[{"id": Menus.EDIT, "group": "navigation"}],
         ),
         # test submenus
