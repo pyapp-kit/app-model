@@ -22,6 +22,7 @@ def test_app_create():
         Application("my_app")
 
     assert repr(app) == "Application('my_app')"
+    Application.destroy("my_app")
 
 
 def test_app(full_app: FullApp):

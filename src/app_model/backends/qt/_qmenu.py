@@ -107,7 +107,7 @@ class QModelMenu(QMenu):
 
         Parameters
         ----------
-        action_id : str
+        object_name : str
             Action ID to find. Note that `QCommandAction` have `ObjectName` set
             to their `command.id`
         """

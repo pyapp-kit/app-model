@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple
 
 import in_n_out as ino
@@ -56,11 +55,6 @@ class Application:
         app.dispose()
         app.injection_store.destroy(name)
         app.destroyed.emit(app.name)
-
-    def __del__(self) -> None:
-        """Remove the app from the registry when it is garbage collected."""
-        with contextlib.suppress(KeyError):
-            Application.destroy(self.name)
 
     @property
     def name(self) -> str:
