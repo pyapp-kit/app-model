@@ -206,7 +206,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
 def full_app(monkeypatch) -> Application:
     """Premade application."""
     try:
-        app = build_app()
+        app = build_app("complete_test_app")
         with monkeypatch.context() as m:
             # mock path to add fake_module
             m.setattr(sys, "path", [str(FIXTURES)] + sys.path)
