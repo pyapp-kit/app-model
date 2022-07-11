@@ -5,8 +5,7 @@ from qtpy.QtWidgets import QMainWindow, QWidget
 
 from app_model import Application
 
-from ._qmenu import QModelToolBar
-from ._qmenubar import QModelMenuBar
+from ._qmenu import QModelMenuBar, QModelToolBar
 
 
 class QModelMainWindow(QMainWindow):

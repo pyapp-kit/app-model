@@ -6,6 +6,7 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
 from app_model import Application, types
 from app_model.backends.qt import QModelMainWindow
+from app_model.expressions import create_context
 
 
 class MainWindow(QModelMainWindow):
@@ -14,6 +15,8 @@ class MainWindow(QModelMainWindow):
 
         self._cur_file: str = ""
         self._text_edit = QTextEdit()
+        self._text_edit.copyAvailable.connect(self._update_context)
+
         self.setCentralWidget(self._text_edit)
         self.setModelMenuBar([MenuId.FILE, MenuId.EDIT, MenuId.HELP])
         self.addModelToolBar(MenuId.FILE, exclude={CommandId.SAVE_AS, CommandId.EXIT})
@@ -21,6 +24,16 @@ class MainWindow(QModelMainWindow):
         self.statusBar().showMessage("Ready")
 
         self.set_current_file("")
+
+        self._ctx = create_context(self)
+        self._ctx.changed.connect(self._on_context_changed)
+        self._ctx['copyAvailable'] = False
+
+    def _update_context(self, available: bool):
+        self._ctx['copyAvailable'] = available
+
+    def _on_context_changed(self):
+        self.menuBar().update_from_context(self._ctx)
 
     def set_current_file(self, fileName: str) -> None:
         self._cur_file = fileName
