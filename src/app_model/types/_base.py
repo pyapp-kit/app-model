@@ -6,3 +6,4 @@ class _StrictModel(BaseModel):
 
     class Config:
         extra = Extra.forbid
+        frozen = True
