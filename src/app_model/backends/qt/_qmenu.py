@@ -1,9 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Optional, Set, Union
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Collection,
+    Mapping,
+    Optional,
+    Protocol,
+    Set,
+    Union,
+)
 
 from qtpy import QT6
-from qtpy.QtWidgets import QMenu
+from qtpy.QtWidgets import QMenu, QToolBar, QWidget
+from qtpy.QtCore import QObject
 
 from app_model import Application
 from app_model.types import SubmenuItem
@@ -14,34 +24,30 @@ from ._util import to_qicon
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QAction, QWidget
 
+# fmt: off
+class _AcceptsMenus(Protocol):
+    _app: Application
+    def clear(self) -> None: ...
+    def addMenu(self, menu: QMenu): ...
+    def addAction(self, menu: QAction): ...
+    def addSeparator(self): ...
 
-class QModelMenu(QMenu):
-    """QMenu for a menu_id in an `app_model` MenusRegistry.
+# fmt: on
 
-    Parameters
-    ----------
-    menu_id : str
-        Menu ID to look up in the registry.
-    app : Union[str, Application]
-        Application instance or name of application instance.
-    parent : Optional[QWidget]
-        Optional parent widget, by default None
-    """
+
+class _MenuMixin(QObject):
+    _app: Application
+    _menu_id: str
 
     def __init__(
         self,
         menu_id: str,
         app: Union[str, Application],
-        title: Optional[str] = None,
-        parent: Optional[QWidget] = None,
     ):
         assert isinstance(menu_id, str), f"Expected str, got {type(menu_id)!r}"
         self._menu_id = menu_id
-        super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self.setObjectName(menu_id)
-        if title is not None:
-            self.setTitle(title)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
         self.destroyed.connect(self._disconnect)
@@ -53,18 +59,23 @@ class QModelMenu(QMenu):
         if self._menu_id in changed_ids:
             self.rebuild()
 
-    def rebuild(self) -> None:
+    def rebuild(
+        self: _AcceptsMenus,
+        include_submenus=True,
+        exclude: Optional[Collection[str]] = None,
+    ) -> None:
         """Rebuild menu by looking up self._menu_id in menu_registry."""
         self.clear()
+        _exclude = exclude or set()
 
         groups = list(self._app.menus.iter_menu_groups(self._menu_id))
         n_groups = len(groups)
         for n, group in enumerate(groups):
             for item in group:
-                if isinstance(item, SubmenuItem):
+                if isinstance(item, SubmenuItem) and include_submenus:
                     submenu = QModelSubmenu(item, self._app, parent=self)
                     self.addMenu(submenu)
-                else:
+                elif item.command.id not in _exclude:
                     action = QMenuItemAction(item, app=self._app, parent=self)
                     self.addAction(action)
             if n < n_groups - 1:
@@ -101,6 +112,32 @@ class QModelMenu(QMenu):
                 # whether that will cause other problems.
                 if _recurse:
                     parent.update_from_context(ctx, _recurse=False)
+
+
+class QModelMenu(QMenu, _MenuMixin):
+    """QMenu for a menu_id in an `app_model` MenusRegistry.
+
+    Parameters
+    ----------
+    menu_id : str
+        Menu ID to look up in the registry.
+    app : Union[str, Application]
+        Application instance or name of application instance.
+    parent : Optional[QWidget]
+        Optional parent widget, by default None
+    """
+
+    def __init__(
+        self,
+        menu_id: str,
+        app: Union[str, Application],
+        title: Optional[str] = None,
+        parent: Optional[QWidget] = None,
+    ):
+        QMenu.__init__(self, parent)
+        _MenuMixin.__init__(self, menu_id, app)
+        if title is not None:
+            self.setTitle(title)
 
     def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
         """Find an action by its ObjectName.
@@ -150,3 +187,28 @@ class QModelSubmenu(QModelMenu):
         # TODO: ... visibility needs to be controlled at the level of placement
         # in the submenu.  consider only using the `when` expression
         # self.setVisible(expr.eval(ctx) if (expr := self._submenu.when) else True)
+
+
+class QModelToolBar(QToolBar, _MenuMixin):
+    """QToolBar that is built from a list of model menu ids."""
+
+    def __init__(
+        self,
+        menu_id: str,
+        app: Union[str, Application],
+        *,
+        exclude: Optional[Collection[str]] = None,
+        title: Optional[str] = None,
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        self._exclude = exclude
+        QToolBar.__init__(self, parent)
+        _MenuMixin.__init__(self, menu_id, app)
+        if title is not None:
+            self.setWindowTitle(title)
+
+    def rebuild(self, include_submenus=False) -> None:
+        super().rebuild(include_submenus=include_submenus, exclude=self._exclude)
+
+    def addMenu(self, menu: QMenu):
+        pass

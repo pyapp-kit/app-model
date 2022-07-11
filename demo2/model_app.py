@@ -1,3 +1,4 @@
+from typing import List
 from fonticon_fa6 import FA6S
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
@@ -14,6 +15,9 @@ class MainWindow(QModelMainWindow):
         self._text_edit = QTextEdit()
         self.setCentralWidget(self._text_edit)
         self.setModelMenuBar([MenuId.FILE, MenuId.EDIT, MenuId.HELP])
+        self.addModelToolBar(MenuId.FILE, exclude={CommandId.SAVE_AS, CommandId.EXIT})
+        self.addModelToolBar(MenuId.EDIT)
+        self.statusBar().showMessage("Ready")
 
         self.set_current_file("")
 
@@ -134,7 +138,12 @@ class MenuId:
     HELP = "help"
 
 
-ACTIONS = [
+class CommandId:
+    SAVE_AS = "save_file_as"
+    EXIT = "exit"
+
+
+ACTIONS: List[types.Action] = [
     types.Action(
         id="new_file",
         icon=FA6S.file_circle_plus,
@@ -163,7 +172,7 @@ ACTIONS = [
         callback=MainWindow.save,
     ),
     types.Action(
-        id="save_file_as",
+        id=CommandId.SAVE_AS,
         title="Save As...",
         keybindings=[types.StandardKeyBinding.SaveAs],
         status_tip="Save the document under a new name",
@@ -171,7 +180,7 @@ ACTIONS = [
         callback=MainWindow.save_as,
     ),
     types.Action(
-        id="close",
+        id=CommandId.EXIT,
         title="Exit",
         keybindings=[types.StandardKeyBinding.Quit],
         status_tip="Exit the application",
