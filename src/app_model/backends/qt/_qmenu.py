@@ -12,7 +12,7 @@ from ._qaction import QMenuItemAction
 from ._util import to_qicon
 
 if TYPE_CHECKING:
-    from qtpy.QtWidgets import QWidget
+    from qtpy.QtWidgets import QAction, QWidget
 
 
 class QModelMenu(QMenu):
@@ -62,7 +62,7 @@ class QModelMenu(QMenu):
         for n, group in enumerate(groups):
             for item in group:
                 if isinstance(item, SubmenuItem):
-                    submenu = QModelSubmenu(item, self._app, self)
+                    submenu = QModelSubmenu(item, self._app, parent=self)
                     self.addMenu(submenu)
                 else:
                     action = QMenuItemAction(item, app=self._app, parent=self)
@@ -101,6 +101,17 @@ class QModelMenu(QMenu):
                 # whether that will cause other problems.
                 if _recurse:
                     parent.update_from_context(ctx, _recurse=False)
+
+    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+        """Find an action by its ObjectName.
+
+        Parameters
+        ----------
+        action_id : str
+            Action ID to find. Note that `QCommandAction` have `ObjectName` set
+            to their `command.id`
+        """
+        return next((a for a in self.actions() if a.objectName() == object_name), None)
 
 
 class QModelSubmenu(QModelMenu):

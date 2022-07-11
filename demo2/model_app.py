@@ -1,52 +1,9 @@
-from app_model import types, Application
 from fonticon_fa6 import FA6S
+from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
+from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
+from app_model import Application, types
 from app_model.backends.qt import QModelMainWindow
-from qtpy.QtWidgets import QTextEdit, QApplication, QMessageBox, QFileDialog
-from qtpy.QtCore import QFile, QFileInfo, QSaveFile, QTextStream, Qt
-
-
-class MenuId:
-    FILE = "file"
-    EDIT = "edit"
-    HELP = "help"
-
-
-def new_file(win: "MainWindow"):
-    win.new_file()
-
-
-def open_file(win: "MainWindow"):
-    win.open_file()
-
-
-def save(win: "MainWindow"):
-    win.save()
-
-
-def save_as(win: "MainWindow"):
-    win.save_as()
-
-
-def close(win: "MainWindow"):
-    win.close()
-
-
-def cut(win: "MainWindow"):
-    win._text_edit.cut()
-
-
-def copy(win: "MainWindow"):
-    win._text_edit.copy()
-
-
-def paste(win: "MainWindow"):
-    win._text_edit.paste()
-
-
-def about(win: "MainWindow"):
-    win.about()
-
 
 
 class MainWindow(QModelMainWindow):
@@ -154,6 +111,25 @@ class MainWindow(QModelMainWindow):
             "toolbars, and a status bar.",
         )
 
+    def cut(self):
+        self._text_edit.cut()
+
+    def copy(self):
+        self._text_edit.copy()
+
+    def paste(self):
+        self._text_edit.paste()
+
+
+# Actions defined declaratively outside of QMainWindow class ...
+# menus and toolbars will be made and added automatically
+
+
+class MenuId:
+    FILE = "file"
+    EDIT = "edit"
+    HELP = "help"
+
 
 ACTIONS = [
     types.Action(
@@ -163,7 +139,7 @@ ACTIONS = [
         keybindings=[types.StandardKeyBinding.New],
         status_tip="Create a new file",
         menus=[{"id": MenuId.FILE, "group": "1_loadsave"}],
-        callback=new_file,
+        callback=MainWindow.new_file,
     ),
     types.Action(
         id="open_file",
@@ -181,7 +157,7 @@ ACTIONS = [
         keybindings=[types.StandardKeyBinding.Save],
         status_tip="Save the document to disk",
         menus=[{"id": MenuId.FILE, "group": "1_loadsave"}],
-        callback=save,
+        callback=MainWindow.save,
     ),
     types.Action(
         id="save_file_as",
@@ -189,7 +165,7 @@ ACTIONS = [
         keybindings=[types.StandardKeyBinding.SaveAs],
         status_tip="Save the document under a new name",
         menus=[{"id": MenuId.FILE, "group": "1_loadsave"}],
-        callback=save_as,
+        callback=MainWindow.save_as,
     ),
     types.Action(
         id="close",
@@ -197,7 +173,7 @@ ACTIONS = [
         keybindings=[types.StandardKeyBinding.Quit],
         status_tip="Exit the application",
         menus=[{"id": MenuId.FILE, "group": "3_launchexit"}],
-        callback=close,
+        callback=MainWindow.close,
     ),
     types.Action(
         id="cut",
@@ -207,7 +183,7 @@ ACTIONS = [
         enablement="copyAvailable",
         status_tip="Cut the current selection's contents to the clipboard",
         menus=[{"id": MenuId.EDIT}],
-        callback=cut,
+        callback=MainWindow.cut,
     ),
     types.Action(
         id="copy",
@@ -217,7 +193,7 @@ ACTIONS = [
         enablement="copyAvailable",
         status_tip="Copy the current selection's contents to the clipboard",
         menus=[{"id": MenuId.EDIT}],
-        callback=copy,
+        callback=MainWindow.copy,
     ),
     types.Action(
         id="paste",
@@ -226,14 +202,14 @@ ACTIONS = [
         keybindings=[types.StandardKeyBinding.Paste],
         status_tip="Paste the clipboard's contents into the current selection",
         menus=[{"id": MenuId.EDIT}],
-        callback=paste,
+        callback=MainWindow.paste,
     ),
     types.Action(
         id="about",
         title="About",
         status_tip="Show the application's About box",
         menus=[{"id": MenuId.HELP}],
-        callback=about,
+        callback=MainWindow.about,
     ),
 ]
 

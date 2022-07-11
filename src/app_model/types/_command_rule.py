@@ -52,3 +52,7 @@ class CommandRule(_StrictModel):
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
+
+    def _as_command_rule(self) -> "CommandRule":
+        """Simplify (subclasses) to a plain CommandRule."""
+        return CommandRule(**{f: getattr(self, f) for f in CommandRule.__fields__})

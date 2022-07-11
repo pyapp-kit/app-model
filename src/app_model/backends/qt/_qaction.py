@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Tuple, Type, Union, cast
 
 from qtpy.QtWidgets import QAction
 
@@ -37,6 +37,7 @@ class QCommandAction(QAction):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
+        self.setObjectName(command_id)
         if kb := self._app.keybindings.get_keybinding(command_id):
             self.setShortcut(QKeyBindingSequence(kb.keybinding))
         self.triggered.connect(self._on_triggered)
@@ -68,7 +69,6 @@ class QCommandRuleAction(QCommandAction):
     ):
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
-        self.setObjectName(command_rule.id)
         if use_short_title and command_rule.short_title:
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
@@ -90,16 +90,51 @@ class QMenuItemAction(QCommandRuleAction):
     to toggle visibility.
     """
 
+    _cache: Dict[Tuple[int, int], QMenuItemAction] = {}
+    _cache_key: Optional[Tuple[int, int]] = None
+
+    def __new__(
+        cls: Type[QMenuItemAction],
+        menu_item: MenuItem,
+        app: Union[str, Application],
+        **kwargs: Any,
+    ) -> QMenuItemAction:
+        cache = kwargs.pop("cache", True)
+        app = Application.get_or_create(app) if isinstance(app, str) else app
+        key = (id(app), hash(menu_item))
+        if cache and key in cls._cache:
+            return cls._cache[key]
+
+        self = cast(QMenuItemAction, super().__new__(cls))
+        if cache:
+            self._cache_key = key
+            cls._cache[key] = self
+        return self
+
     def __init__(
         self,
         menu_item: MenuItem,
         app: Union[str, Application],
         parent: Optional[QObject] = None,
+        *,
+        cache: bool = True,
     ):
-        super().__init__(menu_item.command, app, parent)
-        self._menu_item = menu_item
+        if not getattr(self, "_initialized", False):
+            super().__init__(menu_item.command, app, parent)
+            self._menu_item = menu_item
+            self.destroyed.connect(
+                lambda: QMenuItemAction._cache.pop(self._cache_key, None)
+            )
+            self._app.destroyed.connect(
+                lambda: QMenuItemAction._cache.pop(self._cache_key, None)
+            )
+            self._initialized = True
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""
         super().update_from_context(ctx)
         self.setVisible(expr.eval(ctx) if (expr := self._menu_item.when) else True)
+
+    def __repr__(self) -> str:
+        name = self.__class__.__name__
+        return f"{name}({self._menu_item!r}, app={self._app.name!r})"
