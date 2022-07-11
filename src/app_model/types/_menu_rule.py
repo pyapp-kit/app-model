@@ -1,6 +1,6 @@
 from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from .. import expressions
 from ._base import _StrictModel
@@ -73,6 +73,12 @@ class MenuItem(_MenuItemBase):
         description="(Optional) Alternate command to execute when this menu item is "
         "selected, (e.g. when the Alt-key is held when opening the menu)",
     )
+
+    @validator("command")
+    def _simplify_command_rule(cls, v: Any) -> CommandRule:
+        if isinstance(v, CommandRule):
+            return v._as_command_rule()
+        raise TypeError("command must be a CommandRule")
 
 
 class SubmenuItem(_MenuItemBase):

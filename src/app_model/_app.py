@@ -4,6 +4,7 @@ import contextlib
 from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple
 
 import in_n_out as ino
+from psygnal import Signal
 
 from .registries import (
     CommandsRegistry,
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 class Application:
     """Full application model."""
 
+    destroyed = Signal(str)
     _instances: ClassVar[Dict[str, Application]] = {}
 
     def __init__(self, name: str) -> None:
@@ -48,9 +50,12 @@ class Application:
     @classmethod
     def destroy(cls, name: str) -> None:
         """Destroy the app named `name`."""
+        if name not in cls._instances:
+            return
         app = cls._instances.pop(name)
         app.dispose()
         app.injection_store.destroy(name)
+        app.destroyed.emit(app.name)
 
     def __del__(self) -> None:
         """Remove the app from the registry when it is garbage collected."""
