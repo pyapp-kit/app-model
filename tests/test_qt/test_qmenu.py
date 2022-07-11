@@ -5,7 +5,8 @@ import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QAction, QMainWindow
 
-from app_model.backends.qt import QModelMenu
+from app_model.backends.qt import QMenuItemAction, QModelMenu
+from app_model.types import MenuItem
 
 if TYPE_CHECKING:
     from pytestqt.plugin import QtBot
@@ -28,12 +29,13 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     # check that triggering the actions calls the associated commands
     for cmd in (app.Commands.UNDO, app.Commands.REDO):
-        action: QAction = menu.findChild(QAction, cmd)
+        action: QAction = menu.findAction(cmd)
         with qtbot.waitSignal(action.triggered):
             action.trigger()
             getattr(app.mocks, cmd).assert_called_once()
 
-    redo_action: QAction = menu.findChild(QAction, app.Commands.REDO)
+    redo_action: QAction = menu.findAction(app.Commands.REDO)
+
     assert redo_action.isVisible()
     assert redo_action.isEnabled()
 
@@ -68,7 +70,8 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
     menu_texts = [a.text() for a in menu.actions()]
     assert menu_texts == ["Open From...", "Open..."]
 
-    submenu: QModelMenu = menu.findChild(QModelMenu, app.Menus.FILE_OPEN_FROM)
+    submenu = menu.findChild(QModelMenu, app.Menus.FILE_OPEN_FROM)
+    assert isinstance(submenu, QModelMenu)
     submenu.setVisible(True)
     assert submenu.isVisible()
     assert submenu.isEnabled()
@@ -107,10 +110,20 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
     with qtbot.waitExposed(win):
         win.show()
 
-    copy_action = menu.findChild(QAction, app.Commands.COPY)
+    copy_action = menu.findAction(app.Commands.COPY)
+
     with qtbot.waitSignal(copy_action.triggered, timeout=1000):
         qtbot.keyClicks(win, "C", Qt.KeyboardModifier.ControlModifier)
 
-    paste_action = menu.findChild(QAction, app.Commands.PASTE)
+    paste_action = menu.findAction(app.Commands.PASTE)
     with qtbot.waitSignal(paste_action.triggered, timeout=1000):
         qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
+
+
+def test_cache_action(full_app: "FullApp") -> None:
+    action = next(
+        i for k, items in full_app.menus for i in items if isinstance(i, MenuItem)
+    )
+    a1 = QMenuItemAction(action, full_app)
+    a2 = QMenuItemAction(action, full_app)
+    assert a1 is a2
