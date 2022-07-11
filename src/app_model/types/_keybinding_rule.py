@@ -6,6 +6,7 @@ from .. import expressions
 from ._base import _StrictModel
 from ._constants import OperatingSystem
 from ._keys import StandardKeyBinding
+
 KeyEncoding = Union[int, str]
 
 _OS = OperatingSystem.current()
@@ -53,11 +54,12 @@ class KeyBindingRule(_StrictModel):
         return self.primary
 
     @classmethod
-    def validate(cls, value: Any) -> 'KeyBindingRule':
+    def validate(cls, value: Any) -> "KeyBindingRule":
+        """Validate keybinding rule."""
         if isinstance(value, StandardKeyBinding):
             return value.to_keybinding_rule()
         return super().validate(value)
-    
+
 
 class KeyBindingRuleDict(TypedDict, total=False):
     """Typed dict for KeyBindingRule kwargs."""

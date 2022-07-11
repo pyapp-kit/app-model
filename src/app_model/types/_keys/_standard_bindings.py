@@ -1,6 +1,7 @@
-from enum import Enum, auto
 from collections import namedtuple
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict
+
 from ._key_codes import KeyCode, KeyMod
 
 if TYPE_CHECKING:

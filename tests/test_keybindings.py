@@ -1,9 +1,16 @@
 import sys
 
 import pytest
+from pydantic import BaseModel
 
-from app_model.types import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
-from app_model.types._keys import KeyChord, KeyCombo
+from app_model.types import (
+    KeyBinding,
+    KeyBindingRule,
+    KeyCode,
+    KeyMod,
+    SimpleKeyBinding,
+)
+from app_model.types._keys import KeyChord, KeyCombo, StandardKeyBinding
 
 MAC = sys.platform == "darwin"
 
@@ -68,8 +75,6 @@ def test_chord_keybinding():
 
 
 def test_in_model():
-    from pydantic import BaseModel
-
     class M(BaseModel):
         key: KeyBinding
 
@@ -78,3 +83,11 @@ def test_in_model():
 
     m = M(key="Shift+A B")
     assert m.json(models_as_dict=False) == '{"key": "Shift+A B"}'
+
+
+def test_standard_keybindings():
+    class M(BaseModel):
+        key: KeyBindingRule
+
+    m = M(key=StandardKeyBinding.Copy)
+    assert m.key.primary == KeyMod.CtrlCmd | KeyCode.KeyC
