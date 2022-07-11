@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Tuple, Type, Union, cast
 
 from qtpy.QtWidgets import QAction
@@ -120,7 +121,11 @@ class QMenuItemAction(QCommandRuleAction):
         *,
         cache: bool = True,
     ):
-        if not getattr(self, "_initialized", False):
+        initialized = False
+        with contextlib.suppress(RuntimeError):
+            initialized = getattr(self, "_initialized", False)
+
+        if not initialized:
             super().__init__(menu_item.command, app, parent)
             self._menu_item = menu_item
             self.destroyed.connect(
