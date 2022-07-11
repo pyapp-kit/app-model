@@ -1,4 +1,5 @@
 from typing import List
+
 from fonticon_fa6 import FA6S
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit

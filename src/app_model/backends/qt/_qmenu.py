@@ -1,19 +1,10 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    Collection,
-    Mapping,
-    Optional,
-    Protocol,
-    Set,
-    Union,
-)
+from typing import TYPE_CHECKING, Collection, Mapping, Optional, Protocol, Set, Union
 
 from qtpy import QT6
-from qtpy.QtWidgets import QMenu, QToolBar, QWidget
 from qtpy.QtCore import QObject
+from qtpy.QtWidgets import QMenu, QToolBar, QWidget
 
 from app_model import Application
 from app_model.types import SubmenuItem

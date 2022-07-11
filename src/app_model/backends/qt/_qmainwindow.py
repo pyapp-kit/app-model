@@ -1,12 +1,12 @@
 from typing import Collection, List, Optional, Union
 
-from qtpy.QtWidgets import QMainWindow, QWidget
 from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QMainWindow, QWidget
 
 from app_model import Application
 
-from ._qmenubar import QModelMenuBar
 from ._qmenu import QModelToolBar
+from ._qmenubar import QModelMenuBar
 
 
 class QModelMainWindow(QMainWindow):
