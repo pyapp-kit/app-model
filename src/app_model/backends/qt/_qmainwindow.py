@@ -16,7 +16,8 @@ class QModelMainWindow(QMainWindow):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
 
-    def setModelMenuBar(self, menu_ids: List[str]) -> None:
+    def setModelMenuBar(self, menu_ids: List[str]) -> QModelMenuBar:
         """Set the menu bar to a list of menu ids."""
         menu_bar = QModelMenuBar(menu_ids, self._app, self)
         self.setMenuBar(menu_bar)
+        return menu_bar
