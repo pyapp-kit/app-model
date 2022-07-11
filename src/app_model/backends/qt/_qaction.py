@@ -92,7 +92,6 @@ class QMenuItemAction(QCommandRuleAction):
     """
 
     _cache: Dict[Tuple[int, int], QMenuItemAction] = {}
-    _cache_key: Tuple[int, int] = (0, 0)
 
     def __new__(
         cls: Type[QMenuItemAction],
@@ -109,7 +108,6 @@ class QMenuItemAction(QCommandRuleAction):
 
         self = cast(QMenuItemAction, super().__new__(cls))
         if cache:
-            self._cache_key = key
             cls._cache[key] = self
         return self
 
@@ -128,12 +126,9 @@ class QMenuItemAction(QCommandRuleAction):
         if not initialized:
             super().__init__(menu_item.command, app, parent)
             self._menu_item = menu_item
-            self.destroyed.connect(
-                lambda: QMenuItemAction._cache.pop(self._cache_key, None)
-            )
-            self._app.destroyed.connect(
-                lambda: QMenuItemAction._cache.pop(self._cache_key, None)
-            )
+            key = (id(self._app), hash(menu_item))
+            self.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
+            self._app.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
             self._initialized = True
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
