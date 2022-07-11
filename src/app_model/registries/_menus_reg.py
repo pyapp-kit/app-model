@@ -1,6 +1,17 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Final, Iterator, List, Optional, Sequence, Set, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Final,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+)
 
 from psygnal import Signal
 
@@ -39,7 +50,11 @@ class MenusRegistry:
             menu_list = self._menu_items.setdefault(menu_id, [])
             menu_list.append(item)
             changed_ids.add(menu_id)
-            disposers.append(lambda: menu_list.remove(item))
+
+            def _remove(lst: list = menu_list, _item: Any = item) -> None:
+                lst.remove(_item)
+
+            disposers.append(_remove)
 
         def _dispose() -> None:
             for disposer in disposers:
