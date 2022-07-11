@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 from fonticon_fa6 import FA6S
-
-from qtpy.QtCore import QFile, QFileInfo, QSaveFile, QTextStream, Qt
+from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtGui import QKeySequence
 from qtpy.QtWidgets import (
+    QAction,
     QApplication,
     QFileDialog,
     QMainWindow,
-    QAction,
     QMessageBox,
     QTextEdit,
 )
