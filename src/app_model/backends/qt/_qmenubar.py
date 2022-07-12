@@ -1,8 +1,10 @@
 from typing import List, Mapping, Optional, Union
 
+from qtpy import QT6
 from qtpy.QtWidgets import QMenuBar, QWidget
 
-from ..._app import Application
+from ... import Application
+from ._qaction import QMenuItemAction
 from ._qmenu import QModelMenu
 
 

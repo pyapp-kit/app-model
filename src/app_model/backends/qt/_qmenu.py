@@ -13,7 +13,7 @@ from typing import (
 
 from qtpy import QT6
 from qtpy.QtCore import QObject
-from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar, QWidget
+from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
 from app_model import Application
 from app_model.types import SubmenuItem
@@ -24,13 +24,14 @@ from ._util import to_qicon
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QAction, QWidget
 
+
 # fmt: off
 class _AcceptsMenus(Protocol):
     _app: Application
-    def clear(self) -> None: ...
-    def addMenu(self, menu: QMenu): ...
-    def addAction(self, menu: QAction): ...
-    def addSeparator(self): ...
+    def clear(self) -> None: ...  # noqa: E704
+    def addMenu(self, menu: QMenu) -> None: ...  # noqa: E704
+    def addAction(self, menu: QAction) -> None: ...  # noqa: E704
+    def addSeparator(self) -> None: ...  # noqa: E704
 
 # fmt: on
 
@@ -60,8 +61,8 @@ class _MenuMixin(QObject):
             self.rebuild()
 
     def rebuild(
-        self: _AcceptsMenus,
-        include_submenus=True,
+        self: _MenuMixin,
+        include_submenus: bool = True,
         exclude: Optional[Collection[str]] = None,
     ) -> None:
         """Rebuild menu by looking up self._menu_id in menu_registry."""
@@ -75,8 +76,10 @@ class _MenuMixin(QObject):
                 if isinstance(item, SubmenuItem) and include_submenus:
                     submenu = QModelSubmenu(item, self._app, parent=self)
                     self.addMenu(submenu)
-                elif item.command.id not in _exclude:
-                    action = QMenuItemAction(item, app=self._app, parent=self)
+                elif item.command.id not in _exclude:  # type: ignore
+                    action = QMenuItemAction(
+                        item, app=self._app, parent=self  # type: ignore
+                    )
                     self.addAction(action)
             if n < n_groups - 1:
                 self.addSeparator()
@@ -207,11 +210,14 @@ class QModelToolBar(QToolBar, _MenuMixin):
         if title is not None:
             self.setWindowTitle(title)
 
-    def rebuild(self, include_submenus=False) -> None:
+    def rebuild(
+        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+    ) -> None:
+        """Rebuild toolbar by looking up self._menu_id in menu_registry."""
         super().rebuild(include_submenus=include_submenus, exclude=self._exclude)
 
-    def addMenu(self, menu: QMenu):
-        pass
+    def addMenu(self, menu: QMenu) -> None:
+        """No-op for toolbar."""
 
 
 class QModelMenuBar(QMenuBar):
