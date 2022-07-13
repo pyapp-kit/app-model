@@ -112,7 +112,7 @@ ignore = "D100,D213,D401,D413,D107"
 minversion = "6.0"
 filterwarnings = [
     "error",
-    "ignore:QPixmapCache.find(const QString & key) is deprecated:DeprecationWarning",
+    "ignore:QPixmapCache.find:DeprecationWarning:",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
