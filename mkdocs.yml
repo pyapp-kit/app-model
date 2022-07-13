@@ -1,10 +1,10 @@
 site_name: App Model
-site_url: https://github.com/tlambert03/app-model
+site_url: https://github.com/napari/app-model
 site_author: Talley Lambert
 site_description: Generic application schema implemented in python.
 
-repo_name: tlambert03/app-model
-repo_url: https://github.com/tlambert03/app-model
+repo_name: napari/app-model
+repo_url: https://github.com/napari/app-model
 
 copyright: Copyright &copy; 2021 - 2022 Talley Lambert
 

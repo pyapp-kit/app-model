@@ -56,8 +56,8 @@ docs = [
     "mkdocs-macros-plugin==0.7.0",
 ]
 [project.urls]
-homepage = "https://github.com/tlambert03/app-model"
-repository = "https://github.com/tlambert03/app-model"
+homepage = "https://github.com/napari/app-model"
+repository = "https://github.com/napari/app-model"
 
 # same as console_scripts entry point
 # [project.scripts]

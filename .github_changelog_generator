@@ -1,4 +1,4 @@
-user=tlambert03
+user=napari
 project=app-model
 issues=false
 exclude-labels=duplicate,question,invalid,wontfix,hide
