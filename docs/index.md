@@ -24,6 +24,32 @@ An application maintains a [registry](registries) for all registered [commands][
     - [MenusRegistry.append_menu_items][app_model.registries.MenusRegistry.append_menu_items]
     - [KeyBindingsRegistry.register_keybinding_rule][app_model.registries.KeyBindingsRegistry.register_keybinding_rule]
 
+## Motivation
+
+Why bother with a declarative application model?
+
+1. **It's easier to query the application's state**
+
+    If you want to ask "what commands are available in this application?", or "what items are currently in a given menu", you can directly query the application registries.  For example, you don't need to find a specific `QMenu` instance and iterate it's `actions()` to know whether a given item is present.
+
+1. **It's easier to modify the application's state**
+
+    For applications that need to be dynamic (e.g. adding and removing menu items and actions as plugins are loaded and unloaded), it is convenient to have an application
+    model that emits events when modified, with the "view" (the actual GUI backend) responding to those events to update the actual presentation.
+
+1. **It decouples the structure of the application from the underlying backend**
+
+    This makes it it easier to change the backend without having to change the
+   application. (Obviously, as an application grows with a particular backend,
+   it does become harder to extract, but having a losely coupled model is a step
+   in the right direction)
+
+1. **It's easier to test**
+
+    `app-model` itself is comprehensively tested.  By avoiding a number of
+    one-off procedurally created menus, we can test reusable *patterns* of
+    command/menu/keybinding creation and registration.
+
 ## Back Ends
 
 `app-model` is backend-agnostic, and can be used with any GUI toolkit, but [Qt](https://www.qt.io) is
