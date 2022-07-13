@@ -110,7 +110,10 @@ ignore = "D100,D213,D401,D413,D107"
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    "ignore:QPixmapCache.find(const QString & key) is deprecated:DeprecationWarning",
+]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
