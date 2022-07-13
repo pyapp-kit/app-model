@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from qtpy.QtWidgets import QApplication
 
-DEMO = Path(__file__).parent.parent / "demo"
+DEMO = Path(__file__).parent.parent.parent / "demo"
 
 
 @pytest.mark.parametrize("fname", ["qapplication.py", "model_app.py"])
