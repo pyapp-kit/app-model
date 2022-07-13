@@ -1,11 +1,15 @@
 from typing import List, Mapping, Optional, Union
 
-from qtpy import QT6
 from qtpy.QtWidgets import QMenuBar, QWidget
 
 from ... import Application
 from ._qaction import QMenuItemAction
 from ._qmenu import QModelMenu
+
+try:
+    from qtpy import QT6
+except ImportError:
+    QT6 = False
 
 
 class QModelMenuBar(QMenuBar):
