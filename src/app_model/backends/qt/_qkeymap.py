@@ -2,12 +2,17 @@ import operator
 from functools import reduce
 from typing import Dict, Optional, cast
 
-from qtpy import QT6
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
 from ...types._constants import OperatingSystem
 from ...types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
+
+try:
+    from qtpy import QT6
+except ImportError:
+    QT6 = False
+
 
 QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
