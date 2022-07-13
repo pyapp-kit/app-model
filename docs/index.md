@@ -51,3 +51,7 @@ qmenu = QModelMenu(menu_id='file', app=app)
     modified.  These events are connected to the Qt objects, so `QModel...`
     objects such as `QModelMenu` and `QCommandAction` will be updated when the
     application's registry is updated.
+
+### Example Application
+
+For a working example of a QApplication built with and without `app-model`, compare [`demo/model_app.py`](https://github.com/tlambert03/app-model/blob/main/demo/model_app.py) to [`demo/qapplication.py`](https://github.com/tlambert03/app-model/blob/main/demo/qapplication.py) in the `demo` directory of the `app-model` repository.
