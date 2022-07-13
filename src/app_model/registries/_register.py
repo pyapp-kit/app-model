@@ -36,7 +36,7 @@ def register_action(
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-    add_to_command_palette: bool = True,
+    palette: bool = True,
 ) -> CommandDecorator:
     ...
 
@@ -54,7 +54,7 @@ def register_action(
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-    add_to_command_palette: bool = True,
+    palette: bool = True,
 ) -> DisposeCallable:
     ...
 
@@ -71,7 +71,7 @@ def register_action(
     enablement: Optional[expressions.Expr] = None,
     menus: Optional[List[MenuRuleOrDict]] = None,
     keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
-    add_to_command_palette: bool = True,
+    palette: bool = True,
 ) -> Union[CommandDecorator, DisposeCallable]:
     """Register an action.
 
@@ -128,7 +128,7 @@ def register_action(
     keybindings : Optional[List[KeyBindingRuleOrDict]]
         :class:`~app_model._types.KeyBindingRule` or `dicts` containing
         default keybindings for this action, by default None
-    add_to_command_palette : bool
+    palette : bool
         Whether to adds this command to the Command Palette, by default True
 
     Returns
@@ -159,7 +159,7 @@ def register_action(
             icon=icon,
             enablement=enablement,
             callback=callback,
-            add_to_command_palette=add_to_command_palette,
+            palette=palette,
             menus=menus,
             keybindings=keybindings,
         )

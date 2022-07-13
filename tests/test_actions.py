@@ -21,7 +21,7 @@ KWARGS = [
         ]
     ),
     dict(keybindings=[{"primary": "ctrl+a"}], menus=[{"id": MENUID}]),
-    dict(add_to_command_palette=False),
+    dict(palette=False),
 ]
 
 
@@ -88,7 +88,7 @@ def test_register_action_decorator(kwargs, app: Application, mode):
             app.menus_changed.assert_any_call({entry["id"]})
     else:
         menus = list(app.menus)
-        if kwargs.get("add_to_command_palette") is not False:
+        if kwargs.get("palette") is not False:
             assert app.menus.COMMAND_PALETTE_ID in app.menus
             assert len(menus) == 1
         else:
