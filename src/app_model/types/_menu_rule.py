@@ -1,6 +1,6 @@
 from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from .. import expressions
 from ._base import _StrictModel
@@ -74,6 +74,12 @@ class MenuItem(_MenuItemBase):
         "selected, (e.g. when the Alt-key is held when opening the menu)",
     )
 
+    @validator("command")
+    def _simplify_command_rule(cls, v: Any) -> CommandRule:
+        if isinstance(v, CommandRule):
+            return v._as_command_rule()
+        raise TypeError("command must be a CommandRule")
+
 
 class SubmenuItem(_MenuItemBase):
     """Point to another Menu that will be displayed as a submenu."""
@@ -83,7 +89,7 @@ class SubmenuItem(_MenuItemBase):
     icon: Optional[Icon] = Field(
         None,
         description="(Optional) Icon used to represent this submenu. "
-        "These may be superqt fonticon keys, such as `fa5s.arrow_down`",
+        "These may be superqt fonticon keys, such as `fa6s.arrow_down`",
     )
     enablement: Optional[expressions.Expr] = Field(
         None,

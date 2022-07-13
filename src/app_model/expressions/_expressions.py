@@ -312,6 +312,11 @@ class Expr(ast.AST, Generic[T]):
         """Validator for Expr. For use with Pydantic."""
         return v if isinstance(v, Expr) else parse_expression(v)
 
+    def __hash__(self) -> int:
+        return hash(self.__class__) + hash(
+            tuple(getattr(self, f) for f in self._fields)
+        )
+
 
 LOAD = ast.Load()
 

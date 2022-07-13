@@ -30,10 +30,15 @@ class CommandRule(_StrictModel):
     tooltip: Optional[str] = Field(
         None, description="(Optional) Tooltip to show when hovered."
     )
+    status_tip: Optional[str] = Field(
+        None,
+        description="(Optional) Help message to show in the status bar when a "
+        "button representing this command is hovered (For backends that support it).",
+    )
     icon: Optional[Icon] = Field(
         None,
         description="(Optional) Icon used to represent this command, e.g. on buttons "
-        "or in menus. These may be superqt fonticon keys, such as `fa5s.arrow_down`",
+        "or in menus. These may be superqt fonticon keys, such as `fa6s.arrow_down`",
     )
     enablement: Optional[expressions.Expr] = Field(
         None,
@@ -47,3 +52,7 @@ class CommandRule(_StrictModel):
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
+
+    def _as_command_rule(self) -> "CommandRule":
+        """Simplify (subclasses) to a plain CommandRule."""
+        return CommandRule(**{f: getattr(self, f) for f in CommandRule.__fields__})

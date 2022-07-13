@@ -2,8 +2,7 @@
 from ._qaction import QCommandAction, QCommandRuleAction, QMenuItemAction
 from ._qkeymap import QKeyBindingSequence
 from ._qmainwindow import QModelMainWindow
-from ._qmenu import QModelMenu, QModelSubmenu
-from ._qmenubar import QModelMenuBar
+from ._qmenu import QModelMenu, QModelMenuBar, QModelSubmenu
 from ._util import to_qicon
 
 __all__ = [
