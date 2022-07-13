@@ -7,6 +7,7 @@ from ._keys import (
     KeyBinding,
     KeyChord,
     KeyCode,
+    KeyCombo,
     KeyMod,
     SimpleKeyBinding,
     StandardKeyBinding,
@@ -31,6 +32,7 @@ __all__ = [
     "KeyBindingRuleOrDict",
     "KeyChord",
     "KeyCode",
+    "KeyCombo",
     "KeyMod",
     "MenuItem",
     "MenuOrSubmenu",
@@ -39,6 +41,6 @@ __all__ = [
     "MenuRuleOrDict",
     "ScanCode",
     "SimpleKeyBinding",
-    "SubmenuItem",
     "StandardKeyBinding",
+    "SubmenuItem",
 ]

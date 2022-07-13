@@ -20,6 +20,10 @@ class KeyBindingRule(_StrictModel):
 
     This model lacks a corresponding command. That gets linked up elsewhere,
     such as below in `Action`.
+
+    Values can be expressed as either a string (e.g. `"Ctrl+O"`) or an integer, using
+    combinations of [`KeyMod`][app_model.types.KeyMod] and
+    [`KeyCode`][app_model.types.KeyCode], (e.g. `KeyMod.CtrlCmd | KeyCode.KeyO`).
     """
 
     primary: Optional[KeyEncoding] = Field(
