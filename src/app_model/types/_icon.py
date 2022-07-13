@@ -15,12 +15,12 @@ class Icon(_StrictModel):
     dark: Optional[str] = Field(
         None,
         description="Icon path when a dark theme is used. These may be superqt "
-        "fonticon keys, such as `fa5s.arrow_down`",
+        "fonticon keys, such as `fa6s.arrow_down`",
     )
     light: Optional[str] = Field(
         None,
         description="Icon path when a light theme is used. These may be superqt "
-        "fonticon keys, such as `fa5s.arrow_down`",
+        "fonticon keys, such as `fa6s.arrow_down`",
     )
 
     @classmethod

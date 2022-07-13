@@ -89,7 +89,7 @@ class SubmenuItem(_MenuItemBase):
     icon: Optional[Icon] = Field(
         None,
         description="(Optional) Icon used to represent this submenu. "
-        "These may be superqt fonticon keys, such as `fa5s.arrow_down`",
+        "These may be superqt fonticon keys, such as `fa6s.arrow_down`",
     )
     enablement: Optional[expressions.Expr] = Field(
         None,

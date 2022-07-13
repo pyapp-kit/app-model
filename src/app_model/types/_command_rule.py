@@ -38,7 +38,7 @@ class CommandRule(_StrictModel):
     icon: Optional[Icon] = Field(
         None,
         description="(Optional) Icon used to represent this command, e.g. on buttons "
-        "or in menus. These may be superqt fonticon keys, such as `fa5s.arrow_down`",
+        "or in menus. These may be superqt fonticon keys, such as `fa6s.arrow_down`",
     )
     enablement: Optional[expressions.Expr] = Field(
         None,
