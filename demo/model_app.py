@@ -246,7 +246,7 @@ if __name__ == "__main__":
     app = Application(name="my_app")
     for action in ACTIONS:
         app.register_action(action)
-    qapp = QApplication([])
+    qapp = QApplication.instance() or QApplication([])
     qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow(app=app)
 

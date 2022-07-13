@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
 
-    qapp = QApplication([])
+    qapp = QApplication.instance() or QApplication([])
     qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow()
     main_win.show()

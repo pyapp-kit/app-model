@@ -6,7 +6,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent))
 from multi_file.app import MyApp  # noqa: E402
 from qtpy.QtWidgets import QApplication  # noqa: E402
 
-qapp = QApplication([])
+qapp = QApplication.instance() or QApplication([])
 app = MyApp()
 app.show()
 qapp.exec_()
