@@ -156,7 +156,7 @@ ignore = [
     ".pre-commit-config.yaml",
     "tests/**/*",
     "codecov.yml",
-    "demo_app/**/*"
+    "demo/**/*"
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html
