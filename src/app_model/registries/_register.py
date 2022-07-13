@@ -215,7 +215,7 @@ def _register_action_obj(
         items.append((rule.id, menu_item))
     disposers.append(app.menus.append_menu_items(items))
 
-    if action.add_to_command_palette:
+    if action.palette:
         menu_item = MenuItem(command=action, when=action.enablement)
         disp = app.menus.append_menu_items([(app.menus.COMMAND_PALETTE_ID, menu_item)])
         disposers.append(disp)

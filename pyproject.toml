@@ -95,7 +95,7 @@ W503  # line break before binary operator
 B010
 """
 per-file-ignores = [
-    "tests/*,demo/*: D",
+    "tests/*,demo/*,docs/*: D",
     "src/app_model/_registries.py,src/app_model/context/_expressions.py: D10",
 ]
 

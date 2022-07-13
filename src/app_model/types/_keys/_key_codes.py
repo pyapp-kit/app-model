@@ -10,7 +10,7 @@ __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 # fmt: off
 
 class KeyCode(IntEnum):
-    """Virtual Key Codes, the value does not hold any inherent meaning.
+    """Virtual Key Codes, the integer value does not hold any inherent meaning.
 
     This is the primary internal representation of a key.
     """
@@ -137,17 +137,17 @@ class KeyCode(IntEnum):
 
     @classmethod
     def from_string(cls, string: str) -> 'KeyCode':
-        """Return the KeyCode associated with the given string.
+        """Return the `KeyCode` associated with the given string.
 
-        Returns KeyCode.UNKOWN if no KeyCode is associated with the string.
+        Returns `KeyCode.UNKOWN` if no `KeyCode` is associated with the string.
         """
         return keycode_from_string(string)
 
     @classmethod
     def from_event_code(cls, event_code: int) -> 'KeyCode':
-        """Return the KeyCode associated with the given event code.
+        """Return the `KeyCode` associated with the given event code.
 
-        Returns KeyCode.UNKOWN if no KeyCode is associated with the event code.
+        Returns `KeyCode.UNKOWN` if no `KeyCode` is associated with the event code.
         """
         return _EVENTCODE_TO_KEYCODE.get(event_code, KeyCode.UNKOWN)
 
@@ -625,7 +625,8 @@ class KeyMod(IntFlag):
 
 
 class KeyCombo(int):
-    """KeyCombo is an integer combination of one or more KeyMod and KeyCode."""
+    """KeyCombo is an integer combination of one or more
+    [`KeyMod`][app_model.types.KeyMod] and [`KeyCode`][app_model.types.KeyCode]."""
 
     def __new__(
         cls: Type["KeyCombo"], modifiers: KeyMod, key: KeyCode = KeyCode.UNKOWN
@@ -643,7 +644,8 @@ class KeyCombo(int):
 
 
 class KeyChord(int):
-    """KeyChord is an integer combination of two KeyCombos, KeyCodes, or integers."""
+    """KeyChord is an integer combination of two [`KeyCombo`][app_model.types.KeyCombo],
+    [`KeyCode`][app_model.types.KeyCode], or [int][]."""
 
     def __new__(cls: Type["KeyChord"], first_part: int, second_part: int) -> "KeyChord":
         # shift the second part 16 bits to the left

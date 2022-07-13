@@ -1,4 +1,10 @@
-site_name: My Docs
+site_name: App Model
+site_description: Generic application schema implemented in python.
+
+
+repo_name: app-model
+repo_url: https://github.com/tlambert03/app-model
+
 
 watch:
   - src
@@ -27,6 +33,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - admonition
 
 theme:
   name: material
+  icon:
+    repo: material/github
+    logo: material/application-cog-outline
