@@ -75,7 +75,7 @@ def create_context(
     root: Optional[Context] = None,
     root_class: Type[Context] = Context,
     frame_predicate: Callable[[FrameType], bool] = _pydantic_abort,
-) -> Optional[Context]:
+) -> Context:
     """Create context for any object.
 
     Parameters
@@ -120,7 +120,7 @@ def create_context(
         # to scope this new context off of.
         while frame and (i := i + 1) < max_depth:
             if frame_predicate(frame):
-                return None  # pragma: no cover
+                return root  # pragma: no cover  # FIXME: should this be allowed?
 
             # FIXME: this might be a bit napari "magic"
             # it also assumes someone uses "self" as the first argument

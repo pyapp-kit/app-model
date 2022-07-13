@@ -49,6 +49,8 @@ class Application:
     @classmethod
     def destroy(cls, name: str) -> None:
         """Destroy the app named `name`."""
+        if name not in cls._instances:
+            return
         app = cls._instances.pop(name)
         app.dispose()
         app.injection_store.destroy(name)

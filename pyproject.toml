@@ -26,7 +26,7 @@ dependencies = ['psygnal', 'pydantic', 'in-n-out', 'typing_extensions>=4.0']
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 test = ["pytest>=6.0", "pytest-cov"]
-test_qt = ["pytest-qt", "fonticon-fontawesome5"]
+test_qt = ["pytest-qt", "fonticon-fontawesome6"]
 qt = ["qtpy", "superqt"]
 dev = [
     "black",
@@ -95,7 +95,7 @@ W503  # line break before binary operator
 B010
 """
 per-file-ignores = [
-    "tests/*,demo_app/*: D",
+    "tests/*,demo/*: D",
     "src/app_model/_registries.py,src/app_model/context/_expressions.py: D10",
 ]
 
@@ -110,7 +110,10 @@ ignore = "D100,D213,D401,D413,D107"
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    "ignore:QPixmapCache.find:DeprecationWarning:",
+]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
@@ -156,7 +159,7 @@ ignore = [
     ".pre-commit-config.yaml",
     "tests/**/*",
     "codecov.yml",
-    "demo_app/**/*"
+    "demo/**/*"
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html

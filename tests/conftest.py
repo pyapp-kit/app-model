@@ -9,11 +9,11 @@ from app_model import Action, Application
 from app_model.types import KeyCode, KeyMod, SubmenuItem
 
 try:
-    from fonticon_fa5 import FA5S
+    from fonticon_fa6 import FA6S
 
-    UNDO_ICON = FA5S.undo
+    UNDO_ICON = FA6S.rotate_left
 except ImportError:
-    UNDO_ICON = "fa5s.undo"
+    UNDO_ICON = "fa6s.undo"
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -92,7 +92,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
                 SubmenuItem(
                     submenu=Menus.FILE_OPEN_FROM,
                     title="Open From...",
-                    icon="fa5s.folder-open",
+                    icon="fa6s.folder-open",
                     when="not something_open",
                     enablement="friday",
                 ),
@@ -112,7 +112,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         Action(
             id=Commands.COPY,
             title="Copy",
-            icon="fa5s.copy",
+            icon="fa6s.copy",
             callback=app.mocks.copy,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
             keybindings=[{"primary": KeyMod.CtrlCmd | KeyCode.KeyC}],
@@ -120,7 +120,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         Action(
             id=Commands.PASTE,
             title="Paste",
-            icon="fa5s.paste",
+            icon="fa6s.paste",
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
             keybindings=[{"primary": "Ctrl+V", "mac": "Cmd+V"}],
@@ -130,7 +130,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
             id=Commands.REDO,
             title="Redo",
             tooltip="Redo it!",
-            icon="fa5s.redo",
+            icon="fa6s.rotate_right",
             enablement="allow_undo_redo",
             callback="fake_module:run_me",  # this is a function in fixtures
             keybindings=[{"primary": "Ctrl+Shift+Z"}],
