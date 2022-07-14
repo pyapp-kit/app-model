@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import ast
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -53,6 +54,9 @@ PassedType = TypeVar(
 T = TypeVar("T")
 T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
+
+if TYPE_CHECKING:
+    from ._context_keys import ContextKey
 
 
 def parse_expression(expr: str) -> Expr:
@@ -530,6 +534,9 @@ class _ExprSerializer(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name) -> None:
         self.write(node.id)
+
+    def visit_ContextKey(self, node: ContextKey) -> None:
+        return self.visit_Name(node)
 
     def visit_Constant(self, node: ast.Constant) -> None:
         self.write(repr(node.value))

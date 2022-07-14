@@ -1,5 +1,4 @@
 import ast
-import sys
 from copy import deepcopy
 
 import pytest
@@ -15,7 +14,7 @@ def test_names():
     with pytest.raises(NameError):
         Name("n").eval()
 
-    assert repr(Name("n")) == "Name(id='n', ctx=Load())"
+    assert repr(Name("n")) == "Expr.parse('n')"
 
 
 def test_constants():
@@ -33,10 +32,7 @@ def test_constants():
     assert Constant(False).eval() is False
     assert Constant(None).eval() is None
 
-    if sys.version_info >= (3, 9):
-        assert repr(Constant(1)) == "Constant(value=1)"
-    else:
-        assert repr(Constant(1)) == "Constant(value=1, kind=None)"
+    assert repr(Constant(1)) == "Expr.parse('1')"
 
     # only {None, str, bytes, bool, int, float} allowed
     with pytest.raises(TypeError):
@@ -140,6 +136,8 @@ def test_comparison():
     assert Expr.not_in(Constant("a"), Constant("abcd")).eval() is False
     assert Constant("a").not_in(Constant("abcd")).eval() is False
 
+    assert repr(n > n2) == "Expr.parse('n > n2')"
+
 
 def test_iter_names():
     expr = "a if b in c else d > e"
@@ -232,3 +230,8 @@ def test_safe_eval():
 
     with pytest.raises(SyntaxError, match="Type 'Set' not supported"):
         safe_eval("{1,2,3}")
+
+
+@pytest.mark.parametrize("expr", GOOD_EXPRESSIONS)
+def test_hash(expr):
+    assert isinstance(hash(expr), int)
