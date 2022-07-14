@@ -26,8 +26,8 @@ Things that are *NOT* supported:
 from __future__ import annotations
 
 import ast
-import sys
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -54,6 +54,9 @@ PassedType = TypeVar(
 T = TypeVar("T")
 T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
+
+if TYPE_CHECKING:
+    from ._context_keys import ContextKey
 
 
 def parse_expression(expr: str) -> Expr:
@@ -190,9 +193,7 @@ class Expr(ast.AST, Generic[T]):
         return str(_ExprSerializer(self))
 
     def __repr__(self) -> str:
-        if sys.version_info >= (3, 9):
-            return ast.dump(self, indent=2)
-        return ast.dump(self)
+        return f"Expr.parse({str(self)!r})"
 
     @staticmethod
     def _cast(obj: Any) -> Expr:
@@ -313,9 +314,15 @@ class Expr(ast.AST, Generic[T]):
         return v if isinstance(v, Expr) else parse_expression(v)
 
     def __hash__(self) -> int:
-        return hash(self.__class__) + hash(
-            tuple(getattr(self, f) for f in self._fields)
-        )
+        _hash = hash(self.__class__)
+        for f in self._fields:
+            field = getattr(self, f)
+            if isinstance(field, list):
+                field = tuple(field)
+            if isinstance(field, set):
+                field = frozenset(field)
+            _hash += hash(field)
+        return _hash
 
 
 LOAD = ast.Load()
@@ -527,6 +534,9 @@ class _ExprSerializer(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name) -> None:
         self.write(node.id)
+
+    def visit_ContextKey(self, node: ContextKey) -> None:
+        return self.visit_Name(node)
 
     def visit_Constant(self, node: ast.Constant) -> None:
         self.write(repr(node.value))

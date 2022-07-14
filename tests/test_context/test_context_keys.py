@@ -8,11 +8,14 @@ from app_model.expressions._context_keys import (
 
 
 def test_context_key_info():
-    ContextKey("default", "description", None, id="some_key")
+    key = ContextKey("default", "description", None, id="some_key")
     info = ContextKey.info()
     assert isinstance(info, list) and len(info)
     assert all(isinstance(x, ContextKeyInfo) for x in info)
     assert "some_key" in {x.key for x in info}
+
+    assert repr(key) == "Expr.parse('some_key')"
+    assert repr(key == 1) == "Expr.parse('some_key == 1')"
 
 
 def _adder(x: list) -> int:
