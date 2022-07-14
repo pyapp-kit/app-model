@@ -26,7 +26,6 @@ Things that are *NOT* supported:
 from __future__ import annotations
 
 import ast
-import sys
 from typing import (
     Any,
     Callable,
@@ -190,9 +189,7 @@ class Expr(ast.AST, Generic[T]):
         return str(_ExprSerializer(self))
 
     def __repr__(self) -> str:
-        if sys.version_info >= (3, 9):
-            return ast.dump(self, indent=2)
-        return ast.dump(self)
+        return f"Expr.parse({str(self)!r})"
 
     @staticmethod
     def _cast(obj: Any) -> Expr:
@@ -313,9 +310,15 @@ class Expr(ast.AST, Generic[T]):
         return v if isinstance(v, Expr) else parse_expression(v)
 
     def __hash__(self) -> int:
-        return hash(self.__class__) + hash(
-            tuple(getattr(self, f) for f in self._fields)
-        )
+        _hash = hash(self.__class__)
+        for f in self._fields:
+            field = getattr(self, f)
+            if isinstance(field, list):
+                field = tuple(field)
+            if isinstance(field, set):
+                field = frozenset(field)
+            _hash += hash(field)
+        return _hash
 
 
 LOAD = ast.Load()
