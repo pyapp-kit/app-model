@@ -72,12 +72,17 @@ class CommandsRegistry:
 
     registered = Signal(str)
 
-    def __init__(self, injection_store: Optional[Store] = None) -> None:
+    def __init__(
+        self,
+        injection_store: Optional[Store] = None,
+        raise_synchronous_exceptions: bool = False,
+    ) -> None:
         self._commands: Dict[str, _RegisteredCommand] = {}
         self._injection_store = injection_store
+        self._raise_synchronous_exceptions = raise_synchronous_exceptions
 
     def register_command(
-        self, id: str, callback: Union[str, Callable[P, R]], title: str
+        self, id: str, callback: Union[str, Callable], title: str
     ) -> DisposeCallable:
         """Register a callable as the handler for command `id`.
 
@@ -160,13 +165,18 @@ class CommandsRegistry:
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:
                 return executor.submit(cmd, *args, **kwargs)
-        else:
-            future: Future = Future()
-            try:
-                future.set_result(cmd(*args, **kwargs))
-            except Exception as e:
-                future.set_exception(e)
-            return future
+
+        future: Future = Future()
+        try:
+            future.set_result(cmd(*args, **kwargs))
+        except Exception as e:
+            if self._raise_synchronous_exceptions:
+                # note, the caller of this function can also achieve this by
+                # calling `future.result()` on the returned future object.
+                raise e
+            future.set_exception(e)
+
+        return future
 
     def __str__(self) -> str:
         lines = [f"{id!r:<32} -> {cmd.title!r}" for id, cmd in self]
