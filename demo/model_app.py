@@ -29,10 +29,10 @@ class MainWindow(QModelMainWindow):
         self._ctx.changed.connect(self._on_context_changed)
         self._ctx["copyAvailable"] = False
 
-    def _update_context(self, available: bool):
+    def _update_context(self, available: bool) -> None:
         self._ctx["copyAvailable"] = available
 
-    def _on_context_changed(self):
+    def _on_context_changed(self) -> None:
         self.menuBar().update_from_context(self._ctx)
 
     def set_current_file(self, fileName: str) -> None:
@@ -47,21 +47,20 @@ class MainWindow(QModelMainWindow):
 
         self.setWindowTitle(f"{shown_name}[*] - Application")
 
-    def save(self):
+    def save(self) -> bool:
         return self.save_file(self._cur_file) if self._cur_file else self.save_as()
 
-    def save_as(self):
-        fileName, filtr = QFileDialog.getSaveFileName(self)
+    def save_as(self) -> bool:
+        fileName, _ = QFileDialog.getSaveFileName(self)
         if fileName:
             return self.save_file(fileName)
-
         return False
 
-    def save_file(self, fileName):
+    def save_file(self, fileName: str) -> bool:
         error = None
         QApplication.setOverrideCursor(Qt.WaitCursor)
         file = QSaveFile(fileName)
-        if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):
+        if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):  # type: ignore # noqa
             outf = QTextStream(file)
             outf << self._text_edit.toPlainText()
             if not file.commit():
@@ -75,14 +74,15 @@ class MainWindow(QModelMainWindow):
         if error:
             QMessageBox.warning(self, "Application", error)
             return False
+        return True
 
-    def maybe_save(self):
+    def maybe_save(self) -> bool:
         if self._text_edit.document().isModified():
             ret = QMessageBox.warning(
                 self,
                 "Application",
                 "The document has been modified.\nDo you want to save " "your changes?",
-                QMessageBox.StandardButton.Save
+                QMessageBox.StandardButton.Save  # type: ignore
                 | QMessageBox.StandardButton.Discard
                 | QMessageBox.StandardButton.Cancel,
             )
@@ -92,20 +92,20 @@ class MainWindow(QModelMainWindow):
                 return False
         return True
 
-    def new_file(self):
+    def new_file(self) -> None:
         if self.maybe_save():
             self._text_edit.clear()
             self.set_current_file("")
 
-    def open_file(self):
+    def open_file(self) -> None:
         if self.maybe_save():
             fileName, _ = QFileDialog.getOpenFileName(self)
             if fileName:
                 self.load_file(fileName)
 
-    def load_file(self, fileName):
+    def load_file(self, fileName: str) -> None:
         file = QFile(fileName)
-        if not file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+        if not file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):  # type: ignore # noqa
             reason = file.errorString()
             QMessageBox.warning(
                 self, "Application", f"Cannot read file {fileName}:\n{reason}."
@@ -120,7 +120,7 @@ class MainWindow(QModelMainWindow):
         self.set_current_file(fileName)
         self.statusBar().showMessage("File loaded", 2000)
 
-    def about(self):
+    def about(self) -> None:
         QMessageBox.about(
             self,
             "About Application",
@@ -129,17 +129,17 @@ class MainWindow(QModelMainWindow):
             "toolbars, and a status bar.",
         )
 
-    def cut(self):
+    def cut(self) -> None:
         self._text_edit.cut()
 
-    def copy(self):
+    def copy(self) -> None:
         self._text_edit.copy()
 
-    def paste(self):
+    def paste(self) -> None:
         self._text_edit.paste()
 
-    def close(self):
-        super().close()
+    def close(self) -> bool:
+        return super().close()
 
 
 # Actions defined declaratively outside of QMainWindow class ...
