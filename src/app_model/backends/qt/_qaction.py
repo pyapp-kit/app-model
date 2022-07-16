@@ -44,7 +44,10 @@ class QCommandAction(QAction):
         self.triggered.connect(self._on_triggered)
 
     def _on_triggered(self, checked: bool) -> None:
-        self._app.commands.execute_command(self._command_id)
+        # execute_command returns a Future, for the sake of eventually being
+        # asynchronous without breaking the API.  For now, we call result()
+        # to raise any exceptions.
+        self._app.commands.execute_command(self._command_id).result()
 
 
 class QCommandRuleAction(QCommandAction):
@@ -80,10 +83,13 @@ class QCommandRuleAction(QCommandAction):
             self.setToolTip(command_rule.tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
+        self.setCheckable(command_rule.toggled is not None)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
         self.setEnabled(expr.eval(ctx) if (expr := self._cmd_rule.enablement) else True)
+        if expr := self._cmd_rule.toggled:
+            self.setChecked(expr.eval(ctx))
 
 
 class QMenuItemAction(QCommandRuleAction):

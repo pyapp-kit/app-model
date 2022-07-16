@@ -32,6 +32,7 @@ class Commands:
     REDO = "redo"
     COPY = "copy"
     PASTE = "paste"
+    TOGGLE_THING = "toggle_thing"
     OPEN_FROM_A = "open.from_a"
     OPEN_FROM_B = "open.from_b"
     UNIMPORTABLE = "unimportable"
@@ -194,6 +195,13 @@ def build_app(name: str = "complete_test_app") -> FullApp:
             id=Commands.RAISES,
             title="Will raise an error",
             callback=_raise_an_error,
+        ),
+        Action(
+            id=Commands.TOGGLE_THING,
+            title="Toggle Thing",
+            callback=lambda: None,
+            menus=[{"id": Menus.HELP}],
+            toggled="thing_toggled",
         ),
     ]
     for action in actions:

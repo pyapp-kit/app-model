@@ -127,3 +127,16 @@ def test_cache_action(full_app: "FullApp") -> None:
     a1 = QMenuItemAction(action, full_app)
     a2 = QMenuItemAction(action, full_app)
     assert a1 is a2
+
+
+def test_toggled_menu_item(qtbot: "QtBot", full_app: "FullApp") -> None:
+    app = full_app
+    menu = QModelMenu(app.Menus.HELP, app)
+    qtbot.addWidget(menu)
+
+    menu.update_from_context({"thing_toggled": True})
+    action = menu.findAction(app.Commands.TOGGLE_THING)
+    assert action.isChecked()
+
+    menu.update_from_context({"thing_toggled": False})
+    assert not action.isChecked()
