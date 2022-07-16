@@ -136,7 +136,7 @@ class MenusRegistry:
 
 def _sort_groups(
     items: List[MenuOrSubmenu],
-    group_key: Callable = lambda x: "0000" if x == "navigation" else x,
+    group_key: Callable = lambda x: "0000" if x == "navigation" else x or "",
     order_key: Callable = lambda x: getattr(x, "order", "") or 0,
 ) -> Iterator[List[MenuOrSubmenu]]:
     """Sort a list of menu items based on their .group and .order attributes."""
