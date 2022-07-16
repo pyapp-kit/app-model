@@ -52,6 +52,11 @@ class CommandRule(_StrictModel):
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
+    toggled: Optional[expressions.Expr] = Field(
+        None,
+        description="(Optional) Condition under which the command should appear "
+        "in any GUI representation (like a menu).",
+    )
 
     def _as_command_rule(self) -> "CommandRule":
         """Simplify (subclasses) to a plain CommandRule."""
