@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple, Type
 
 import in_n_out as ino
 from psygnal import Signal
@@ -23,18 +23,50 @@ class Application:
     This is the top level object that comprises all of the registries, and other
     app-namespace specific objects.
 
-    ## Attributes:
-    - `commands`: A [`CommandsRegistry`][app_model.registries.CommandsRegistry]
-    - `menus`: A [`MenusRegistry`][app_model.registries.MenusRegistry]
-    - `keybindings`: A [`KeyBindingsRegistry`][app_model.registries.KeyBindingsRegistry]
-    - `injection_store`: An instance of an
-      [in_n_out](https://github.com/tlambert03/in-n-out) `Store`
+    Parameters
+    ----------
+    name : str
+        A name for this application.
+    raise_synchronous_exceptions : bool
+        Whether to raise exceptions that occur while executing commands synchronously,
+        by default False. This is settable after instantiation, and can also be
+        controlled per execution by calling `result.result()` on the future object
+        returned from the `execute_command` method.
+    commands_reg_class : Type[CommandsRegistry]
+        (Optionally) override the class to use when creating the CommandsRegistry
+    menus_reg_class : Type[MenusRegistry]
+        (Optionally) override the class to use when creating the MenusRegistry
+    keybindings_reg_class : Type[KeyBindingsRegistry]
+        (Optionally) override the class to use when creating the KeyBindingsRegistry
+    injection_store_class : Type[ino.Store]
+        (Optionally) override the class to use when creating the injection Store
+
+    Attributes
+    ----------
+    - commands : CommandsRegistry
+        The Commands Registry for this application.
+    - menus : MenusRegistry
+        The Menus Registry for this application.
+    - keybindings : KeyBindingsRegistry
+        The KeyBindings Registry for this application.
+    - injection_store : in_n_out.Store
+        The Injection Store for this application.
     """
 
     destroyed = Signal(str)
     _instances: ClassVar[Dict[str, Application]] = {}
 
-    def __init__(self, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        *,
+        raise_synchronous_exceptions: bool = False,
+        commands_reg_class: Type[CommandsRegistry] = CommandsRegistry,
+        menus_reg_class: Type[MenusRegistry] = MenusRegistry,
+        keybindings_reg_class: Type[KeyBindingsRegistry] = KeyBindingsRegistry,
+        injection_store_class: Type[ino.Store] = ino.Store,
+    ) -> None:
+
         self._name = name
         if name in Application._instances:
             raise ValueError(
@@ -42,15 +74,27 @@ class Application:
                 f"`Application.get_or_create({name!r})`."
             )
         Application._instances[name] = self
-        self._injection_store = ino.Store.create(name)
 
-        self._commands = CommandsRegistry(self.injection_store)
-        self._menus = MenusRegistry()
-        self._keybindings = KeyBindingsRegistry()
+        self._injection_store = injection_store_class.create(name)
+        self._commands = commands_reg_class(
+            self.injection_store,
+            raise_synchronous_exceptions=raise_synchronous_exceptions,
+        )
+        self._menus = menus_reg_class()
+        self._keybindings = keybindings_reg_class()
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
         self._disposers: List[Tuple[str, DisposeCallable]] = []
+
+    @property
+    def raise_synchronous_exceptions(self) -> bool:
+        """Whether to raise synchronous exceptions."""
+        return self._commands._raise_synchronous_exceptions
+
+    @raise_synchronous_exceptions.setter
+    def raise_synchronous_exceptions(self, value: bool) -> None:
+        self._commands._raise_synchronous_exceptions = value
 
     @property
     def commands(self) -> CommandsRegistry:
