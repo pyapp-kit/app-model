@@ -649,9 +649,9 @@ class KeyChord(int):
 
     def __new__(cls: Type["KeyChord"], first_part: int, second_part: int) -> "KeyChord":
         # shift the second part 16 bits to the left
-        chord_part = ((second_part & 0x0000FFFF) << 16) >> 0
+        chord_part = (second_part & 0x0000FFFF) << 16
         # then combine then to make the full chord
-        return super().__new__(cls, (first_part | chord_part) >> 0)
+        return super().__new__(cls, first_part | chord_part)
 
     def __init__(self, first_part: int, second_part: int):
         self._first_part = first_part
