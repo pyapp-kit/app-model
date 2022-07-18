@@ -1,6 +1,13 @@
 """Qt objects for app_model."""
 from ._qaction import QCommandAction, QCommandRuleAction, QMenuItemAction
-from ._qkeymap import QKeyBindingSequence
+from ._qkeymap import (
+    QKeyBindingSequence,
+    qkey2modelkey,
+    qkeycombo2modelkey,
+    qkeysequence2modelkeybinding,
+    qmods2modelmods,
+)
+from ._qkeysequenceedit import QModelKeyBindingEdit
 from ._qmainwindow import QModelMainWindow
 from ._qmenu import QModelMenu, QModelMenuBar, QModelSubmenu
 from ._util import to_qicon
@@ -8,11 +15,16 @@ from ._util import to_qicon
 __all__ = [
     "QCommandAction",
     "QCommandRuleAction",
+    "qkey2modelkey",
     "QKeyBindingSequence",
+    "qkeycombo2modelkey",
+    "qkeysequence2modelkeybinding",
     "QMenuItemAction",
-    "QModelMenu",
+    "QModelKeyBindingEdit",
     "QModelMainWindow",
+    "QModelMenu",
     "QModelMenuBar",
     "QModelSubmenu",
+    "qmods2modelmods",
     "to_qicon",
 ]

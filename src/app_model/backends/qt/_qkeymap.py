@@ -1,12 +1,12 @@
 import operator
 from functools import reduce
-from typing import Dict, Optional, cast
+from typing import Dict, Optional, Union, cast
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
 from ...types._constants import OperatingSystem
-from ...types._keys import KeyBinding, KeyCode, KeyMod, SimpleKeyBinding
+from ...types._keys import KeyBinding, KeyCode, KeyCombo, KeyMod, SimpleKeyBinding
 
 try:
     from qtpy import QT6
@@ -37,6 +37,7 @@ if QT6:
         return cast(int, combo.toCombined())
 
 else:
+    QKeyCombination = int
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
@@ -171,7 +172,69 @@ KEYMOD_TO_QT = {
 
 
 # unused/untested
-KEY_FROM_QT = {
+KEY_FROM_QT: Dict[Qt.Key, KeyCode] = {
     v.toCombined() if hasattr(v, "toCombined") else int(v): k
     for k, v in KEY_TO_QT.items()
+    if k
 }
+
+# Qt Keys which have no representation in the W3C spec
+_QTONLY_KEYS = {
+    Qt.Key.Key_Exclam: KeyMod.Shift | KeyCode.Digit1,
+    Qt.Key.Key_At: KeyMod.Shift | KeyCode.Digit2,
+    Qt.Key.Key_NumberSign: KeyMod.Shift | KeyCode.Digit3,
+    Qt.Key.Key_Dollar: KeyMod.Shift | KeyCode.Digit4,
+    Qt.Key.Key_Percent: KeyMod.Shift | KeyCode.Digit5,
+    Qt.Key.Key_AsciiCircum: KeyMod.Shift | KeyCode.Digit6,
+    Qt.Key.Key_Ampersand: KeyMod.Shift | KeyCode.Digit7,
+    Qt.Key.Key_Asterisk: KeyMod.Shift | KeyCode.Digit8,
+    Qt.Key.Key_ParenLeft: KeyMod.Shift | KeyCode.Digit9,
+    Qt.Key.Key_ParenRight: KeyMod.Shift | KeyCode.Digit0,
+    Qt.Key.Key_Underscore: KeyMod.Shift | KeyCode.Minus,
+    Qt.Key.Key_Plus: KeyMod.Shift | KeyCode.Equal,
+    Qt.Key.Key_BraceLeft: KeyMod.Shift | KeyCode.BracketLeft,
+    Qt.Key.Key_BraceRight: KeyMod.Shift | KeyCode.BracketRight,
+    Qt.Key.Key_Bar: KeyMod.Shift | KeyCode.Backslash,
+    Qt.Key.Key_Colon: KeyMod.Shift | KeyCode.Semicolon,
+    Qt.Key.Key_QuoteDbl: KeyMod.Shift | KeyCode.Quote,
+    Qt.Key.Key_Less: KeyMod.Shift | KeyCode.Comma,
+    Qt.Key.Key_Greater: KeyMod.Shift | KeyCode.Period,
+    Qt.Key.Key_Question: KeyMod.Shift | KeyCode.Slash,
+    Qt.Key.Key_AsciiTilde: KeyMod.Shift | KeyCode.Backquote,
+    Qt.Key.Key_Return: KeyCode.Enter,
+}
+KEY_FROM_QT.update(_QTONLY_KEYS)
+
+
+def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
+    """Return KeyMod from Qt.KeyboardModifier."""
+    mod = KeyMod.NONE
+    if modifiers & Qt.KeyboardModifier.ShiftModifier:
+        mod |= KeyMod.Shift
+    if modifiers & Qt.KeyboardModifier.ControlModifier:
+        mod |= KeyMod.WinCtrl
+    if modifiers & Qt.KeyboardModifier.AltModifier:
+        mod |= KeyMod.Alt
+    if modifiers & Qt.KeyboardModifier.MetaModifier:
+        mod |= KeyMod.CtrlCmd
+    return mod
+
+
+def qkey2modelkey(key: Qt.Key) -> KeyCode:
+    """Return KeyCode from Qt.Key."""
+    return KEY_FROM_QT.get(key, KeyCode.UNKOWN)
+
+
+def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
+    """Return KeyCode or KeyCombo from QKeyCombination."""
+    if key in KEY_FROM_QT:
+        return KEY_FROM_QT[key]
+    qmods = Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)
+    qkey = Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)
+    return cast(KeyCombo, qmods2modelmods(qmods) | qkey2modelkey(qkey))
+
+
+def qkeysequence2modelkeybinding(key: QKeySequence) -> KeyBinding:
+    """Return KeyBinding from QKeySequence."""
+    # FIXME: this should return KeyChord instead of KeyBinding... but that only takes 2
+    return KeyBinding(parts=[qkeycombo2modelkey(x) for x in key])
