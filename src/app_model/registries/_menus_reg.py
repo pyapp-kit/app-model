@@ -79,7 +79,7 @@ class MenusRegistry:
     def __contains__(self, id: object) -> bool:
         return id in self._menu_items
 
-    def __getitem__(self, menu_id: str) -> List[MenuOrSubmenu]:
+    def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
         return self._menu_items[menu_id]
 
@@ -133,7 +133,7 @@ class MenusRegistry:
             Iterator of menu/submenu groups.
         """
         if menu_id in self:
-            yield from _sort_groups(self[menu_id])
+            yield from _sort_groups(self.get_menu(menu_id))
 
 
 def _sort_groups(

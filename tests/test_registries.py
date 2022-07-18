@@ -9,7 +9,7 @@ def test_menus_registry() -> None:
     reg.append_menu_items([("file", {"command": {"id": "file.new", "title": "File"}})])
     reg.append_menu_items([("file.sub", {"submenu": "Sub", "title": "SubTitle"})])
 
-    assert isinstance(reg["file"][0], MenuItem)
+    assert isinstance(reg.get_menu("file")[0], MenuItem)
     assert "(2 menus)" in repr(reg)
     assert "File" in str(reg)
     assert "Sub" in str(reg)  # ok to change
