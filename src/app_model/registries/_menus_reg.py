@@ -18,6 +18,8 @@ from psygnal import Signal
 from ..types import MenuItem, MenuOrSubmenu
 from ..types._constants import DisposeCallable
 
+MenuId = str
+
 
 class MenusRegistry:
     """Registry for menu and submenu items."""
@@ -29,7 +31,7 @@ class MenusRegistry:
         self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
 
     def append_menu_items(
-        self, items: Sequence[Tuple[str, MenuOrSubmenu]]
+        self, items: Sequence[Tuple[MenuId, MenuOrSubmenu]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
@@ -77,7 +79,7 @@ class MenusRegistry:
     def __contains__(self, id: object) -> bool:
         return id in self._menu_items
 
-    def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
+    def __getitem__(self, menu_id: str) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
         return self._menu_items[menu_id]
 
@@ -131,7 +133,7 @@ class MenusRegistry:
             Iterator of menu/submenu groups.
         """
         if menu_id in self:
-            yield from _sort_groups(self.get_menu(menu_id))
+            yield from _sort_groups(self[menu_id])
 
 
 def _sort_groups(

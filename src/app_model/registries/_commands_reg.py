@@ -158,7 +158,7 @@ class CommandsRegistry:
             If the command is not registered or has no callbacks.
         """
         try:
-            cmd = self._commands[id].run_injected
+            cmd = self[id].run_injected
         except KeyError as e:
             raise KeyError(f"Command {id!r} not registered") from e
 
