@@ -81,6 +81,7 @@ class MenusRegistry:
 
     def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
+        # using method rather than __getitem__ so that subclasses can use arguments
         return self._menu_items[menu_id]
 
     def __repr__(self) -> str:
