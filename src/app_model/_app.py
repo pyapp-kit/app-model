@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Tuple, Type
 
 import in_n_out as ino
 from psygnal import Signal
@@ -163,3 +163,16 @@ class Application:
         This returns a function that may be called to undo the registration of `action`.
         """
         return register_action(self, id_or_action=action)
+
+    def register_actions(self, actions: Iterable[Action]) -> DisposeCallable:
+        """Register multiple [`Action`][app_model.Action] instances with this app.
+
+        Returns a function that may be called to undo the registration of `actions`.
+        """
+        d = [self.register_action(action) for action in actions]
+
+        def _dispose() -> None:
+            while d:
+                d.pop()()
+
+        return _dispose
