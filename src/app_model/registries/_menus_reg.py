@@ -5,6 +5,7 @@ from typing import (
     Callable,
     Dict,
     Final,
+    Iterable,
     Iterator,
     List,
     Optional,
@@ -18,6 +19,8 @@ from psygnal import Signal
 from ..types import MenuItem, MenuOrSubmenu
 from ..types._constants import DisposeCallable
 
+MenuId = str
+
 
 class MenusRegistry:
     """Registry for menu and submenu items."""
@@ -26,10 +29,10 @@ class MenusRegistry:
     menus_changed = Signal(set)
 
     def __init__(self) -> None:
-        self._menu_items: Dict[str, List[MenuOrSubmenu]] = {}
+        self._menu_items: Dict[MenuId, List[MenuOrSubmenu]] = {}
 
     def append_menu_items(
-        self, items: Sequence[Tuple[str, MenuOrSubmenu]]
+        self, items: Sequence[Tuple[MenuId, MenuOrSubmenu]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
@@ -71,14 +74,15 @@ class MenusRegistry:
 
     def __iter__(
         self,
-    ) -> Iterator[Tuple[str, List[MenuOrSubmenu]]]:
+    ) -> Iterator[Tuple[MenuId, Iterable[MenuOrSubmenu]]]:
         yield from self._menu_items.items()
 
     def __contains__(self, id: object) -> bool:
         return id in self._menu_items
 
-    def get_menu(self, menu_id: str) -> List[MenuOrSubmenu]:
+    def get_menu(self, menu_id: MenuId) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
+        # using method rather than __getitem__ so that subclasses can use arguments
         return self._menu_items[menu_id]
 
     def __repr__(self) -> str:
@@ -114,7 +118,7 @@ class MenusRegistry:
             lines.append("")
         return lines
 
-    def iter_menu_groups(self, menu_id: str) -> Iterator[List[MenuOrSubmenu]]:
+    def iter_menu_groups(self, menu_id: MenuId) -> Iterator[List[MenuOrSubmenu]]:
         """Iterate over menu groups for `menu_id`.
 
         Groups are broken into sections (lists of menu or submenu items) based on
