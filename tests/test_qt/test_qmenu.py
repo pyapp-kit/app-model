@@ -120,13 +120,14 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
         qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
 
 
-def test_cache_action(full_app: "FullApp") -> None:
+def test_cache_qaction(full_app: "FullApp") -> None:
     action = next(
         i for k, items in full_app.menus for i in items if isinstance(i, MenuItem)
     )
     a1 = QMenuItemAction(action, full_app)
     a2 = QMenuItemAction(action, full_app)
     assert a1 is a2
+    assert repr(a1).startswith("QMenuItemAction")
 
 
 def test_toggled_menu_item(qtbot: "QtBot", full_app: "FullApp") -> None:

@@ -72,7 +72,7 @@ class _MenuMixin(QObject):
         """Rebuild menu by looking up self._menu_id in menu_registry."""
         self.clear()
         _exclude = exclude or set()
-        print("build")
+
         groups = list(self._app.menus.iter_menu_groups(self._menu_id))
         n_groups = len(groups)
         for n, group in enumerate(groups):
