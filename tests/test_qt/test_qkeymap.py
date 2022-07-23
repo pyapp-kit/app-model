@@ -8,7 +8,8 @@ from app_model.types import KeyBinding, KeyCode, KeyCombo, KeyMod
 
 
 def test_qkey_lookup() -> None:
-    for key in Qt.Key.values.values():
+    for keyname in (k for k in dir(Qt.Key) if k.startswith("Key")):
+        key = getattr(Qt.Key, keyname)
         assert isinstance(qkey2modelkey(key), (KeyCode, KeyCombo))
 
     assert qkey2modelkey(Qt.Key_M) == KeyCode.KeyM
