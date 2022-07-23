@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Tuple, Type
 
 import in_n_out as ino
@@ -130,7 +131,7 @@ class Application:
         application names (allowing the name to be reused).
         """
         if name not in cls._instances:
-            return
+            return  # pragma: no cover
         app = cls._instances.pop(name)
         app.dispose()
         app.injection_store.destroy(name)
@@ -149,9 +150,9 @@ class Application:
 
         This calls all disposers functions (clearing all registries).
         """
-        for _, dispose in self._disposers:
-            dispose()
-        self._disposers.clear()
+        while self._disposers:
+            with contextlib.suppress(Exception):
+                self._disposers.pop()[1]()
 
     def register_action(self, action: Action) -> DisposeCallable:
         """Register [`Action`][app_model.Action] instance with this application.

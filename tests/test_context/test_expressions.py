@@ -165,6 +165,7 @@ GOOD_EXPRESSIONS = [
     "None",
     "hieee",
     "b'bytes'",
+    "1 < x < 2",
 ]
 
 for k, v in _OPS.items():
@@ -234,4 +235,4 @@ def test_safe_eval():
 
 @pytest.mark.parametrize("expr", GOOD_EXPRESSIONS)
 def test_hash(expr):
-    assert isinstance(hash(expr), int)
+    assert isinstance(hash(parse_expression(expr)), int)

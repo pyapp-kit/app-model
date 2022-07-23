@@ -78,7 +78,7 @@ class MenuItem(_MenuItemBase):
     def _simplify_command_rule(cls, v: Any) -> CommandRule:
         if isinstance(v, CommandRule):
             return v._as_command_rule()
-        raise TypeError("command must be a CommandRule")
+        raise TypeError("command must be a CommandRule")  # pragma: no cover
 
 
 class SubmenuItem(_MenuItemBase):
