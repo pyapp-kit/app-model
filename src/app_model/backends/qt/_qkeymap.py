@@ -9,9 +9,10 @@ from ...types._constants import OperatingSystem
 from ...types._keys import KeyBinding, KeyCode, KeyCombo, KeyMod, SimpleKeyBinding
 
 try:
-    from qtpy import QT6
+    from qtpy import PYQT6, QT6
 except ImportError:
     QT6 = False
+    PYQT6 = False
 
 
 QMETA = Qt.KeyboardModifier.MetaModifier
@@ -36,12 +37,6 @@ if QT6:
         combo = QKeyCombination(reduce(operator.or_, mods), key)
         return cast(int, combo.toCombined())
 
-    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
-        return key.keyboardModifiers()
-
-    def _get_qkey(key: QKeyCombination) -> Qt.Key:
-        return key.key()
-
 else:
     QKeyCombination = int
 
@@ -51,6 +46,17 @@ else:
         mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
         out = reduce(operator.or_, mods, out)
         return int(out)
+
+
+if PYQT6:
+
+    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
+        return key.keyboardModifiers()
+
+    def _get_qkey(key: QKeyCombination) -> Qt.Key:
+        return key.key()
+
+else:
 
     def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
         return Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)

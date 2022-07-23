@@ -12,7 +12,7 @@ def test_qkey_lookup() -> None:
         key = getattr(Qt.Key, keyname)
         assert isinstance(qkey2modelkey(key), (KeyCode, KeyCombo))
 
-    assert qkey2modelkey(Qt.Key_M) == KeyCode.KeyM
+    assert qkey2modelkey(Qt.Key.Key_M) == KeyCode.KeyM
 
 
 def test_qkeysequence2modelkeybinding() -> None:
