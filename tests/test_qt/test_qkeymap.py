@@ -7,14 +7,14 @@ from app_model.types import KeyBinding, KeyCode, KeyCombo, KeyMod
 # stuff we don't know how to deal with yet
 
 
-def test_qkey_lookup():
+def test_qkey_lookup() -> None:
     for key in Qt.Key.values.values():
         assert isinstance(qkey2modelkey(key), (KeyCode, KeyCombo))
 
     assert qkey2modelkey(Qt.Key_M) == KeyCode.KeyM
 
 
-def test_qkeysequence2modelkeybinding():
+def test_qkeysequence2modelkeybinding() -> None:
     seq = QKeySequence(Qt.Modifier.SHIFT | Qt.Key.Key_M, Qt.Key.Key_K)
     app_key = KeyBinding(parts=[KeyMod.Shift | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key
