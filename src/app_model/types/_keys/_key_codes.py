@@ -129,6 +129,7 @@ class KeyCode(IntEnum):
     F10 = auto()
     F11 = auto()
     F12 = auto()
+    PrintScreen = auto()
     ScrollLock = auto()
     PauseBreak = auto()
 
@@ -474,7 +475,7 @@ def _build_maps() -> Tuple[
         _KM(ScanCode.F10, 'F10', KeyCode.F10, 'F10', 121, 'VK_F10'),
         _KM(ScanCode.F11, 'F11', KeyCode.F11, 'F11', 122, 'VK_F11'),
         _KM(ScanCode.F12, 'F12', KeyCode.F12, 'F12', 123, 'VK_F12'),
-        _KM(ScanCode.PrintScreen, 'PrintScreen', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.PrintScreen, 'PrintScreen', KeyCode.PrintScreen, "PrintScreen", 42, "VK_PRINT"),
         _KM(ScanCode.ScrollLock, 'ScrollLock', KeyCode.ScrollLock, 'ScrollLock', 145, 'VK_SCROLL'),
         _KM(ScanCode.Pause, 'Pause', KeyCode.PauseBreak, 'PauseBreak', 19, 'VK_PAUSE'),
         _KM(ScanCode.Insert, 'Insert', KeyCode.Insert, 'Insert', 45, 'VK_INSERT'),
