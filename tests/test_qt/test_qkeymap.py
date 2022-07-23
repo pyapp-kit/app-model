@@ -16,18 +16,26 @@ def test_qkey_lookup() -> None:
 
 
 def test_qkeysequence2modelkeybinding() -> None:
-    seq = QKeySequence(Qt.Modifier.SHIFT | Qt.Key.Key_M, Qt.Key.Key_K)
+    seq = QKeySequence(
+        Qt.Modifier.SHIFT | Qt.Key.Key_M, Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K
+    )
     app_key = KeyBinding(parts=[KeyMod.Shift | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key
 
-    seq = QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_M, Qt.Key.Key_K)
+    seq = QKeySequence(
+        Qt.Modifier.ALT | Qt.Key.Key_M, Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K
+    )
     app_key = KeyBinding(parts=[KeyMod.Alt | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key
 
-    seq = QKeySequence(Qt.Modifier.META | Qt.Key.Key_M, Qt.Key.Key_K)
+    seq = QKeySequence(
+        Qt.Modifier.META | Qt.Key.Key_M, Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K
+    )
     app_key = KeyBinding(parts=[KeyMod.CtrlCmd | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key
 
-    seq = QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_M, Qt.Key.Key_K)
+    seq = QKeySequence(
+        Qt.Modifier.CTRL | Qt.Key.Key_M, Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K
+    )
     app_key = KeyBinding(parts=[KeyMod.WinCtrl | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key

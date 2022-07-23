@@ -36,6 +36,12 @@ if QT6:
         combo = QKeyCombination(reduce(operator.or_, mods), key)
         return cast(int, combo.toCombined())
 
+    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
+        return key.keyboardModifiers()
+
+    def _get_qkey(key: QKeyCombination) -> Qt.Key:
+        return key.key()
+
 else:
     QKeyCombination = int
 
@@ -45,6 +51,12 @@ else:
         mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
         out = reduce(operator.or_, mods, out)
         return int(out)
+
+    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
+        return Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)
+
+    def _get_qkey(key: QKeyCombination) -> Qt.Key:
+        return Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)
 
 
 # maybe ~ 1.5x faster than:
@@ -231,8 +243,8 @@ def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
     """Return KeyCode or KeyCombo from QKeyCombination."""
     if key in KEY_FROM_QT:
         return KEY_FROM_QT[key]
-    qmods = Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)
-    qkey = Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)
+    qmods = _get_qmods(key)
+    qkey = _get_qkey(key)
     return cast(KeyCombo, qmods2modelmods(qmods) | qkey2modelkey(qkey))
 
 
