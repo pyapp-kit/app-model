@@ -115,6 +115,9 @@ class CommandsRegistry:
     def __iter__(self) -> Iterator[Tuple[str, _RegisteredCommand]]:
         yield from self._commands.items()
 
+    def __len__(self) -> int:
+        return len(self._commands)
+
     def __contains__(self, id: str) -> bool:
         return id in self._commands
 
@@ -160,7 +163,7 @@ class CommandsRegistry:
         try:
             cmd = self[id].run_injected
         except KeyError as e:
-            raise KeyError(f"Command {id!r} not registered") from e
+            raise KeyError(f"Command {id!r} not registered") from e  # pragma: no cover
 
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:

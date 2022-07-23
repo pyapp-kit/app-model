@@ -119,9 +119,7 @@ class SimpleKeyBinding(BaseModel):
             return cls.from_str(v)
         if isinstance(v, int):
             return cls.from_int(v)
-        if isinstance(v, dict):
-            return cls(**v)
-        raise TypeError(f"KeyBinding must be a string or a dict, not {type(v)}")
+        return super().validate(v)
 
 
 class KeyBinding(BaseModel):
@@ -214,11 +212,7 @@ class KeyBinding(BaseModel):
             return cls.from_int(v)
         if isinstance(v, str):
             return cls.from_str(v)
-        if isinstance(v, dict):
-            return cls(**v)
-        raise TypeError(  # pragma: no cover
-            f"KeyBinding must be a string or a dict, not {type(v)}"
-        )
+        return super().validate(v)  # pragma: no cover
 
 
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:

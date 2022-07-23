@@ -1,3 +1,4 @@
+from typing import List
 from unittest.mock import Mock
 
 import pytest
@@ -115,3 +116,14 @@ def test_errors(app: Application):
         app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):
         app.register_action(None)  # type: ignore
+
+
+def test_register_multiple_actions(app: Application):
+    actions: List[Action] = [
+        Action(id="cmd_id1", title="title1", callback=lambda: None),
+        Action(id="cmd_id2", title="title2", callback=lambda: None),
+    ]
+    dispose = app.register_actions(actions)
+    assert len(app.commands) == 2
+    dispose()
+    assert not list(app.commands)

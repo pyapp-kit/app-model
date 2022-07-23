@@ -82,3 +82,10 @@ def test_action_raises_exception(full_app: FullApp):
 
     # the function that raised the exception is `_raise_an_error` in conftest.py
     assert str(result.exception()) == "This is an error"
+
+    assert not full_app.raise_synchronous_exceptions
+    full_app.raise_synchronous_exceptions = True
+    assert full_app.raise_synchronous_exceptions
+
+    with pytest.raises(ValueError):
+        full_app.commands.execute_command(full_app.Commands.RAISES)
