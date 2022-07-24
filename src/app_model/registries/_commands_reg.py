@@ -2,18 +2,39 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from in_n_out import Store
 from psygnal import Signal
-from typing_extensions import ParamSpec
 
+# maintain runtime compatibility with older typing_extensions
 if TYPE_CHECKING:
-    from typing import Dict, Iterator, Tuple
+    from typing_extensions import ParamSpec
 
-    DisposeCallable = Callable[[], None]
+    P = ParamSpec("P")
+else:
+    try:
+        from typing_extensions import ParamSpec
 
-P = ParamSpec("P")
+        P = ParamSpec("P")
+    except ImportError:
+        P = TypeVar("P")
+
+
+DisposeCallable = Callable[[], None]
+
 R = TypeVar("R")
 
 

@@ -1,14 +1,26 @@
-from typing import Callable, Generic, List, Optional, TypeVar, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
 
 from pydantic import Field, validator
-from typing_extensions import ParamSpec
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule
 from ._menu_rule import MenuRule
 from ._utils import _validate_python_name
 
-P = ParamSpec("P")
+# maintain runtime compatibility with older typing_extensions
+if TYPE_CHECKING:
+    from typing_extensions import ParamSpec
+
+    P = ParamSpec("P")
+else:
+    try:
+        from typing_extensions import ParamSpec
+
+        P = ParamSpec("P")
+    except ImportError:
+        P = TypeVar("P")
 R = TypeVar("R")
 
 
