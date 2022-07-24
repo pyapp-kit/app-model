@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Tuple, Type
+from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Optional, Tuple, Type
 
 import in_n_out as ino
 from psygnal import Signal
@@ -121,6 +121,11 @@ class Application:
     def get_or_create(cls, name: str) -> Application:
         """Get app named `name` or create and return a new one if it doesn't exist."""
         return cls._instances[name] if name in cls._instances else cls(name)
+
+    @classmethod
+    def get_app(cls, name: str) -> Optional[Application]:
+        """Return app named `name` or None if it doesn't exist."""
+        return cls._instances.get(name)
 
     @classmethod
     def destroy(cls, name: str) -> None:
