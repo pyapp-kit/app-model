@@ -12,7 +12,9 @@ if TYPE_CHECKING:
 
 
 def test_app_create():
+    assert Application.get_app("my_app") is None
     app = Application("my_app")
+    assert Application.get_app("my_app") is app
 
     # NOTE: for some strange reason, this test fails if I move this line
     # below the error assertion below... I don't know why.
