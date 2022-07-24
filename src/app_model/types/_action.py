@@ -9,11 +9,19 @@ from ._keybinding_rule import KeyBindingRule
 from ._menu_rule import MenuRule
 from ._utils import _validate_python_name
 
+# maintain runtime compatibility with older typing_extensions
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec
 
     P = ParamSpec("P")
-    R = TypeVar("R")
+else:
+    try:
+        from typing_extensions import ParamSpec
+
+        P = ParamSpec("P")
+    except ImportError:
+        P = TypeVar("P")
+R = TypeVar("R")
 
 
 class Action(CommandRule, Generic[P, R]):
