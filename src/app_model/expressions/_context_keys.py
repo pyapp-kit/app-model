@@ -8,6 +8,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    Literal,
     MutableMapping,
     NamedTuple,
     Optional,
@@ -16,8 +17,6 @@ from typing import (
     Union,
     overload,
 )
-
-from typing_extensions import Literal
 
 from ._expressions import Name
 

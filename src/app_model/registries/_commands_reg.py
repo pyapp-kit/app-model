@@ -6,15 +6,16 @@ from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, Uni
 
 from in_n_out import Store
 from psygnal import Signal
-from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
     from typing import Dict, Iterator, Tuple
 
+    from typing_extensions import ParamSpec
+
     DisposeCallable = Callable[[], None]
 
-P = ParamSpec("P")
-R = TypeVar("R")
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 
 class _RegisteredCommand(Generic[P, R]):
