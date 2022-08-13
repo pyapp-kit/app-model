@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dynamic = ["version"]
-dependencies = ['psygnal', 'pydantic', 'in-n-out', 'typing_extensions']
+dependencies = ['psygnal', 'pydantic', 'in-n-out>=0.1.4', 'typing_extensions']
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies

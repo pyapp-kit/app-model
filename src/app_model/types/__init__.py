@@ -1,6 +1,6 @@
 """App-model types."""
 from ._action import Action
-from ._command_rule import CommandRule
+from ._command_rule import CommandRule, ToggleRule
 from ._icon import Icon, IconOrDict
 from ._keybinding_rule import KeyBindingRule, KeyBindingRuleDict, KeyBindingRuleOrDict
 from ._keys import (
@@ -43,4 +43,5 @@ __all__ = [
     "SimpleKeyBinding",
     "StandardKeyBinding",
     "SubmenuItem",
+    "ToggleRule",
 ]
