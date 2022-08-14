@@ -95,7 +95,7 @@ class QCommandRuleAction(QCommandAction):
                     self.setChecked(_init())
                 if connect := command_rule.toggled.experimental_connect:
                     _connect = self._app.injection_store.inject(
-                        connect, on_unresolved_required_args="raise"
+                        connect, on_unresolved_required_args="ignore"
                     )
                     _connect(self)
 
