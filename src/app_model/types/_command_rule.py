@@ -24,8 +24,9 @@ class ToggleRule(_StrictModel):
         None,
         description="Experimental! Function to be called when a menu item/button is "
         "first created. Must take a single argument (the backend object, e.g. a "
-        "`QAction`) and may perform signal connection. Since this exposes the backend, "
-        "this field may be removed in the future.",
+        "`QAction` instance) and may perform signal connection. Since this exposes "
+        "the backend, this field may be removed in the future. Prefer using `condition`"
+        " instead.",
     )
 
 
