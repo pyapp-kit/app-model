@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         napari-version: [""]  # "" is HEAD
-        qt-backend: [PyQt5, PySide2]
+        qt-backend: [pyqt5, pyside2]
 
     steps:
       - uses: actions/checkout@v3
@@ -116,8 +116,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install app-model[qt]
-          python -m pip install napari[testing]
-          python -m pip install ${{ matrix.qt-backend }}
+          python -m pip install napari[testing,${{ matrix.qt-backend }}]
 
       - name: Test
         uses: GabrielBB/xvfb-action@v1
