@@ -115,14 +115,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install -e app-model[qt]
-          python -m pip install -e napari[testing]
+          python -m pip install app-model[qt]
+          python -m pip install napari[testing]
           python -m pip install ${{ matrix.qt-backend }}
 
       - name: Test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: python -m pytest napari/napari/_qt napari/napari/_app_model --color=yes
+          run: |
+            cd napari
+            python -m pytest napari/_qt napari/_app_model --color=yes
 
   deploy:
     name: Deploy
