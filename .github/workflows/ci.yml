@@ -121,9 +121,8 @@ jobs:
       - name: Test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: |
-            cd napari
-            python -m pytest napari/_qt napari/_app_model --color=yes
+          working-directory: napari
+          run: python -m pytest napari/_qt napari/_app_model --color=yes
 
   deploy:
     name: Deploy
