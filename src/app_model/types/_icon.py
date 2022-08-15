@@ -2,10 +2,10 @@ from typing import Any, Callable, Generator, Optional, TypedDict, Union
 
 from pydantic import Field
 
-from ._base import _StrictModel
+from ._base import _BaseModel
 
 
-class Icon(_StrictModel):
+class Icon(_BaseModel):
     """Icons used to represent commands, or submenus.
 
     May provide both a light and dark variant.  If only one is provided, it is used

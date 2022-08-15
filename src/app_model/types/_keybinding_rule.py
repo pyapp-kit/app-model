@@ -3,7 +3,7 @@ from typing import Any, Optional, TypedDict, Union
 from pydantic import Field
 
 from .. import expressions
-from ._base import _StrictModel
+from ._base import _BaseModel
 from ._constants import OperatingSystem
 from ._keys import StandardKeyBinding
 
@@ -15,7 +15,7 @@ _MAC = _OS.is_mac
 _LINUX = _OS.is_linux
 
 
-class KeyBindingRule(_StrictModel):
+class KeyBindingRule(_BaseModel):
     """Data representing a keybinding and when it should be active.
 
     This model lacks a corresponding command. That gets linked up elsewhere,

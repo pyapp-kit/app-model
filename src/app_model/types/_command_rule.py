@@ -3,11 +3,11 @@ from typing import Optional
 from pydantic import Field
 
 from .. import expressions
-from ._base import _StrictModel
+from ._base import _BaseModel
 from ._icon import Icon
 
 
-class CommandRule(_StrictModel):
+class CommandRule(_BaseModel):
     """Data representing a command and its presentation.
 
     Presentation of contributed commands depends on the containing menu. The Command

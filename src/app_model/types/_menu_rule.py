@@ -3,12 +3,12 @@ from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
 from pydantic import Field, validator
 
 from .. import expressions
-from ._base import _StrictModel
+from ._base import _BaseModel
 from ._command_rule import CommandRule
 from ._icon import Icon
 
 
-class _MenuItemBase(_StrictModel):
+class _MenuItemBase(_BaseModel):
     """Data representing where and when a menu item should be shown."""
 
     when: Optional[expressions.Expr] = Field(
