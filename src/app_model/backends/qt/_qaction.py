@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Dict, Mapping, Optional, Tuple, Type, Union, cast
 
 from qtpy.QtWidgets import QAction
 
@@ -105,10 +105,11 @@ class QMenuItemAction(QCommandRuleAction):
         cls: Type[QMenuItemAction],
         menu_item: MenuItem,
         app: Union[str, Application],
-        **kwargs: Any,
+        parent: Optional[QObject] = None,
+        *,
+        cache: bool = True,
     ) -> QMenuItemAction:
         """Create and cache a QMenuItemAction for the given menu item."""
-        cache = kwargs.pop("cache", True)
         app = Application.get_or_create(app) if isinstance(app, str) else app
         key = (id(app), hash(menu_item))
         if cache and key in cls._cache:
@@ -125,7 +126,7 @@ class QMenuItemAction(QCommandRuleAction):
         app: Union[str, Application],
         parent: Optional[QObject] = None,
         *,
-        cache: bool = True,
+        cache: bool = True,  # used in __new__
     ):
         initialized = False
         with contextlib.suppress(RuntimeError):

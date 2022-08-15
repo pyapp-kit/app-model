@@ -1,5 +1,6 @@
 """Qt objects for app_model."""
 from ._qaction import QCommandAction, QCommandRuleAction, QMenuItemAction
+from ._qkeybindingedit import QModelKeyBindingEdit
 from ._qkeymap import (
     QKeyBindingSequence,
     qkey2modelkey,
@@ -7,7 +8,6 @@ from ._qkeymap import (
     qkeysequence2modelkeybinding,
     qmods2modelmods,
 )
-from ._qkeysequenceedit import QModelKeyBindingEdit
 from ._qmainwindow import QModelMainWindow
 from ._qmenu import QModelMenu, QModelMenuBar, QModelSubmenu
 from ._util import to_qicon

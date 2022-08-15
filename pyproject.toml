@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dynamic = ["version"]
-dependencies = ['psygnal', 'pydantic', 'in-n-out', 'typing_extensions>=4.0']
+dependencies = ['psygnal', 'pydantic', 'in-n-out', 'typing_extensions']
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
@@ -54,6 +54,7 @@ docs = [
     "mkdocstrings-python==0.7.0",
     "mkdocstrings==0.19.0",
     "mkdocs-macros-plugin==0.7.0",
+    "typing_extensions>=4.0",
 ]
 [project.urls]
 homepage = "https://github.com/napari/app-model"
@@ -118,10 +119,7 @@ ignore = "D100,D213,D401,D413,D107"
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = [
-    "error",
-    "ignore:QPixmapCache.find:DeprecationWarning:",
-]
+filterwarnings = ["error", "ignore:QPixmapCache.find:DeprecationWarning:"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]

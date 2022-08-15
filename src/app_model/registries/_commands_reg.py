@@ -2,18 +2,39 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from in_n_out import Store
 from psygnal import Signal
-from typing_extensions import ParamSpec
 
+# maintain runtime compatibility with older typing_extensions
 if TYPE_CHECKING:
-    from typing import Dict, Iterator, Tuple
+    from typing_extensions import ParamSpec
 
-    DisposeCallable = Callable[[], None]
+    P = ParamSpec("P")
+else:
+    try:
+        from typing_extensions import ParamSpec
 
-P = ParamSpec("P")
+        P = ParamSpec("P")
+    except ImportError:
+        P = TypeVar("P")
+
+
+DisposeCallable = Callable[[], None]
+
 R = TypeVar("R")
 
 
@@ -115,6 +136,9 @@ class CommandsRegistry:
     def __iter__(self) -> Iterator[Tuple[str, _RegisteredCommand]]:
         yield from self._commands.items()
 
+    def __len__(self) -> int:
+        return len(self._commands)
+
     def __contains__(self, id: str) -> bool:
         return id in self._commands
 
@@ -159,7 +183,10 @@ class CommandsRegistry:
         KeyError
             If the command is not registered or has no callbacks.
         """
-        cmd = self[id].run_injected
+        try:
+            cmd = self[id].run_injected
+        except KeyError as e:
+            raise KeyError(f"Command {id!r} not registered") from e  # pragma: no cover
 
         if execute_asychronously:
             with ThreadPoolExecutor() as executor:

@@ -319,8 +319,6 @@ class Expr(ast.AST, Generic[T]):
             field = getattr(self, f)
             if isinstance(field, list):
                 field = tuple(field)
-            if isinstance(field, set):
-                field = frozenset(field)
             _hash += hash(field)
         return _hash
 

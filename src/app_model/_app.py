@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Tuple, Type
+import contextlib
+from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Optional, Tuple, Type
 
 import in_n_out as ino
 from psygnal import Signal
@@ -122,6 +123,11 @@ class Application:
         return cls._instances[name] if name in cls._instances else cls(name)
 
     @classmethod
+    def get_app(cls, name: str) -> Optional[Application]:
+        """Return app named `name` or None if it doesn't exist."""
+        return cls._instances.get(name)
+
+    @classmethod
     def destroy(cls, name: str) -> None:
         """Destroy the `Application` named `name`.
 
@@ -130,7 +136,7 @@ class Application:
         application names (allowing the name to be reused).
         """
         if name not in cls._instances:
-            return
+            return  # pragma: no cover
         app = cls._instances.pop(name)
         app.dispose()
         app.injection_store.destroy(name)
@@ -149,9 +155,9 @@ class Application:
 
         This calls all disposers functions (clearing all registries).
         """
-        for _, dispose in self._disposers:
-            dispose()
-        self._disposers.clear()
+        while self._disposers:
+            with contextlib.suppress(Exception):
+                self._disposers.pop()[1]()
 
     def register_action(self, action: Action) -> DisposeCallable:
         """Register [`Action`][app_model.Action] instance with this application.
