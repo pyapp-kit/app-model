@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        napari-version: ["HEAD"]
+        napari-version: [""]  # "" is HEAD
         qt-backend: [PyQt5, PySide2]
 
     steps:
