@@ -15,7 +15,7 @@ from qtpy.QtCore import QObject
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
 from app_model import Application
-from app_model.types import SubmenuItem, ToggleRule
+from app_model.types import SubmenuItem
 
 from ._qaction import QCommandRuleAction, QMenuItemAction
 from ._util import to_qicon
@@ -161,15 +161,8 @@ class QModelMenu(QMenu, _MenuMixin):
     def _on_about_to_show(self) -> None:
         # this would also be a reasonable place to call
         for action in self.actions():
-            if (
-                isinstance(action, QCommandRuleAction)
-                and isinstance(rule := action._cmd_rule.toggled, ToggleRule)
-                and rule.get_current is not None
-            ):
-                _current = self._app.injection_store.inject(
-                    rule.get_current, on_unresolved_required_args="ignore"
-                )
-                action.setChecked(_current())
+            if isinstance(action, QCommandRuleAction):
+                action._refresh()
 
 
 class QModelSubmenu(QModelMenu):

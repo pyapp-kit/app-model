@@ -87,12 +87,7 @@ class QCommandRuleAction(QCommandAction):
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
             self.setCheckable(True)
-            if isinstance(command_rule.toggled, ToggleRule):
-                if get_current := command_rule.toggled.get_current:
-                    _current = self._app.injection_store.inject(
-                        get_current, on_unresolved_required_args="ignore"
-                    )
-                    self.setChecked(_current())
+            self._refresh()
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
@@ -104,6 +99,14 @@ class QCommandRuleAction(QCommandAction):
                 and (expr2 := expr2.condition)
             ):
                 self.setChecked(expr2.eval(ctx))
+
+    def _refresh(self) -> None:
+        if isinstance(self._cmd_rule.toggled, ToggleRule):
+            if get_current := self._cmd_rule.toggled.get_current:
+                _current = self._app.injection_store.inject(
+                    get_current, on_unresolved_required_args="ignore"
+                )
+                self.setChecked(_current())
 
 
 class QMenuItemAction(QCommandRuleAction):

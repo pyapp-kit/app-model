@@ -5,7 +5,7 @@ from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
 from app_model.types import Action, MenuItem, ToggleRule
 
 if TYPE_CHECKING:
-    from qtpy.QtWidgets import QAction
+    pass
 
     from app_model import Application
     from conftest import FullApp
@@ -25,8 +25,9 @@ def test_toggle_qaction(qapp, simple_app: "Application") -> None:
     mock = Mock()
     x = False
 
-    def _connect(qaction: "QAction") -> None:
-        qaction.toggled.connect(mock)
+    def current() -> bool:
+        mock()
+        return x
 
     def _toggle() -> None:
         nonlocal x
@@ -35,22 +36,27 @@ def test_toggle_qaction(qapp, simple_app: "Application") -> None:
     action = Action(
         id="test.toggle",
         title="Test toggle",
-        toggled=ToggleRule(initialize=lambda: x, experimental_connect=_connect),
+        toggled=ToggleRule(get_current=current),
         callback=_toggle,
     )
     simple_app.register_action(action)
 
     a1 = QCommandRuleAction(action, simple_app)
+    mock.assert_called_once()
+    mock.reset_mock()
+
     assert a1.isCheckable()
     assert not a1.isChecked()
 
     a1.trigger()
     assert a1.isChecked()
     assert x
-    mock.assert_called_once_with(True)
-    mock.reset_mock()
 
     a1.trigger()
     assert not a1.isChecked()
     assert not x
-    mock.assert_called_once_with(False)
+
+    x = True
+    a1._refresh()
+    mock.assert_called_once()
+    assert a1.isChecked()
