@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional, Union
 
 from pydantic import Field
 
@@ -15,18 +15,9 @@ class ToggleRule(_StrictModel):
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",
     )
-    initialize: Optional[Callable[[], bool]] = Field(
+    get_current: Optional[Callable[[], bool]] = Field(
         None,
-        description="Function to be called when a menu item/button is first created "
-        "for this command. Must take no arguments and return a bool.",
-    )
-    experimental_connect: Optional[Callable[[Any], Any]] = Field(
-        None,
-        description="Experimental! Function to be called when a menu item/button is "
-        "first created. Must take a single argument (the backend object, e.g. a "
-        "`QAction` instance) and may perform signal connection. Since this exposes "
-        "the backend, this field may be removed in the future. Prefer using `condition`"
-        " instead.",
+        description="Function that returns the current state of the toggle.",
     )
 
 

@@ -88,16 +88,11 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.toggled is not None:
             self.setCheckable(True)
             if isinstance(command_rule.toggled, ToggleRule):
-                if init := command_rule.toggled.initialize:
-                    _init = self._app.injection_store.inject(
-                        init, on_unresolved_required_args="ignore"
+                if get_current := command_rule.toggled.get_current:
+                    _current = self._app.injection_store.inject(
+                        get_current, on_unresolved_required_args="ignore"
                     )
-                    self.setChecked(_init())
-                if connect := command_rule.toggled.experimental_connect:
-                    _connect = self._app.injection_store.inject(
-                        connect, on_unresolved_required_args="ignore"
-                    )
-                    _connect(self)
+                    self.setChecked(_current())
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
