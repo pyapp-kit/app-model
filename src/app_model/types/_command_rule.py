@@ -3,11 +3,11 @@ from typing import Callable, Optional, Union
 from pydantic import Field
 
 from .. import expressions
-from ._base import _StrictModel
+from ._base import _BaseModel
 from ._icon import Icon
 
 
-class ToggleRule(_StrictModel):
+class ToggleRule(_BaseModel):
     """More detailed description of a toggle rule."""
 
     condition: Optional[expressions.Expr] = Field(
@@ -21,7 +21,7 @@ class ToggleRule(_StrictModel):
     )
 
 
-class CommandRule(_StrictModel):
+class CommandRule(_BaseModel):
     """Data representing a command and its presentation.
 
     Presentation of contributed commands depends on the containing menu. The Command

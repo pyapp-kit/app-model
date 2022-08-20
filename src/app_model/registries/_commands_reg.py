@@ -148,6 +148,8 @@ class CommandsRegistry:
 
     def __getitem__(self, id: str) -> _RegisteredCommand:
         """Retrieve commands registered under a given ID."""
+        if id not in self._commands:
+            raise KeyError(f"Command {id!r} not registered")
         return self._commands[id]
 
     def execute_command(
