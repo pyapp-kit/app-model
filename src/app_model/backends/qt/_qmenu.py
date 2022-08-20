@@ -17,7 +17,7 @@ from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 from app_model import Application
 from app_model.types import SubmenuItem
 
-from ._qaction import QMenuItemAction
+from ._qaction import QCommandRuleAction, QMenuItemAction
 from ._util import to_qicon
 
 try:
@@ -145,6 +145,7 @@ class QModelMenu(QMenu, _MenuMixin):
         _MenuMixin.__init__(self, menu_id, app)
         if title is not None:
             self.setTitle(title)
+        self.aboutToShow.connect(self._on_about_to_show)
 
     def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
         """Find an action by its ObjectName.
@@ -156,6 +157,12 @@ class QModelMenu(QMenu, _MenuMixin):
             to their `command.id`
         """
         return next((a for a in self.actions() if a.objectName() == object_name), None)
+
+    def _on_about_to_show(self) -> None:
+        # this would also be a reasonable place to call
+        for action in self.actions():
+            if isinstance(action, QCommandRuleAction):
+                action._refresh()
 
 
 class QModelSubmenu(QModelMenu):

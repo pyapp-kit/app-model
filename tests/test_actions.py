@@ -1,5 +1,4 @@
 from typing import List
-from unittest.mock import Mock
 
 import pytest
 
@@ -26,24 +25,11 @@ KWARGS = [
 ]
 
 
-@pytest.fixture
-def app():
-    app = Application("test")
-    app.commands_changed = Mock()
-    app.commands.registered.connect(app.commands_changed)
-    app.keybindings_changed = Mock()
-    app.keybindings.registered.connect(app.keybindings_changed)
-    app.menus_changed = Mock()
-    app.menus.menus_changed.connect(app.menus_changed)
-    yield app
-    Application.destroy("test")
-    assert "test" not in Application._instances
-
-
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(kwargs, app: Application, mode):
+def test_register_action_decorator(kwargs, simple_app: Application, mode):
     # make sure mocks are working
+    app = simple_app
     assert not list(app.commands)
     assert not list(app.keybindings)
     assert not list(app.menus)
@@ -111,19 +97,19 @@ def test_register_action_decorator(kwargs, app: Application, mode):
     assert not list(app.menus)
 
 
-def test_errors(app: Application):
+def test_errors(simple_app: Application):
     with pytest.raises(ValueError, match="'title' is required"):
-        app.register_action("cmd_id")  # type: ignore
+        simple_app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):
-        app.register_action(None)  # type: ignore
+        simple_app.register_action(None)  # type: ignore
 
 
-def test_register_multiple_actions(app: Application):
+def test_register_multiple_actions(simple_app: Application):
     actions: List[Action] = [
         Action(id="cmd_id1", title="title1", callback=lambda: None),
         Action(id="cmd_id2", title="title2", callback=lambda: None),
     ]
-    dispose = app.register_actions(actions)
-    assert len(app.commands) == 2
+    dispose = simple_app.register_actions(actions)
+    assert len(simple_app.commands) == 2
     dispose()
-    assert not list(app.commands)
+    assert not list(simple_app.commands)

@@ -1,10 +1,24 @@
-from typing import Optional
+from typing import Callable, Optional, Union
 
 from pydantic import Field
 
 from .. import expressions
 from ._base import _StrictModel
 from ._icon import Icon
+
+
+class ToggleRule(_StrictModel):
+    """More detailed description of a toggle rule."""
+
+    condition: Optional[expressions.Expr] = Field(
+        None,
+        description="(Optional) Condition under which the command should appear "
+        "checked/toggled in any GUI representation (like a menu or button).",
+    )
+    get_current: Optional[Callable[[], bool]] = Field(
+        None,
+        description="Function that returns the current state of the toggle.",
+    )
 
 
 class CommandRule(_StrictModel):
@@ -52,10 +66,10 @@ class CommandRule(_StrictModel):
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
-    toggled: Optional[expressions.Expr] = Field(
+    toggled: Union[expressions.Expr, ToggleRule, None] = Field(
         None,
         description="(Optional) Condition under which the command should appear "
-        "in any GUI representation (like a menu).",
+        "checked/toggled in any GUI representation (like a menu or button).",
     )
 
     def _as_command_rule(self) -> "CommandRule":
