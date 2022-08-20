@@ -7,7 +7,7 @@ from ._base import _BaseModel
 from ._icon import Icon
 
 
-class ToggleRule(_StrictModel):
+class ToggleRule(_BaseModel):
     """More detailed description of a toggle rule."""
 
     condition: Optional[expressions.Expr] = Field(
