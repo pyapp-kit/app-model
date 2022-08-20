@@ -5,8 +5,7 @@ import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QAction, QMainWindow
 
-from app_model.backends.qt import QMenuItemAction, QModelMenu
-from app_model.types import MenuItem
+from app_model.backends.qt import QModelMenu
 
 if TYPE_CHECKING:
     from pytestqt.plugin import QtBot
@@ -118,16 +117,6 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
     paste_action = menu.findAction(app.Commands.PASTE)
     with qtbot.waitSignal(paste_action.triggered, timeout=1000):
         qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
-
-
-def test_cache_qaction(full_app: "FullApp") -> None:
-    action = next(
-        i for k, items in full_app.menus for i in items if isinstance(i, MenuItem)
-    )
-    a1 = QMenuItemAction(action, full_app)
-    a2 = QMenuItemAction(action, full_app)
-    assert a1 is a2
-    assert repr(a1).startswith("QMenuItemAction")
 
 
 def test_toggled_menu_item(qtbot: "QtBot", full_app: "FullApp") -> None:

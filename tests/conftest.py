@@ -225,3 +225,17 @@ def full_app(monkeypatch) -> Application:
             app.mocks.redo.reset_mock()
     finally:
         Application.destroy("complete_test_app")
+
+
+@pytest.fixture
+def simple_app():
+    app = Application("test")
+    app.commands_changed = Mock()
+    app.commands.registered.connect(app.commands_changed)
+    app.keybindings_changed = Mock()
+    app.keybindings.registered.connect(app.keybindings_changed)
+    app.menus_changed = Mock()
+    app.menus.menus_changed.connect(app.menus_changed)
+    yield app
+    Application.destroy("test")
+    assert "test" not in Application._instances

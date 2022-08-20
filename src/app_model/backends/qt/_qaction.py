@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Dict, Mapping, Optional, Tuple, Type, Union, c
 from qtpy.QtWidgets import QAction
 
 from app_model import Application
+from app_model.expressions import Expr
+from app_model.types import ToggleRule
 
 from ._qkeymap import QKeyBindingSequence
 from ._util import to_qicon
@@ -83,13 +85,28 @@ class QCommandRuleAction(QCommandAction):
             self.setToolTip(command_rule.tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
-        self.setCheckable(command_rule.toggled is not None)
+        if command_rule.toggled is not None:
+            self.setCheckable(True)
+            self._refresh()
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
         self.setEnabled(expr.eval(ctx) if (expr := self._cmd_rule.enablement) else True)
-        if expr := self._cmd_rule.toggled:
-            self.setChecked(expr.eval(ctx))
+        if expr2 := self._cmd_rule.toggled:
+            if (
+                isinstance(expr2, Expr)
+                or isinstance(expr2, ToggleRule)
+                and (expr2 := expr2.condition)
+            ):
+                self.setChecked(expr2.eval(ctx))
+
+    def _refresh(self) -> None:
+        if isinstance(self._cmd_rule.toggled, ToggleRule):
+            if get_current := self._cmd_rule.toggled.get_current:
+                _current = self._app.injection_store.inject(
+                    get_current, on_unresolved_required_args="ignore"
+                )
+                self.setChecked(_current())
 
 
 class QMenuItemAction(QCommandRuleAction):
