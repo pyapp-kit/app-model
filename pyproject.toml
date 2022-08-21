@@ -169,6 +169,7 @@ ignore = [
     "docs/**/*",
     ".readthedocs.yaml",
     "mkdocs.yml",
+    "CHANGELOG.md",
 ]
 
 # https://python-semantic-release.readthedocs.io/en/latest/configuration.html
