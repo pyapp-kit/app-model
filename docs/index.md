@@ -10,7 +10,7 @@ that make up their application.
 
 Typical usage will begin by creating a [`Application`][app_model.Application]
 object. [Commands][app_model.types.CommandRule], [menu items][app_model.types.MenuRule], and [keybindings][app_model.types.KeyBindingRule] will usually be declared by creating
-[`Action`][app_model.Action] objects, and  registered with the application
+[`Action`][app_model.Action] objects, and registered with the application
 using the [`Application.register_action`][app_model.Application.register_action]
 
 An application maintains a [registry](registries) for all registered [commands][app_model.registries.CommandsRegistry], [menus][app_model.registries.MenusRegistry], and [keybindings][app_model.registries.KeyBindingsRegistry].
@@ -30,7 +30,7 @@ Why bother with a declarative application model?
 
 1. **It's easier to query the application's state**
 
-    If you want to ask "what commands are available in this application?", or "what items are currently in a given menu", you can directly query the application registries.  For example, you don't need to find a specific `QMenu` instance and iterate it's `actions()` to know whether a given item is present.
+    If you want to ask "what commands are available in this application?", or "what items are currently in a given menu", you can directly query the application registries.  For example, you don't need to find a specific `QMenu` instance and iterate its `actions()` to know whether a given item is present.
 
 1. **It's easier to modify the application's state**
 
@@ -39,9 +39,9 @@ Why bother with a declarative application model?
 
 1. **It decouples the structure of the application from the underlying backend**
 
-    This makes it it easier to change the backend without having to change the
+    This makes it easier to change the backend without having to change the
    application. (Obviously, as an application grows with a particular backend,
-   it does become harder to extract, but having a losely coupled model is a step
+   it does become harder to extract, but having a loosely coupled model is a step
    in the right direction)
 
 1. **It's easier to test**
