@@ -157,6 +157,14 @@ class QMenuItemAction(QCommandRuleAction):
             self._app.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
             self._initialized = True
 
+        # by updating from an empty context, anything that declares a "constant"
+        # enablement expression (like `'False'`) will be evaluated, allowing any
+        # menus that are always on/off, to be shown/hidden as needed.
+        # Everything else will fail without a proper context.
+        # TODO: as we improve where the context comes from, this could be removed.
+        with contextlib.suppress(NameError):
+            self.update_from_context({})
+
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""
         super().update_from_context(ctx)
