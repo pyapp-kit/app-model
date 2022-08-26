@@ -66,7 +66,7 @@ class CommandRule(_BaseModel):
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
-    toggled: Union[expressions.Expr, ToggleRule, None] = Field(
+    toggled: Union[ToggleRule, expressions.Expr, None] = Field(
         None,
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",

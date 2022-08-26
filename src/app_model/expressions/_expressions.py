@@ -59,13 +59,13 @@ if TYPE_CHECKING:
     from ._context_keys import ContextKey
 
 
-def parse_expression(expr: str) -> Expr:
+def parse_expression(expr: Union[str, Expr]) -> Expr:
     """Parse string expression into an :class:`Expr` instance.
 
     Parameters
     ----------
-    expr : str
-        Expression to parse.
+    expr : Union[str, Expr]
+        Expression to parse.  (If already an :class:`Expr`, it is returned)
 
     Returns
     -------
@@ -80,9 +80,11 @@ def parse_expression(expr: str) -> Expr:
         Containers, Indexing, Slicing, f-strings, named expression,
         comprehensions.)
     """
+    if isinstance(expr, Expr):
+        return expr
     try:
         # mode='eval' means the expr must consist of a single expression
-        tree = ast.parse(expr, mode="eval")
+        tree = ast.parse(str(expr), mode="eval")
         if not isinstance(tree, ast.Expression):
             raise SyntaxError  # pragma: no cover
         return ExprTranformer().visit(tree.body)
@@ -90,12 +92,24 @@ def parse_expression(expr: str) -> Expr:
         raise SyntaxError(f"{expr!r} is not a valid expression: ({e}).") from None
 
 
-def safe_eval(expr: str, context: Optional[Mapping] = None) -> Any:
+def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -> Any:
     """Safely evaluate `expr` string given `context` dict.
 
     This lets you evaluate a string expression with broader expression
     support than `ast.literal_eval`, but much less support than `eval()`.
+    It also supports booleans (which are returned directly), and `Expr` instances,
+    which are evaluated in the given `context`.
+
+    Parameters
+    ----------
+    expr : Union[str, bool, Expr]
+        Expression to evaluate. If `expr` is a string, it is parsed into an
+        :class:`Expr` instance. If a `bool`, it is returned directly.
+    context : Optional[Mapping]
+        Context (mapping of names to objects) to evaluate the expression in.
     """
+    if isinstance(expr, bool):
+        return expr
     return parse_expression(expr).eval(context or {})
 
 
@@ -182,7 +196,7 @@ class Expr(ast.AST, Generic[T]):
         see docstring of [`parse_expression`][app_model.expressions.parse_expression]
         for details.
         """
-        return parse_expression(str(expr))  # sourcery skip: remove-unnecessary-cast
+        return parse_expression(expr)
 
     def __str__(self) -> str:
         """Serialize this expression to string form."""
