@@ -1,8 +1,20 @@
 # Changelog
 
-## [0.0.8](https://github.com/napari/app-model/tree/0.0.8) (2022-08-20)
+## [v0.0.9](https://github.com/napari/app-model/tree/v0.0.9) (2022-08-26)
 
-[Full Changelog](https://github.com/napari/app-model/compare/v0.0.7...0.0.8)
+[Full Changelog](https://github.com/napari/app-model/compare/v0.0.8...v0.0.9)
+
+**Implemented enhancements:**
+
+- feat: eval expr when creating menus [\#61](https://github.com/napari/app-model/pull/61) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: fix a few typos in docs [\#60](https://github.com/napari/app-model/pull/60) ([alisterburt](https://github.com/alisterburt))
+
+## [v0.0.8](https://github.com/napari/app-model/tree/v0.0.8) (2022-08-21)
+
+[Full Changelog](https://github.com/napari/app-model/compare/v0.0.7...v0.0.8)
 
 **Implemented enhancements:**
 
