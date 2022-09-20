@@ -30,32 +30,33 @@ def test_qkeysequence2modelkeybinding() -> None:
     app_key = KeyBinding(parts=[KeyMod.Alt | KeyCode.KeyM, KeyCode.KeyK])
     assert qkeysequence2modelkeybinding(seq) == app_key
 
-    with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
-        seq = QKeySequence(
-            Qt.Modifier.META | Qt.Key.Key_M,
-            Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
-        )
-        app_key = KeyBinding(parts=[KeyMod.CtrlCmd | KeyCode.KeyM, KeyCode.KeyK])
-        assert qkeysequence2modelkeybinding(seq) == app_key
+    with patch.object(_qkeymap, "MAC", True):
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+            seq = QKeySequence(
+                Qt.Modifier.META | Qt.Key.Key_M,
+                Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
+            )
+            app_key = KeyBinding(parts=[KeyMod.CtrlCmd | KeyCode.KeyM, KeyCode.KeyK])
+            assert qkeysequence2modelkeybinding(seq) == app_key
 
-        seq = QKeySequence(
-            Qt.Modifier.CTRL | Qt.Key.Key_M,
-            Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
-        )
-        app_key = KeyBinding(parts=[KeyMod.WinCtrl | KeyCode.KeyM, KeyCode.KeyK])
-        assert qkeysequence2modelkeybinding(seq) == app_key
+            seq = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Key.Key_M,
+                Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
+            )
+            app_key = KeyBinding(parts=[KeyMod.WinCtrl | KeyCode.KeyM, KeyCode.KeyK])
+            assert qkeysequence2modelkeybinding(seq) == app_key
 
-    with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
-        seq = QKeySequence(
-            Qt.Modifier.CTRL | Qt.Key.Key_M,
-            Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
-        )
-        app_key = KeyBinding(parts=[KeyMod.CtrlCmd | KeyCode.KeyM, KeyCode.KeyK])
-        assert qkeysequence2modelkeybinding(seq) == app_key
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+            seq = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Key.Key_M,
+                Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
+            )
+            app_key = KeyBinding(parts=[KeyMod.CtrlCmd | KeyCode.KeyM, KeyCode.KeyK])
+            assert qkeysequence2modelkeybinding(seq) == app_key
 
-        seq = QKeySequence(
-            Qt.Modifier.META | Qt.Key.Key_M,
-            Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
-        )
-        app_key = KeyBinding(parts=[KeyMod.WinCtrl | KeyCode.KeyM, KeyCode.KeyK])
-        assert qkeysequence2modelkeybinding(seq) == app_key
+            seq = QKeySequence(
+                Qt.Modifier.META | Qt.Key.Key_M,
+                Qt.KeyboardModifier.NoModifier | Qt.Key.Key_K,
+            )
+            app_key = KeyBinding(parts=[KeyMod.WinCtrl | KeyCode.KeyM, KeyCode.KeyK])
+            assert qkeysequence2modelkeybinding(seq) == app_key
