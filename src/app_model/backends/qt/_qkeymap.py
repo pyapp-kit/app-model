@@ -251,7 +251,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     if modifiers & Qt.KeyboardModifier.ShiftModifier:
         mod |= KeyMod.Shift
     if modifiers & Qt.KeyboardModifier.ControlModifier:
-        swapped = mac_ctrl_meta_swapped()
+        swapped = MAC and mac_ctrl_meta_swapped()
         if swapped:
             mod |= KeyMod.WinCtrl
         else:
@@ -260,7 +260,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
         mod |= KeyMod.Alt
     if modifiers & Qt.KeyboardModifier.MetaModifier:
         if swapped is None:
-            swapped = mac_ctrl_meta_swapped()
+            swapped = MAC and mac_ctrl_meta_swapped()
         if swapped:
             mod |= KeyMod.CtrlCmd
         else:
