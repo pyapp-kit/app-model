@@ -30,14 +30,7 @@ _QMOD_LOOKUP = {
 
 def mac_ctrl_meta_swapped() -> bool:
     """Whether or not Qt has swapped ctrl and meta for Macs."""
-    if not MAC:
-        return False
-
-    app = QCoreApplication.instance()
-    if app is None:
-        return False
-
-    return not app.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
+    return not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
 
 
 def _mac_qmod_lookup() -> Dict[str, Qt.KeyboardModifier]:
