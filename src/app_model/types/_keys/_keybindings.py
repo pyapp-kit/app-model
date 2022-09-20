@@ -33,7 +33,7 @@ class SimpleKeyBinding(BaseModel):
             KeyCode.Shift,
             KeyCode.Ctrl,
             KeyCode.Meta,
-            KeyCode.UNKOWN,
+            KeyCode.UNKNOWN,
         )
 
     def __str__(self) -> str:
