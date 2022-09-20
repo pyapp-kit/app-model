@@ -253,18 +253,22 @@ KEY_FROM_QT.update(_QTONLY_KEYS)
 
 def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     """Return KeyMod from Qt.KeyboardModifier."""
+    swapped = None
     mod = KeyMod.NONE
     if modifiers & Qt.KeyboardModifier.ShiftModifier:
         mod |= KeyMod.Shift
     if modifiers & Qt.KeyboardModifier.ControlModifier:
-        if mac_ctrl_meta_swapped():
+        swapped = mac_ctrl_meta_swapped()
+        if swapped:
             mod |= KeyMod.WinCtrl
         else:
             mod |= KeyMod.CtrlCmd
     if modifiers & Qt.KeyboardModifier.AltModifier:
         mod |= KeyMod.Alt
     if modifiers & Qt.KeyboardModifier.MetaModifier:
-        if mac_ctrl_meta_swapped():
+        if swapped is None:
+            swapped = mac_ctrl_meta_swapped()
+        if swapped:
             mod |= KeyMod.CtrlCmd
         else:
             mod |= KeyMod.WinCtrl
