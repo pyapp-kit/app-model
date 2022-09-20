@@ -18,10 +18,19 @@ except ImportError:
 QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
 
+MAC = OperatingSystem.current().is_mac
+
+_QMOD_LOOKUP = {
+    "ctrl": QCTRL,
+    "shift": Qt.KeyboardModifier.ShiftModifier,
+    "alt": Qt.KeyboardModifier.AltModifier,
+    "meta": QMETA,
+}
+
 
 def mac_ctrl_meta_swapped() -> bool:
     """Whether or not Qt has swapped ctrl and meta for Macs."""
-    if not OperatingSystem.current().is_mac:
+    if not MAC:
         return False
 
     app = QCoreApplication.instance()
@@ -31,12 +40,13 @@ def mac_ctrl_meta_swapped() -> bool:
     return not app.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
 
 
-def _get_qmod_lookup() -> Dict[str, Qt.KeyboardModifier]:
+def _mac_qmod_lookup() -> Dict[str, Qt.KeyboardModifier]:
+    swapped = mac_ctrl_meta_swapped()
     return {
-        "ctrl": QMETA if mac_ctrl_meta_swapped() else QCTRL,
+        "ctrl": QMETA if swapped else QCTRL,
         "shift": Qt.KeyboardModifier.ShiftModifier,
         "alt": Qt.KeyboardModifier.AltModifier,
-        "meta": QCTRL if mac_ctrl_meta_swapped() else QMETA,
+        "meta": QCTRL if swapped else QMETA,
     }
 
 
@@ -45,8 +55,9 @@ if QT6:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
+        lookup = _mac_qmod_lookup() if MAC else _QMOD_LOOKUP
         key = KEY_TO_QT.get(skb.key, 0)
-        mods = (v for k, v in _get_qmod_lookup().items() if getattr(skb, k))
+        mods = (v for k, v in lookup.items() if getattr(skb, k))
         combo = QKeyCombination(reduce(operator.or_, mods), key)
         return cast(int, combo.toCombined())
 
@@ -55,8 +66,9 @@ else:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
+        lookup = _mac_qmod_lookup() if MAC else _QMOD_LOOKUP
         out = KEY_TO_QT.get(skb.key, 0)
-        mods = (v for k, v in _get_qmod_lookup().items() if getattr(skb, k))
+        mods = (v for k, v in lookup.items() if getattr(skb, k))
         out = reduce(operator.or_, mods, out)
         return int(out)
 
