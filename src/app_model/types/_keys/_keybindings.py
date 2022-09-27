@@ -33,7 +33,7 @@ class SimpleKeyBinding(BaseModel):
             KeyCode.Shift,
             KeyCode.Ctrl,
             KeyCode.Meta,
-            KeyCode.UNKOWN,
+            KeyCode.UNKNOWN,
         )
 
     def __str__(self) -> str:
@@ -91,6 +91,9 @@ class SimpleKeyBinding(BaseModel):
 
     def __int__(self) -> int:
         return int(self.to_int())
+
+    def __hash__(self) -> int:
+        return int(self)
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
@@ -196,6 +199,9 @@ class KeyBinding(BaseModel):
 
     def __int__(self) -> int:
         return int(self.to_int())
+
+    def __hash__(self) -> int:
+        return int(self)
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:

@@ -78,7 +78,7 @@ class QKeyBindingSequence(QKeySequence):
 
 KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
     None: Qt.Key.Key_unknown,
-    KeyCode.UNKOWN: Qt.Key.Key_unknown,
+    KeyCode.UNKNOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,
     KeyCode.Backslash: Qt.Key.Key_Backslash,
     KeyCode.IntlBackslash: Qt.Key.Key_Backslash,
@@ -242,7 +242,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
 
 def qkey2modelkey(key: Qt.Key) -> KeyCode:
     """Return KeyCode from Qt.Key."""
-    return KEY_FROM_QT.get(key, KeyCode.UNKOWN)
+    return KEY_FROM_QT.get(key, KeyCode.UNKNOWN)
 
 
 def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:

@@ -74,6 +74,32 @@ def test_chord_keybinding():
     assert KeyBinding.validate(kb) == kb
 
 
+def test_in_dict():
+    a = SimpleKeyBinding.from_str("Shift+A")
+    b = KeyBinding.from_str("Shift+B")
+
+    try:
+        kbs = {
+            a: 0,
+            b: 1,
+        }
+    except TypeError as e:
+        if str(e).startswith("unhashable type"):
+            pytest.fail("keybinds not hashable")
+        else:
+            raise e
+
+    assert kbs[hash(a)] == 0
+    assert kbs[hash(b)] == 1
+
+    new_a = KeyBinding.from_int(hash(a))
+
+    with pytest.raises(KeyError):
+        kbs[new_a]
+
+    assert kbs[hash(new_a)] == 0
+
+
 def test_in_model():
     class M(BaseModel):
         key: KeyBinding

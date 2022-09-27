@@ -15,7 +15,7 @@ class KeyCode(IntEnum):
     This is the primary internal representation of a key.
     """
 
-    UNKOWN = 0
+    UNKNOWN = 0
 
     # -----------------------   Writing System Keys   -----------------------
     Backquote = auto()		#	`~ on a US keyboard.
@@ -140,7 +140,7 @@ class KeyCode(IntEnum):
     def from_string(cls, string: str) -> 'KeyCode':
         """Return the `KeyCode` associated with the given string.
 
-        Returns `KeyCode.UNKOWN` if no `KeyCode` is associated with the string.
+        Returns `KeyCode.UNKNOWN` if no `KeyCode` is associated with the string.
         """
         return keycode_from_string(string)
 
@@ -148,9 +148,9 @@ class KeyCode(IntEnum):
     def from_event_code(cls, event_code: int) -> 'KeyCode':
         """Return the `KeyCode` associated with the given event code.
 
-        Returns `KeyCode.UNKOWN` if no `KeyCode` is associated with the event code.
+        Returns `KeyCode.UNKNOWN` if no `KeyCode` is associated with the event code.
         """
-        return _EVENTCODE_TO_KEYCODE.get(event_code, KeyCode.UNKOWN)
+        return _EVENTCODE_TO_KEYCODE.get(event_code, KeyCode.UNKNOWN)
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., 'KeyCode'], None, None]:
@@ -409,7 +409,7 @@ def _build_maps() -> Tuple[
 
     _ = ''
     _MAPPINGS = [
-        _KM(ScanCode.UNIDENTIFIED, 'None', KeyCode.UNKOWN, 'unknown', 0, 'VK_UNKNOWN'),
+        _KM(ScanCode.UNIDENTIFIED, 'None', KeyCode.UNKNOWN, 'unknown', 0, 'VK_UNKNOWN'),
         _KM(ScanCode.KeyA, 'KeyA', KeyCode.KeyA, 'A', 65, 'VK_A'),
         _KM(ScanCode.KeyB, 'KeyB', KeyCode.KeyB, 'B', 66, 'VK_B'),
         _KM(ScanCode.KeyC, 'KeyC', KeyCode.KeyC, 'C', 67, 'VK_C'),
@@ -484,10 +484,10 @@ def _build_maps() -> Tuple[
         _KM(ScanCode.Delete, 'Delete', KeyCode.Delete, 'Delete', 46, 'VK_DELETE'),
         _KM(ScanCode.End, 'End', KeyCode.End, 'End', 35, 'VK_END'),
         _KM(ScanCode.PageDown, 'PageDown', KeyCode.PageDown, 'PageDown', 34, 'VK_NEXT'),
-        _KM(ScanCode.ArrowRight, 'ArrowRight', KeyCode.RightArrow, 'RightArrow', 39, 'VK_RIGHT'),
-        _KM(ScanCode.ArrowLeft, 'ArrowLeft', KeyCode.LeftArrow, 'LeftArrow', 37, 'VK_LEFT'),
-        _KM(ScanCode.ArrowDown, 'ArrowDown', KeyCode.DownArrow, 'DownArrow', 40, 'VK_DOWN'),
-        _KM(ScanCode.ArrowUp, 'ArrowUp', KeyCode.UpArrow, 'UpArrow', 38, 'VK_UP'),
+        _KM(ScanCode.ArrowRight, 'ArrowRight', KeyCode.RightArrow, 'Right', 39, 'VK_RIGHT'),
+        _KM(ScanCode.ArrowLeft, 'ArrowLeft', KeyCode.LeftArrow, 'Left', 37, 'VK_LEFT'),
+        _KM(ScanCode.ArrowDown, 'ArrowDown', KeyCode.DownArrow, 'Down', 40, 'VK_DOWN'),
+        _KM(ScanCode.ArrowUp, 'ArrowUp', KeyCode.UpArrow, 'Up', 38, 'VK_UP'),
         _KM(ScanCode.NumLock, 'NumLock', KeyCode.NumLock, 'NumLock', 144, 'VK_NUMLOCK'),
         _KM(ScanCode.NumpadDivide, 'NumpadDivide', KeyCode.NumpadDivide, 'NumPad_Divide', 111, 'VK_DIVIDE'),
         _KM(ScanCode.NumpadMultiply, 'NumpadMultiply', KeyCode.NumpadMultiply, 'NumPad_Multiply', 106, 'VK_MULTIPLY'),
@@ -507,13 +507,13 @@ def _build_maps() -> Tuple[
         _KM(ScanCode.NumpadDecimal, 'NumpadDecimal', KeyCode.NumpadDecimal, 'NumPad_Decimal', 110, 'VK_DECIMAL'),
         _KM(ScanCode.IntlBackslash, 'IntlBackslash', KeyCode.IntlBackslash, 'OEM_102', 226, 'VK_OEM_102'),
         _KM(ScanCode.ContextMenu, 'ContextMenu', KeyCode.ContextMenu, 'ContextMenu', 93, _),
-        _KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKOWN, _, 0, _),
-        _KM(ScanCode.Help, 'Help', KeyCode.UNKOWN, _, 0, _),
-        _KM(ScanCode.IntlRo, 'IntlRo', KeyCode.UNKOWN, _, 193, 'VK_ABNT_C1'),
-        _KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKOWN, _, 0, _),
-        _KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKOWN, _, 0, _),
-        _KM(ScanCode.Convert, 'Convert', KeyCode.UNKOWN, _, 0, _),
-        _KM(ScanCode.NonConvert, 'NonConvert', KeyCode.UNKOWN, _, 0, _),
+        _KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKNOWN, _, 0, _),
+        _KM(ScanCode.Help, 'Help', KeyCode.UNKNOWN, _, 0, _),
+        _KM(ScanCode.IntlRo, 'IntlRo', KeyCode.UNKNOWN, _, 193, 'VK_ABNT_C1'),
+        _KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKNOWN, _, 0, _),
+        _KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKNOWN, _, 0, _),
+        _KM(ScanCode.Convert, 'Convert', KeyCode.UNKNOWN, _, 0, _),
+        _KM(ScanCode.NonConvert, 'NonConvert', KeyCode.UNKNOWN, _, 0, _),
         _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Ctrl, 'Ctrl', 17, 'VK_CONTROL'),
         _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Shift, 'Shift', 16, 'VK_SHIFT'),
         _KM(ScanCode.UNIDENTIFIED, _, KeyCode.Alt, 'Alt', 18, 'VK_MENU'),
@@ -563,7 +563,7 @@ def _build_maps() -> Tuple[
     def _keycode_from_string(keystr: str) -> KeyCode:
         """Return KeyCode for a given string."""
         # sourcery skip
-        return KEYCODE_FROM_LOWERCASE_STRING.get(str(keystr).lower(), KeyCode.UNKOWN)
+        return KEYCODE_FROM_LOWERCASE_STRING.get(str(keystr).lower(), KeyCode.UNKNOWN)
 
     def _scancode_to_string(scancode: ScanCode) -> str:
         """Return the string representation of a ScanCode."""
@@ -630,11 +630,11 @@ class KeyCombo(int):
     [`KeyMod`][app_model.types.KeyMod] and [`KeyCode`][app_model.types.KeyCode]."""
 
     def __new__(
-        cls: Type["KeyCombo"], modifiers: KeyMod, key: KeyCode = KeyCode.UNKOWN
+        cls: Type["KeyCombo"], modifiers: KeyMod, key: KeyCode = KeyCode.UNKNOWN
     ) -> "KeyCombo":
         return super().__new__(cls, int(modifiers) | int(key))
 
-    def __init__(self, modifiers: KeyMod, key: KeyCode = KeyCode.UNKOWN):
+    def __init__(self, modifiers: KeyMod, key: KeyCode = KeyCode.UNKNOWN):
         self._modifiers = modifiers
         self._key = key
 
