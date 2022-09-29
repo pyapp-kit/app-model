@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, no_typ
 
 from pydantic import BaseModel, PrivateAttr
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
-from pydantic.errors import ListError, ListMinLengthError
+from pydantic.errors import ListError, ListMinLengthError, MissingError
 
 from .._constants import OperatingSystem
 from ._key_codes import KeyChord, KeyCode, KeyMod
@@ -141,28 +141,26 @@ class KeyBinding(BaseModel):
     __root__: str
     _parts: List[SimpleKeyBinding] = PrivateAttr()
 
+    @classmethod
+    def _parts_error(cls, exc: Exception) -> ValidationError:
+        return ValidationError(
+            errors=[ErrorWrapper(exc=exc, loc=("parts",))], model=cls
+        )
+
     def __init__(self, **data: Any) -> None:
         if "parts" in data:
             parts = data.pop("parts")
             if not isinstance(parts, List):
-                raise ValidationError(
-                    errors=[ErrorWrapper(exc=ListError(), loc=("parts",))],
-                    model=self.__class__,
-                )
+                raise self._parts_error(ListError())
             parts = [SimpleKeyBinding.validate(part) for part in parts]
         elif "__root__" in data:
             root = data["__root__"]
             parts = [SimpleKeyBinding.from_str(part) for part in root.split()]
         else:
-            parts = []
+            raise self._parts_error(MissingError())
 
         if len(parts) < 1:
-            raise ValidationError(
-                errors=[
-                    ErrorWrapper(ListMinLengthError(limit_value=1), loc=("parts",))
-                ],
-                model=self.__class__,
-            )
+            raise self._parts_error(ListMinLengthError(limit_value=1))
         data["__root__"] = " ".join(str(part) for part in parts)
 
         super().__init__(**data)
@@ -180,22 +178,14 @@ class KeyBinding(BaseModel):
         elif key == "parts":
             parts = val
             if not isinstance(parts, List):
-                raise ValidationError(
-                    errors=[ErrorWrapper(exc=ListError(), loc=("parts",))],
-                    model=self.__class__,
-                )
+                raise self._parts_error(ListError())
             parts = [SimpleKeyBinding.validate(part) for part in parts]
         else:
             return super().__setattr__(key, val)
 
         # key will always be either '__root__' or 'parts'
         if len(parts) < 1:
-            raise ValidationError(
-                errors=[
-                    ErrorWrapper(ListMinLengthError(limit_value=1), loc=("parts",))
-                ],
-                model=self.__class__,
-            )
+            raise self._parts_error(ListMinLengthError(limit_value=1))
 
         self._parts = parts
         return super().__setattr__("__root__", " ".join(str(part) for part in parts))
