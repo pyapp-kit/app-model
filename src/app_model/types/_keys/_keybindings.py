@@ -1,7 +1,9 @@
 import re
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, no_type_check
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, PrivateAttr
+from pydantic.error_wrappers import ErrorWrapper, ValidationError
+from pydantic.errors import ListError, ListMinLengthError
 
 from .._constants import OperatingSystem
 from ._key_codes import KeyChord, KeyCode, KeyMod
@@ -125,7 +127,7 @@ class SimpleKeyBinding(BaseModel):
         return super().validate(v)
 
 
-class KeyBinding:
+class KeyBinding(BaseModel):
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
@@ -136,13 +138,70 @@ class KeyBinding:
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
     """
 
-    def __init__(self, *, parts: List[SimpleKeyBinding]):
-        self.parts = parts
+    __root__: str
+    _parts: List[SimpleKeyBinding] = PrivateAttr()
 
-    parts: List[SimpleKeyBinding] = Field(..., min_items=1)
+    def __init__(self, **data: Any) -> None:
+        if "parts" in data:
+            parts = data.pop("parts")
+            if not isinstance(parts, List):
+                raise ValidationError(
+                    errors=[ErrorWrapper(exc=ListError(), loc=("parts",))],
+                    model=self.__class__,
+                )
+            parts = [SimpleKeyBinding.validate(part) for part in parts]
+        elif "__root__" in data:
+            root = data["__root__"]
+            parts = [SimpleKeyBinding.from_str(part) for part in root.split()]
+        else:
+            parts = []
+
+        if len(parts) < 1:
+            raise ValidationError(
+                errors=[
+                    ErrorWrapper(ListMinLengthError(limit_value=1), loc=("parts",))
+                ],
+                model=self.__class__,
+            )
+        data["__root__"] = " ".join(str(part) for part in parts)
+
+        super().__init__(**data)
+        self._parts = parts
+
+    @property
+    def parts(self) -> List[SimpleKeyBinding]:
+        """Key combinations that make up the overall key chord."""
+        return self._parts
+
+    @no_type_check
+    def __setattr__(self, key, val):
+        if key == "__root__":
+            parts = [SimpleKeyBinding.from_str(part) for part in val.split()]
+        elif key == "parts":
+            parts = val
+            if not isinstance(parts, List):
+                raise ValidationError(
+                    errors=[ErrorWrapper(exc=ListError(), loc=("parts",))],
+                    model=self.__class__,
+                )
+            parts = [SimpleKeyBinding.validate(part) for part in parts]
+        else:
+            return super().__setattr__(key, val)
+
+        # key will always be either '__root__' or 'parts'
+        if len(parts) < 1:
+            raise ValidationError(
+                errors=[
+                    ErrorWrapper(ListMinLengthError(limit_value=1), loc=("parts",))
+                ],
+                model=self.__class__,
+            )
+
+        self._parts = parts
+        return super().__setattr__("__root__", " ".join(str(part) for part in parts))
 
     def __str__(self) -> str:
-        return " ".join(str(part) for part in self.parts)
+        return self.__root__
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, KeyBinding):
@@ -166,8 +225,7 @@ class KeyBinding:
     @classmethod
     def from_str(cls, key_str: str) -> "KeyBinding":
         """Parse a string into a SimpleKeyBinding."""
-        parts = [SimpleKeyBinding.from_str(part) for part in key_str.split()]
-        return cls(parts=parts)
+        return cls(__root__=key_str)
 
     @classmethod
     def from_int(
