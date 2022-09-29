@@ -75,6 +75,22 @@ def test_chord_keybinding():
     assert KeyBinding.validate(kb) == kb
 
 
+def test_custom_root_type():
+    kb = KeyBinding.from_str("shift+a cmd+9")
+
+    assert str(kb) == "Shift+A Meta+9"
+    assert kb.parts == [
+        SimpleKeyBinding.from_str("Shift+A"),
+        SimpleKeyBinding.from_str("Cmd+9"),
+    ]
+
+    kb.__root__ = "Ctrl+C Ctrl+V"
+    assert kb.parts == [
+        SimpleKeyBinding.from_str("Ctrl+C"),
+        SimpleKeyBinding.from_str("Ctrl+V"),
+    ]
+
+
 def test_in_dict():
     a = SimpleKeyBinding.from_str("Shift+A")
     b = KeyBinding.from_str("Shift+B")
