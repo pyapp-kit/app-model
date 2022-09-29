@@ -1,7 +1,8 @@
 import sys
+from typing import Dict, List
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from app_model.types import (
     KeyBinding,
@@ -98,6 +99,37 @@ def test_in_dict():
         kbs[new_a]
 
 
+def test_errors():
+    with pytest.raises(ValidationError, match="field required"):
+        KeyBinding()
+
+    with pytest.raises(ValidationError, match="not a valid list"):
+        KeyBinding(parts=None)
+
+    with pytest.raises(ValidationError, match="not a valid list"):
+        KeyBinding(parts=tuple())
+
+    with pytest.raises(ValidationError, match="at least 1 items"):
+        KeyBinding(parts=[])
+
+    with pytest.raises(ValidationError, match="at least 1 items"):
+        KeyBinding(__root__="")
+
+    kb = KeyBinding.parse_obj("Cmd+R")
+
+    with pytest.raises(ValidationError, match="not a valid list"):
+        kb.parts = None
+
+    with pytest.raises(ValidationError, match="not a valid list"):
+        kb.parts = set()
+
+    with pytest.raises(ValidationError, match="at least 1 items"):
+        kb.parts = []
+
+    with pytest.raises(ValidationError, match="at least 1 items"):
+        kb.__root__ = ""
+
+
 def test_in_model():
     class M(BaseModel):
         key: KeyBinding
@@ -107,6 +139,17 @@ def test_in_model():
 
     m = M(key="Shift+A B")
     assert m.json() == '{"key": "Shift+A B"}'
+
+
+def test_in_nested_model():
+    class M(BaseModel):
+        keybinds: Dict[str, List[KeyBinding]]
+
+    class N(BaseModel):
+        m: M
+
+    n = N(m=M(keybinds={"abc": ["Shift+A B", "Shift+C D"]}))
+    assert n.json() == '{"m": {"keybinds": {"abc": ["Shift+A B", "Shift+C D"]}}}'
 
 
 def test_standard_keybindings():
