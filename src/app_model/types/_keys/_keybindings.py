@@ -93,7 +93,7 @@ class SimpleKeyBinding(BaseModel):
         return int(self.to_int())
 
     def __hash__(self) -> int:
-        return int(self)
+        return hash((self.ctrl, self.shift, self.alt, self.meta, self.key))
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
@@ -125,7 +125,7 @@ class SimpleKeyBinding(BaseModel):
         return super().validate(v)
 
 
-class KeyBinding(BaseModel):
+class KeyBinding:
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
@@ -135,6 +135,9 @@ class KeyBinding(BaseModel):
     Chords (two separate keypress actions) are expressed as a string by separating
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
     """
+
+    def __init__(self, *, parts: List[SimpleKeyBinding]):
+        self.parts = parts
 
     parts: List[SimpleKeyBinding] = Field(..., min_items=1)
 
@@ -147,7 +150,7 @@ class KeyBinding(BaseModel):
                 other = KeyBinding.validate(other)
             except Exception:  # pragma: no cover
                 return NotImplemented
-        return super().__eq__(other)
+        return bool(self.parts == other.parts)
 
     def __len__(self) -> int:
         return len(self.parts)
@@ -201,7 +204,7 @@ class KeyBinding(BaseModel):
         return int(self.to_int())
 
     def __hash__(self) -> int:
-        return int(self)
+        return hash(tuple(self.parts))
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
@@ -218,7 +221,7 @@ class KeyBinding(BaseModel):
             return cls.from_int(v)
         if isinstance(v, str):
             return cls.from_str(v)
-        return super().validate(v)  # pragma: no cover
+        raise TypeError("invalid keybinding")  # pragma: no cover
 
 
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:

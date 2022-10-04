@@ -85,19 +85,17 @@ def test_in_dict():
         }
     except TypeError as e:
         if str(e).startswith("unhashable type"):
-            pytest.fail("keybinds not hashable")
+            pytest.fail(f"keybinds not hashable: {e}")
         else:
             raise e
 
-    assert kbs[hash(a)] == 0
-    assert kbs[hash(b)] == 1
+    assert kbs[a] == 0
+    assert kbs[b] == 1
 
-    new_a = KeyBinding.from_int(hash(a))
+    new_a = KeyBinding.from_str("Shift+A")
 
     with pytest.raises(KeyError):
         kbs[new_a]
-
-    assert kbs[hash(new_a)] == 0
 
 
 def test_in_model():
