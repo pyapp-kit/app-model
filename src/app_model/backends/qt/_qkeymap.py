@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 from typing import Dict, Optional, Union, cast
 
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
 from ...types._constants import OperatingSystem
@@ -19,12 +19,28 @@ QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
 
 MAC = OperatingSystem.current().is_mac
-_QMOD_LOOKUP: Dict[str, Qt.KeyboardModifier] = {
-    "ctrl": QMETA if MAC else QCTRL,
+
+_QMOD_LOOKUP = {
+    "ctrl": QCTRL,
     "shift": Qt.KeyboardModifier.ShiftModifier,
     "alt": Qt.KeyboardModifier.AltModifier,
-    "meta": QCTRL if MAC else QMETA,
+    "meta": QMETA,
 }
+
+
+def mac_ctrl_meta_swapped() -> bool:
+    """Whether or not Qt has swapped ctrl and meta for Macs."""
+    return not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
+
+
+def _mac_qmod_lookup() -> Dict[str, Qt.KeyboardModifier]:
+    swapped = mac_ctrl_meta_swapped()
+    return {
+        "ctrl": QMETA if swapped else QCTRL,
+        "shift": Qt.KeyboardModifier.ShiftModifier,
+        "alt": Qt.KeyboardModifier.AltModifier,
+        "meta": QCTRL if swapped else QMETA,
+    }
 
 
 if QT6:
@@ -32,8 +48,9 @@ if QT6:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
+        lookup = _mac_qmod_lookup() if MAC else _QMOD_LOOKUP
         key = KEY_TO_QT.get(skb.key, 0)
-        mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
+        mods = (v for k, v in lookup.items() if getattr(skb, k))
         combo = QKeyCombination(reduce(operator.or_, mods), key)
         return cast(int, combo.toCombined())
 
@@ -42,8 +59,9 @@ else:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
+        lookup = _mac_qmod_lookup() if MAC else _QMOD_LOOKUP
         out = KEY_TO_QT.get(skb.key, 0)
-        mods = (v for k, v in _QMOD_LOOKUP.items() if getattr(skb, k))
+        mods = (v for k, v in lookup.items() if getattr(skb, k))
         out = reduce(operator.or_, mods, out)
         return int(out)
 
@@ -228,15 +246,25 @@ KEY_FROM_QT.update(_QTONLY_KEYS)
 
 def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     """Return KeyMod from Qt.KeyboardModifier."""
+    swapped = None
     mod = KeyMod.NONE
     if modifiers & Qt.KeyboardModifier.ShiftModifier:
         mod |= KeyMod.Shift
     if modifiers & Qt.KeyboardModifier.ControlModifier:
-        mod |= KeyMod.WinCtrl
+        swapped = MAC and mac_ctrl_meta_swapped()
+        if swapped:
+            mod |= KeyMod.WinCtrl
+        else:
+            mod |= KeyMod.CtrlCmd
     if modifiers & Qt.KeyboardModifier.AltModifier:
         mod |= KeyMod.Alt
     if modifiers & Qt.KeyboardModifier.MetaModifier:
-        mod |= KeyMod.CtrlCmd
+        if swapped is None:
+            swapped = MAC and mac_ctrl_meta_swapped()
+        if swapped:
+            mod |= KeyMod.CtrlCmd
+        else:
+            mod |= KeyMod.WinCtrl
     return mod
 
 
