@@ -106,7 +106,7 @@ def test_in_model():
             json_encoders = {KeyBinding: str}
 
     m = M(key="Shift+A B")
-    assert m.json(models_as_dict=False) == '{"key": "Shift+A B"}'
+    assert m.json() == '{"key": "Shift+A B"}'
 
 
 def test_standard_keybindings():

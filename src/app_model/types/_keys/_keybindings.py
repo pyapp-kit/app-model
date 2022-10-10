@@ -111,7 +111,7 @@ class SimpleKeyBinding(BaseModel):
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate
+        yield cls.validate  # pragma: no cover
 
     @classmethod
     def validate(cls, v: Any) -> "SimpleKeyBinding":
@@ -208,7 +208,7 @@ class KeyBinding:
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate
+        yield cls.validate  # pragma: no cover
 
     @classmethod
     def validate(cls, v: Any) -> "KeyBinding":
