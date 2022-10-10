@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0](https://github.com/napari/app-model/tree/0.1.0) (2022-10-10)
+
+[Full Changelog](https://github.com/napari/app-model/compare/v0.0.9...0.1.0)
+
+**Fixed bugs:**
+
+- fix: properly detect when ctrl and meta swapped on mac [\#64](https://github.com/napari/app-model/pull/64) ([kne42](https://github.com/kne42))
+- fix various bugs [\#63](https://github.com/napari/app-model/pull/63) ([kne42](https://github.com/kne42))
+
+**Merged pull requests:**
+
+- feat: convert keybinding to normal class [\#68](https://github.com/napari/app-model/pull/68) ([kne42](https://github.com/kne42))
+- ci\(dependabot\): bump styfle/cancel-workflow-action from 0.10.0 to 0.10.1 [\#66](https://github.com/napari/app-model/pull/66) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.0.9](https://github.com/napari/app-model/tree/v0.0.9) (2022-08-26)
 
 [Full Changelog](https://github.com/napari/app-model/compare/v0.0.8...v0.0.9)
