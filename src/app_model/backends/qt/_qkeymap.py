@@ -96,7 +96,7 @@ class QKeyBindingSequence(QKeySequence):
 
 KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
     None: Qt.Key.Key_unknown,
-    KeyCode.UNKOWN: Qt.Key.Key_unknown,
+    KeyCode.UNKNOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,
     KeyCode.Backslash: Qt.Key.Key_Backslash,
     KeyCode.IntlBackslash: Qt.Key.Key_Backslash,
@@ -270,7 +270,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
 
 def qkey2modelkey(key: Qt.Key) -> KeyCode:
     """Return KeyCode from Qt.Key."""
-    return KEY_FROM_QT.get(key, KeyCode.UNKOWN)
+    return KEY_FROM_QT.get(key, KeyCode.UNKNOWN)
 
 
 def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
@@ -279,13 +279,15 @@ def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
         return KEY_FROM_QT[key]
     qmods = _get_qmods(key)
     qkey = _get_qkey(key)
-    return cast(KeyCombo, qmods2modelmods(qmods) | qkey2modelkey(qkey))
+    return qmods2modelmods(qmods) | qkey2modelkey(qkey)
 
 
 def qkeysequence2modelkeybinding(key: QKeySequence) -> KeyBinding:
     """Return KeyBinding from QKeySequence."""
     # FIXME: this should return KeyChord instead of KeyBinding... but that only takes 2
-    return KeyBinding(parts=[qkeycombo2modelkey(x) for x in key])
+    return KeyBinding(
+        parts=[SimpleKeyBinding.from_int(qkeycombo2modelkey(x)) for x in key]
+    )
 
 
 # ################# These are the Qkeys we currently aren't mapping ################ #

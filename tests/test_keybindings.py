@@ -74,6 +74,30 @@ def test_chord_keybinding():
     assert KeyBinding.validate(kb) == kb
 
 
+def test_in_dict():
+    a = SimpleKeyBinding.from_str("Shift+A")
+    b = KeyBinding.from_str("Shift+B")
+
+    try:
+        kbs = {
+            a: 0,
+            b: 1,
+        }
+    except TypeError as e:
+        if str(e).startswith("unhashable type"):
+            pytest.fail(f"keybinds not hashable: {e}")
+        else:
+            raise e
+
+    assert kbs[a] == 0
+    assert kbs[b] == 1
+
+    new_a = KeyBinding.from_str("Shift+A")
+
+    with pytest.raises(KeyError):
+        kbs[new_a]
+
+
 def test_in_model():
     class M(BaseModel):
         key: KeyBinding
@@ -82,7 +106,7 @@ def test_in_model():
             json_encoders = {KeyBinding: str}
 
     m = M(key="Shift+A B")
-    assert m.json(models_as_dict=False) == '{"key": "Shift+A B"}'
+    assert m.json() == '{"key": "Shift+A B"}'
 
 
 def test_standard_keybindings():

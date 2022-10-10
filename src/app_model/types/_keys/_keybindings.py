@@ -33,7 +33,7 @@ class SimpleKeyBinding(BaseModel):
             KeyCode.Shift,
             KeyCode.Ctrl,
             KeyCode.Meta,
-            KeyCode.UNKOWN,
+            KeyCode.UNKNOWN,
         )
 
     def __str__(self) -> str:
@@ -92,23 +92,26 @@ class SimpleKeyBinding(BaseModel):
     def __int__(self) -> int:
         return int(self.to_int())
 
+    def __hash__(self) -> int:
+        return hash((self.ctrl, self.shift, self.alt, self.meta, self.key))
+
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
         os = OperatingSystem.current() if os is None else os
         mods: KeyMod = KeyMod.NONE
         if self.ctrl:
-            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd  # type: ignore
+            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd
         if self.shift:
             mods |= KeyMod.Shift
         if self.alt:
             mods |= KeyMod.Alt
         if self.meta:
-            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl  # type: ignore
-        return mods | self.key or 0
+            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
+        return mods | (self.key or 0)
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate
+        yield cls.validate  # pragma: no cover
 
     @classmethod
     def validate(cls, v: Any) -> "SimpleKeyBinding":
@@ -122,7 +125,7 @@ class SimpleKeyBinding(BaseModel):
         return super().validate(v)
 
 
-class KeyBinding(BaseModel):
+class KeyBinding:
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
@@ -132,6 +135,9 @@ class KeyBinding(BaseModel):
     Chords (two separate keypress actions) are expressed as a string by separating
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
     """
+
+    def __init__(self, *, parts: List[SimpleKeyBinding]):
+        self.parts = parts
 
     parts: List[SimpleKeyBinding] = Field(..., min_items=1)
 
@@ -144,7 +150,7 @@ class KeyBinding(BaseModel):
                 other = KeyBinding.validate(other)
             except Exception:  # pragma: no cover
                 return NotImplemented
-        return super().__eq__(other)
+        return bool(self.parts == other.parts)
 
     def __len__(self) -> int:
         return len(self.parts)
@@ -197,9 +203,12 @@ class KeyBinding(BaseModel):
     def __int__(self) -> int:
         return int(self.to_int())
 
+    def __hash__(self) -> int:
+        return hash(tuple(self.parts))
+
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate
+        yield cls.validate  # pragma: no cover
 
     @classmethod
     def validate(cls, v: Any) -> "KeyBinding":
@@ -212,7 +221,7 @@ class KeyBinding(BaseModel):
             return cls.from_int(v)
         if isinstance(v, str):
             return cls.from_str(v)
-        return super().validate(v)  # pragma: no cover
+        raise TypeError("invalid keybinding")  # pragma: no cover
 
 
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
