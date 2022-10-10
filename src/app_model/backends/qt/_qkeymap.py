@@ -257,7 +257,9 @@ def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
 def qkeysequence2modelkeybinding(key: QKeySequence) -> KeyBinding:
     """Return KeyBinding from QKeySequence."""
     # FIXME: this should return KeyChord instead of KeyBinding... but that only takes 2
-    return KeyBinding(parts=[qkeycombo2modelkey(x) for x in key])
+    return KeyBinding(
+        parts=[SimpleKeyBinding.from_int(qkeycombo2modelkey(x)) for x in key]
+    )
 
 
 # ################# These are the Qkeys we currently aren't mapping ################ #
