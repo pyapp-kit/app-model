@@ -251,7 +251,7 @@ def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
         return KEY_FROM_QT[key]
     qmods = _get_qmods(key)
     qkey = _get_qkey(key)
-    return cast(KeyCombo, qmods2modelmods(qmods) | qkey2modelkey(qkey))
+    return qmods2modelmods(qmods) | qkey2modelkey(qkey)
 
 
 def qkeysequence2modelkeybinding(key: QKeySequence) -> KeyBinding:

@@ -1,5 +1,16 @@
 from enum import IntEnum, IntFlag, auto
-from typing import Any, Callable, Dict, Generator, NamedTuple, Set, Tuple, Type
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    NamedTuple,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    overload,
+)
 
 __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
@@ -617,7 +628,21 @@ class KeyMod(IntFlag):
     Alt = 1 << 9  # alt option
     WinCtrl = 1 << 8  # meta key on windows, ctrl key on mac
 
-    def __or__(self, other: object) -> int:  # type: ignore [override]
+    @overload  # type: ignore
+    def __or__(self, other: "KeyMod") -> "KeyMod":
+        ...
+
+    @overload
+    def __or__(self, other: KeyCode) -> "KeyCombo":
+        ...
+
+    @overload
+    def __or__(self, other: int) -> int:
+        ...
+
+    def __or__(
+        self, other: Union["KeyMod", KeyCode, int]
+    ) -> Union["KeyMod", "KeyCombo", int]:
         if isinstance(other, self.__class__):
             return self.__class__(self._value_ | other._value_)
         if isinstance(other, KeyCode):
