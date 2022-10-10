@@ -100,14 +100,14 @@ class SimpleKeyBinding(BaseModel):
         os = OperatingSystem.current() if os is None else os
         mods: KeyMod = KeyMod.NONE
         if self.ctrl:
-            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd  # type: ignore
+            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd
         if self.shift:
             mods |= KeyMod.Shift
         if self.alt:
             mods |= KeyMod.Alt
         if self.meta:
-            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl  # type: ignore
-        return mods | self.key or 0
+            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
+        return mods | (self.key or 0)
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
