@@ -2,7 +2,7 @@ import sys
 from typing import Dict, List
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from app_model.types import (
     KeyBinding,
@@ -116,34 +116,11 @@ def test_in_dict():
 
 
 def test_errors():
-    with pytest.raises(ValidationError, match="field required"):
-        KeyBinding()
-
-    with pytest.raises(ValidationError, match="not a valid list"):
-        KeyBinding(parts=None)
-
-    with pytest.raises(ValidationError, match="not a valid list"):
-        KeyBinding(parts=tuple())
-
-    with pytest.raises(ValidationError, match="at least 1 items"):
+    with pytest.raises(ValueError):
         KeyBinding(parts=[])
 
-    with pytest.raises(ValidationError, match="at least 1 items"):
+    with pytest.raises(ValueError):
         KeyBinding(__root__="")
-
-    kb = KeyBinding.parse_obj("Cmd+R")
-
-    with pytest.raises(ValidationError, match="not a valid list"):
-        kb.parts = None
-
-    with pytest.raises(ValidationError, match="not a valid list"):
-        kb.parts = set()
-
-    with pytest.raises(ValidationError, match="at least 1 items"):
-        kb.parts = []
-
-    with pytest.raises(ValidationError, match="at least 1 items"):
-        kb.__root__ = ""
 
 
 def test_in_model():

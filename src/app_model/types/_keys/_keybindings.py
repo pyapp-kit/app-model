@@ -1,9 +1,18 @@
 import re
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, no_type_check
+from functools import lru_cache
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
-from pydantic import BaseModel, PrivateAttr
-from pydantic.error_wrappers import ErrorWrapper, ValidationError
-from pydantic.errors import ListError, ListMinLengthError, MissingError
+from pydantic import BaseModel, root_validator
 
 from .._constants import OperatingSystem
 from ._key_codes import KeyChord, KeyCode, KeyMod
@@ -139,56 +148,49 @@ class KeyBinding(BaseModel):
     """
 
     __root__: str
-    _parts: List[SimpleKeyBinding] = PrivateAttr()
 
-    @classmethod
-    def _parts_error(cls, exc: Exception) -> ValidationError:
-        return ValidationError(
-            errors=[ErrorWrapper(exc=exc, loc=("parts",))], model=cls
-        )
+    @root_validator(pre=True)
+    def normalize_input(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize inputs to yield a consistent root."""
+        if "__root__" in values:
+            parts = cls.str_to_parts(values["__root__"])
+        elif "parts" in values:
+            parts = values.pop("parts")
 
-    def __init__(self, **data: Any) -> None:
-        if "parts" in data:
-            parts = data.pop("parts")
-            if not isinstance(parts, List):
-                raise self._parts_error(ListError())
-            parts = [SimpleKeyBinding.validate(part) for part in parts]
-        elif "__root__" in data:
-            root = data["__root__"]
-            parts = [SimpleKeyBinding.from_str(part) for part in root.split()]
-        else:
-            raise self._parts_error(MissingError())
+        values["__root__"] = cls.parts_to_str(parts)
 
-        if len(parts) < 1:
-            raise self._parts_error(ListMinLengthError(limit_value=1))
-        data["__root__"] = " ".join(str(part) for part in parts)
+        return values
 
-        super().__init__(**data)
-        self._parts = parts
+    @root_validator
+    def check_minimum_parts(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Check that KeyBinding has a minimum of 1 part."""
+        if len(cls.str_to_parts(values["__root__"])) < 1:
+            raise ValueError(f"{cls} needs at least 1 part")
+
+        return values
+
+    @staticmethod
+    def parts_to_str(parts: Sequence[Union[str, int, SimpleKeyBinding]]) -> str:
+        """How parts are converted to a string.
+
+        Subclass and override this to change string representation.
+        """
+        return " ".join(str(SimpleKeyBinding.validate(part)) for part in parts)
+
+    @staticmethod
+    @lru_cache
+    def str_to_parts(s: str) -> List[SimpleKeyBinding]:
+        """How the string representation is converted to parts.
+
+        Subclass and override this to change string representation.
+        It is recommended to cache this function.
+        """
+        return [SimpleKeyBinding.from_str(part) for part in s.split()]
 
     @property
     def parts(self) -> List[SimpleKeyBinding]:
         """Key combinations that make up the overall key chord."""
-        return self._parts
-
-    @no_type_check
-    def __setattr__(self, key, val):
-        if key == "__root__":
-            parts = [SimpleKeyBinding.from_str(part) for part in val.split()]
-        elif key == "parts":
-            parts = val
-            if not isinstance(parts, List):
-                raise self._parts_error(ListError())
-            parts = [SimpleKeyBinding.validate(part) for part in parts]
-        else:
-            return super().__setattr__(key, val)
-
-        # key will always be either '__root__' or 'parts'
-        if len(parts) < 1:
-            raise self._parts_error(ListMinLengthError(limit_value=1))
-
-        self._parts = parts
-        return super().__setattr__("__root__", " ".join(str(part) for part in parts))
+        return self.str_to_parts(self.__root__)
 
     def __str__(self) -> str:
         return self.__root__
