@@ -122,6 +122,9 @@ def test_errors():
     with pytest.raises(ValueError):
         KeyBinding("")
 
+    with pytest.raises(ValueError):
+        KeyBinding("Atl-A")
+
 
 def test_in_model():
     class M(BaseModel):

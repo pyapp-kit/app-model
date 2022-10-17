@@ -177,7 +177,14 @@ class KeyBinding(str):
         Subclass and override this to change string representation.
         It is recommended to cache this function.
         """
-        return [SimpleKeyBinding.from_str(part) for part in s.split()]
+        parts = []
+        for part in s.split():
+            kb = SimpleKeyBinding.from_str(part)
+            if kb.key == KeyCode.UNKNOWN:
+                raise ValueError(f"invalid part {part}")
+            parts.append(kb)
+
+        return parts
 
     @property
     def parts(self) -> List[SimpleKeyBinding]:
