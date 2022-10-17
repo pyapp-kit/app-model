@@ -9,10 +9,11 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
 )
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 
 from .._constants import OperatingSystem
 from ._key_codes import KeyChord, KeyCode, KeyMod
@@ -136,7 +137,7 @@ class SimpleKeyBinding(BaseModel):
         return super().validate(v)
 
 
-class KeyBinding(BaseModel):
+class KeyBinding(str):
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
@@ -147,27 +148,18 @@ class KeyBinding(BaseModel):
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
     """
 
-    __root__: str
+    def __new__(
+        cls: Type["KeyBinding"],
+        parts: Union[str, Sequence[Union[str, int, SimpleKeyBinding]]],
+    ) -> "KeyBinding":
+        """Normalize a keybinding."""
+        if isinstance(parts, str):
+            parts = cls.str_to_parts(parts)
 
-    @root_validator(pre=True)
-    def normalize_input(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Normalize inputs to yield a consistent root."""
-        if "__root__" in values:
-            parts = cls.str_to_parts(values["__root__"])
-        elif "parts" in values:
-            parts = values.pop("parts")
+        if not parts:
+            raise ValueError("invalid keybinding")
 
-        values["__root__"] = cls.parts_to_str(parts)
-
-        return values
-
-    @root_validator
-    def check_minimum_parts(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Check that KeyBinding has a minimum of 1 part."""
-        if len(cls.str_to_parts(values["__root__"])) < 1:
-            raise ValueError(f"{cls} needs at least 1 part")
-
-        return values
+        return super().__new__(cls, cls.parts_to_str(parts))
 
     @staticmethod
     def parts_to_str(parts: Sequence[Union[str, int, SimpleKeyBinding]]) -> str:
@@ -190,10 +182,7 @@ class KeyBinding(BaseModel):
     @property
     def parts(self) -> List[SimpleKeyBinding]:
         """Key combinations that make up the overall key chord."""
-        return self.str_to_parts(self.__root__)
-
-    def __str__(self) -> str:
-        return self.__root__
+        return self.str_to_parts(self)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, KeyBinding):
@@ -201,7 +190,7 @@ class KeyBinding(BaseModel):
                 other = KeyBinding.validate(other)
             except Exception:  # pragma: no cover
                 return NotImplemented
-        return bool(self.parts == other.parts)
+        return super().__eq__(other)
 
     def __len__(self) -> int:
         return len(self.parts)
@@ -217,7 +206,7 @@ class KeyBinding(BaseModel):
     @classmethod
     def from_str(cls, key_str: str) -> "KeyBinding":
         """Parse a string into a SimpleKeyBinding."""
-        return cls(__root__=key_str)
+        return cls(key_str)
 
     @classmethod
     def from_int(
@@ -254,7 +243,7 @@ class KeyBinding(BaseModel):
         return int(self.to_int())
 
     def __hash__(self) -> int:
-        return hash(tuple(self.parts))
+        return super().__hash__()
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
