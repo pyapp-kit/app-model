@@ -66,7 +66,7 @@ else:
         return int(out)
 
 
-if PYQT6:
+if QT6:
 
     def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
         return key.keyboardModifiers()
