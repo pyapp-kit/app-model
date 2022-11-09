@@ -9,11 +9,9 @@ from ...types._constants import OperatingSystem
 from ...types._keys import KeyBinding, KeyCode, KeyCombo, KeyMod, SimpleKeyBinding
 
 try:
-    from qtpy import PYQT6, QT6
+    from qtpy import QT6
 except ImportError:
     QT6 = False
-    PYQT6 = False
-
 
 QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
