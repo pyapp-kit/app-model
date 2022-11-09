@@ -12,3 +12,5 @@ This is a schema for declarative organization of application data, such as
 menus, keybindings, actions/commands, etc...
 
 Inspired by the VS-Code application model
+
+docs at https://app-model.readthedocs.io/en/latest/
