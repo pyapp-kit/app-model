@@ -29,7 +29,7 @@ class MenusRegistry:
     menus_changed = Signal(set)
 
     def __init__(self) -> None:
-        self._menu_items: Dict[MenuId, List[MenuOrSubmenu]] = {}
+        self._menu_items: Dict[MenuId, Dict[MenuOrSubmenu, None]] = {}
 
     def append_menu_items(
         self, items: Sequence[Tuple[MenuId, MenuOrSubmenu]]
@@ -50,12 +50,12 @@ class MenusRegistry:
         disposers: List[Callable[[], None]] = []
         for menu_id, item in items:
             item = MenuItem.validate(item)  # type: ignore
-            menu_list = self._menu_items.setdefault(menu_id, [])
-            menu_list.append(item)
+            menu_dict = self._menu_items.setdefault(menu_id, {})
+            menu_dict[item] = None
             changed_ids.add(menu_id)
 
-            def _remove(lst: list = menu_list, _item: Any = item) -> None:
-                lst.remove(_item)
+            def _remove(dct: dict = menu_dict, _item: Any = item) -> None:
+                dct.pop(_item, None)
 
             disposers.append(_remove)
 
@@ -83,7 +83,7 @@ class MenusRegistry:
     def get_menu(self, menu_id: MenuId) -> List[MenuOrSubmenu]:
         """Return menu items for `menu_id`."""
         # using method rather than __getitem__ so that subclasses can use arguments
-        return self._menu_items[menu_id]
+        return list(self._menu_items[menu_id])
 
     def __repr__(self) -> str:
         name = self.__class__.__name__
