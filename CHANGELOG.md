@@ -1,8 +1,25 @@
 # Changelog
 
-## [0.1.0](https://github.com/napari/app-model/tree/0.1.0) (2022-10-10)
+## [v0.1.1](https://github.com/napari/app-model/tree/v0.1.1) (2022-11-10)
 
-[Full Changelog](https://github.com/napari/app-model/compare/v0.0.9...0.1.0)
+[Full Changelog](https://github.com/napari/app-model/compare/v0.1.0...v0.1.1)
+
+**Implemented enhancements:**
+
+- feat: support python 3.11 [\#77](https://github.com/napari/app-model/pull/77) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: fix unsupported operand [\#76](https://github.com/napari/app-model/pull/76) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- refactor: Use a dict \(as an ordered set\) instead of a list for menus registry [\#74](https://github.com/napari/app-model/pull/74) ([aganders3](https://github.com/aganders3))
+- ci\(dependabot\): bump styfle/cancel-workflow-action from 0.10.1 to 0.11.0 [\#72](https://github.com/napari/app-model/pull/72) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v0.1.0](https://github.com/napari/app-model/tree/v0.1.0) (2022-10-10)
+
+[Full Changelog](https://github.com/napari/app-model/compare/v0.0.9...v0.1.0)
 
 **Fixed bugs:**
 
@@ -11,6 +28,7 @@
 
 **Merged pull requests:**
 
+- chore: changelog v0.1.0 [\#69](https://github.com/napari/app-model/pull/69) ([tlambert03](https://github.com/tlambert03))
 - feat: convert keybinding to normal class [\#68](https://github.com/napari/app-model/pull/68) ([kne42](https://github.com/kne42))
 - ci\(dependabot\): bump styfle/cancel-workflow-action from 0.10.0 to 0.10.1 [\#66](https://github.com/napari/app-model/pull/66) ([dependabot[bot]](https://github.com/apps/dependabot))
 
