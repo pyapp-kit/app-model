@@ -3,6 +3,9 @@
 ::: app_model.types.CommandRule
 {{ pydantic_table('app_model.types.CommandRule') }}
 
+::: app_model.types.ToggleRule
+{{ pydantic_table('app_model.types.ToggleRule') }}
+
 ::: app_model.types.MenuRule
 {{ pydantic_table('app_model.types.MenuRule') }}
 
