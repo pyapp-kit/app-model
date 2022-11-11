@@ -1,10 +1,10 @@
 # app-model
 
-[![License](https://img.shields.io/pypi/l/app-model.svg?color=green)](https://github.com/napari/app-model/raw/main/LICENSE)
+[![License](https://img.shields.io/pypi/l/app-model.svg?color=green)](https://github.com/pyapp-kit/app-model/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/app-model.svg?color=green)](https://pypi.org/project/app-model)
 [![Python Version](https://img.shields.io/pypi/pyversions/app-model.svg?color=green)](https://python.org)
-[![CI](https://github.com/napari/app-model/actions/workflows/ci.yml/badge.svg)](https://github.com/napari/app-model/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/napari/app-model/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/app-model)
+[![CI](https://github.com/pyapp-kit/app-model/actions/workflows/ci.yml/badge.svg)](https://github.com/pyapp-kit/app-model/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/pyapp-kit/app-model/branch/main/graph/badge.svg)](https://codecov.io/gh/pyapp-kit/app-model)
 
 Generic application schema implemented in python.
 

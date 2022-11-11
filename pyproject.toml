@@ -58,8 +58,8 @@ docs = [
     "typing_extensions>=4.0",
 ]
 [project.urls]
-homepage = "https://github.com/napari/app-model"
-repository = "https://github.com/napari/app-model"
+homepage = "https://github.com/pyapp-kit/app-model"
+repository = "https://github.com/pyapp-kit/app-model"
 
 # same as console_scripts entry point
 # [project.scripts]
