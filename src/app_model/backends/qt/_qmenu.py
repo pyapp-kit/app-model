@@ -32,10 +32,10 @@ if TYPE_CHECKING:
 # fmt: off
 class _AcceptsMenus(Protocol):
     _app: Application
-    def clear(self) -> None: ...  # noqa: E704
-    def addMenu(self, menu: QMenu) -> None: ...  # noqa: E704
-    def addAction(self, menu: QAction) -> None: ...  # noqa: E704
-    def addSeparator(self) -> None: ...  # noqa: E704
+    def clear(self) -> None: ...
+    def addMenu(self, menu: QMenu) -> None: ...
+    def addAction(self, menu: QAction) -> None: ...
+    def addSeparator(self) -> None: ...
 
 # fmt: on
 

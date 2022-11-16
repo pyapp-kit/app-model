@@ -468,9 +468,9 @@ class ExprTranformer(ast.NodeTransformer):
 
     # fmt: off
     @overload
-    def visit(self, node: ast.expr) -> Expr: ...  # noqa
+    def visit(self, node: ast.expr) -> Expr: ...
     @overload
-    def visit(self, node: PassedType) -> PassedType: ...  # noqa
+    def visit(self, node: PassedType) -> PassedType: ...
     # fmt: on
 
     def visit(self, node: ast.AST) -> Optional[ast.AST]:
