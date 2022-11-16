@@ -112,6 +112,7 @@ extend-ignore = [
 "docs/*" = ["D"]
 "src/app_model/_registries.py" = ["D10"]
 "src/app_model/context/_expressions.py" = ["D10"]
+"src/app_model/types/_keys/*" = ["E501"]
 
 
 # https://docs.pytest.org/en/6.2.x/customize.html

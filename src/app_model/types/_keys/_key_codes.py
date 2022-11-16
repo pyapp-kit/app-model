@@ -192,6 +192,7 @@ class ScanCode(IntEnum):
     implementations to support special keyboards (such as multimedia or
     legacy keyboards).
     """
+
     UNIDENTIFIED = 0        # This value code should be used when no other value given in this specification is appropriate.
 
     # -----------------------   Writing System Keys   -----------------------
@@ -651,8 +652,10 @@ class KeyMod(IntFlag):
 
 
 class KeyCombo(int):
-    """KeyCombo is an integer combination of one or more
-    [`KeyMod`][app_model.types.KeyMod] and [`KeyCode`][app_model.types.KeyCode]."""
+    """KeyCombo is an integer combination of one or more.
+
+    [`KeyMod`][app_model.types.KeyMod] and [`KeyCode`][app_model.types.KeyCode].
+    """
 
     def __new__(
         cls: Type["KeyCombo"], modifiers: KeyMod, key: KeyCode = KeyCode.UNKNOWN
@@ -670,8 +673,11 @@ class KeyCombo(int):
 
 
 class KeyChord(int):
-    """KeyChord is an integer combination of two [`KeyCombo`][app_model.types.KeyCombo],
-    [`KeyCode`][app_model.types.KeyCode], or [int][]."""
+    """KeyChord is an integer combination of two key combos.
+
+    It could be two [`KeyCombo`][app_model.types.KeyCombo]
+    [`KeyCode`][app_model.types.KeyCode], or [int][].
+    """
 
     def __new__(cls: Type["KeyChord"], first_part: int, second_part: int) -> "KeyChord":
         # shift the second part 16 bits to the left

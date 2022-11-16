@@ -66,7 +66,7 @@ class Mocks:
         fixtures directory must be added to sys path during the test (as we do below)
         """
         try:
-            from fake_module import GLOBAL_MOCK  # noqa
+            from fake_module import GLOBAL_MOCK
 
             return GLOBAL_MOCK
         except ImportError as e:
