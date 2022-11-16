@@ -18,7 +18,7 @@ sys.exit(1)
 #
 # To be removed once GitHub catches up.
 
-setup(  # noqa: F821
+setup(
     name="app-model",
     install_requires=[
         "psygnal>=0.3.4",
