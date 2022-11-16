@@ -274,6 +274,11 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
 
 def qkey2modelkey(key: Qt.Key) -> KeyCode:
     """Return KeyCode from Qt.Key."""
+    if MAC and mac_ctrl_meta_swapped():
+        if key == Qt.Key.Key_Control:
+            return KeyCode.Meta
+        if key == Qt.Key.Key_Meta:
+            return KeyCode.Ctrl
     return KEY_FROM_QT.get(key, KeyCode.UNKNOWN)
 
 
