@@ -25,7 +25,12 @@ classifiers = [
     "Topic :: Software Development :: User Interfaces",
 ]
 dynamic = ["version"]
-dependencies = ['psygnal', 'pydantic', 'in-n-out>=0.1.5', 'typing_extensions']
+dependencies = [
+    "psygnal>=0.3.4",
+    "pydantic>=1.8",
+    "in-n-out>=0.1.5",
+    "typing_extensions",
+]
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
@@ -63,10 +68,17 @@ repository = "https://github.com/pyapp-kit/app-model"
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.envs.test]
+features = ["test"]
+[tool.hatch.envs.test.scripts]
+run = "pytest  -v --color=yes --cov-config=pyproject.toml -W i --cov=app_model --cov-report=xml --cov-report=term-missing"
+
+
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
 profile = "black"
 src_paths = ["src/app_model", "tests"]
+
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
