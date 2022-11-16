@@ -65,23 +65,6 @@ repository = "https://github.com/pyapp-kit/app-model"
 [tool.hatch.version]
 source = "vcs"
 
-[tool.hatch.envs.test]
-features = ["testing"]
-[tool.hatch.envs.test.scripts]
-run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-report=xml --cov-report=term-missing"
-[[tool.hatch.envs.test.matrix]]
-backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
-[tool.hatch.envs.test.overrides]
-# matrix.deps.features = [
-#     { value = "min-req", if = ["min-req"] },
-# ]
-matrix.backend.features = [
-    { value = "pyqt5", if = ["pyqt5"] },
-    { value = "pyside2", if = ["pyside2"] },
-    { value = "pyqt6", if = ["pyqt6"] },
-    { value = "pyside6", if = ["pyside6"] },
-]
-
 
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
