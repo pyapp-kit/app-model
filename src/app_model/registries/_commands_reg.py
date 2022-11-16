@@ -152,7 +152,7 @@ class CommandsRegistry:
             raise KeyError(f"Command {id!r} not registered")
         return self._commands[id]
 
-    def execute_command(
+    def execute_command(  # noqa: D417
         self,
         id: str,
         *args: Any,
@@ -165,7 +165,7 @@ class CommandsRegistry:
         ----------
         id : CommandId
             ID of the command to execute
-        args: Any
+        *args: Any
             Positional arguments to pass to the command
         execute_asychronously : bool
             Whether to execute the command asynchronously in a thread,
@@ -174,7 +174,7 @@ class CommandsRegistry:
             to call `result()` on the returned object.  Eventually, this will
             default to True, but we need to solve `ensure_main_thread` Qt threading
             issues first
-        kwargs: Any
+        **kwargs: Any
             Keyword arguments to pass to the command
 
         Returns
