@@ -65,12 +65,10 @@ repository = "https://github.com/pyapp-kit/app-model"
 [tool.hatch.version]
 source = "vcs"
 
-
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
 profile = "black"
 src_paths = ["src/app_model", "tests"]
-
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
@@ -130,7 +128,7 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "@overload",
     "except ImportError",
-    "pass"
+    "pass",
 ]
 skip_covered = true
 show_missing = true
