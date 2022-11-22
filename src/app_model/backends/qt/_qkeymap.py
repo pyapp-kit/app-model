@@ -256,7 +256,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     lookup = SWAPPED_KEYMOD_FROM_QT if mac_ctrl_meta_swapped() else KEYMOD_FROM_QT
     for modifier in lookup:
         if modifiers & modifier:
-            mod |= modifier
+            mod |= lookup[modifier]
     return mod
 
 
