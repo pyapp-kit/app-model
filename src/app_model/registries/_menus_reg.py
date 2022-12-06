@@ -16,8 +16,8 @@ from typing import (
 
 from psygnal import Signal
 
-from ..types import MenuItem, MenuOrSubmenu
-from ..types._constants import DisposeCallable
+from app_model.types import MenuItem, MenuOrSubmenu
+from app_model.types._constants import DisposeCallable
 
 MenuId = str
 
@@ -62,9 +62,9 @@ class MenusRegistry:
         def _dispose() -> None:
             for disposer in disposers:
                 disposer()
-            for id in changed_ids:
-                if not self._menu_items.get(id):
-                    del self._menu_items[id]
+            for id_ in changed_ids:
+                if not self._menu_items.get(id_):
+                    del self._menu_items[id_]
             self.menus_changed.emit(changed_ids)
 
         if changed_ids:

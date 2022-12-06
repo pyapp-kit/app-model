@@ -3,7 +3,8 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
-from .._constants import OperatingSystem
+from app_model.types._constants import OperatingSystem
+
 from ._key_codes import KeyChord, KeyCode, KeyMod
 
 _re_ctrl = re.compile(r"ctrl[\+|\-]")

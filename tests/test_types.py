@@ -15,7 +15,7 @@ def test_action_validation():
         Action(id="test", title="test", callback="s!adf")
 
     with pytest.raises(ValidationError):
-        Action(id="test", title="test", callback=list())
+        Action(id="test", title="test", callback=[])
 
     with pytest.raises(ValidationError, match="'x.<locals>:asdf' is not a valid"):
         Action(id="test", title="test", callback="x.<locals>:asdf")

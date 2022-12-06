@@ -11,23 +11,23 @@ OS_KEY = "ctrl+b"
 MENUID = "some.menu.id"
 KWARGS = [
     {},
-    dict(enablement="x == 1"),
-    dict(menus=[{"id": MENUID}]),
-    dict(enablement="3 >= 1", menus=[{"id": MENUID}]),
-    dict(keybindings=[{"primary": PRIMARY_KEY}]),
-    dict(
-        keybindings=[
+    {"enablement": "x == 1"},
+    {"menus": [{"id": MENUID}]},
+    {"enablement": "3 >= 1", "menus": [{"id": MENUID}]},
+    {"keybindings": [{"primary": PRIMARY_KEY}]},
+    {
+        "keybindings": [
             {"primary": PRIMARY_KEY, "mac": OS_KEY, "win": OS_KEY, "linux": OS_KEY}
         ]
-    ),
-    dict(keybindings=[{"primary": "ctrl+a"}], menus=[{"id": MENUID}]),
-    dict(palette=False),
+    },
+    {"keybindings": [{"primary": "ctrl+a"}], "menus": [{"id": MENUID}]},
+    {"palette": False},
 ]
 
 
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(kwargs, simple_app: Application, mode):
+def test_register_action_decorator(kwargs, simple_app: Application, mode):  # noqa: C901
     # make sure mocks are working
     app = simple_app
     assert not list(app.commands)

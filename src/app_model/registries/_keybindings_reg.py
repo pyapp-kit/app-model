@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Callable, NamedTuple, Optional
 
 from psygnal import Signal
 
-from ..types._keys import KeyBinding
+from app_model.types._keys import KeyBinding
 
 if TYPE_CHECKING:
     from typing import Iterator, List, TypeVar
 
-    from .. import expressions
-    from ..types import KeyBindingRule
+    from app_model import expressions
+    from app_model.types import KeyBindingRule
 
     DisposeCallable = Callable[[], None]
     CommandDecorator = Callable[[Callable], Callable]
