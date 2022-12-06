@@ -496,7 +496,7 @@ class ExprTranformer(ast.NodeTransformer):
 
         # providing fake lineno and col_offset here rather than using
         # ast.fill_missing_locations for typing purposes
-        kwargs: Dict[str, Any] = dict(lineno=1, col_offset=0)
+        kwargs: Dict[str, Any] = {"lineno": 1, "col_offset": 0}
 
         for name, field in ast.iter_fields(node):
             if isinstance(field, ast.expr):

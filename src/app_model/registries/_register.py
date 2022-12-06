@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar, overload
 
-from ..types import Action, MenuItem
+from app_model.types import Action, MenuItem
 
 if TYPE_CHECKING:
     from typing import Any, Callable, List, Literal, Optional, Union
 
-    from .. import expressions
-    from .._app import Application
-    from ..types import IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
-    from ..types._constants import DisposeCallable
+    from app_model import expressions
+    from app_model._app import Application
+    from app_model.types import IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
+    from app_model.types._constants import DisposeCallable
 
     CommandCallable = TypeVar("CommandCallable", bound=Callable[..., Any])
     CommandDecorator = Callable[[Callable], Callable]
@@ -198,7 +198,7 @@ def _register_action_obj(
 
     Helper for `register_action()`.
     """
-    from .._app import Application
+    from app_model._app import Application
 
     app = app if isinstance(app, Application) else Application.get_or_create(app)
 

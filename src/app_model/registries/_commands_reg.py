@@ -63,7 +63,7 @@ class _RegisteredCommand(Generic[P, R]):
     @property
     def resolved_callback(self) -> Callable[P, R]:
         if self._resolved_callback is None:
-            from ..types._utils import import_python_name
+            from app_model.types._utils import import_python_name
 
             try:
                 self._resolved_callback = import_python_name(str(self.callback))
@@ -152,7 +152,7 @@ class CommandsRegistry:
             raise KeyError(f"Command {id!r} not registered")
         return self._commands[id]
 
-    def execute_command(  # noqa: D417
+    def execute_command(
         self,
         id: str,
         *args: Any,
@@ -209,5 +209,5 @@ class CommandsRegistry:
         return future
 
     def __str__(self) -> str:
-        lines = [f"{id!r:<32} -> {cmd.title!r}" for id, cmd in self]
+        lines = [f"{id_!r:<32} -> {cmd.title!r}" for id_, cmd in self]
         return "\n".join(lines)

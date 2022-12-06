@@ -2,7 +2,8 @@ from typing import Any, Optional, TypedDict, Union
 
 from pydantic import Field
 
-from .. import expressions
+from app_model import expressions
+
 from ._base import _BaseModel
 from ._constants import OperatingSystem
 from ._keys import StandardKeyBinding

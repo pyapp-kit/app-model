@@ -2,7 +2,8 @@ from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
 
 from pydantic import Field, validator
 
-from .. import expressions
+from app_model import expressions
+
 from ._base import _BaseModel
 from ._command_rule import CommandRule
 from ._icon import Icon
