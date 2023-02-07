@@ -43,7 +43,7 @@ def _build_type_link(typ: Any) -> str:
         isinstance(a, (TypeVar, ParamSpec)) for a in args
     ):
         return _type_link(origin)
-    types = [_build_type_link(a) for a in args if a is not type(None)]  # noqa
+    types = [_build_type_link(a) for a in args if a is not type(None)]
     if origin is Union:
         return " or ".join(types)
     type_ = ", ".join(types)

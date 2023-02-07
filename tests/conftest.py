@@ -217,7 +217,7 @@ def full_app(monkeypatch) -> Application:
         app = build_app("complete_test_app")
         with monkeypatch.context() as m:
             # mock path to add fake_module
-            m.setattr(sys, "path", [str(FIXTURES)] + sys.path)
+            m.setattr(sys, "path", [str(FIXTURES), *sys.path])
             # make sure it's not already in sys.modules
             sys.modules.pop("fake_module", None)
             yield app
