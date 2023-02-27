@@ -67,7 +67,6 @@ class Application:
         keybindings_reg_class: Type[KeyBindingsRegistry] = KeyBindingsRegistry,
         injection_store_class: Type[ino.Store] = ino.Store,
     ) -> None:
-
         self._name = name
         if name in Application._instances:
             raise ValueError(

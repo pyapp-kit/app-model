@@ -28,7 +28,7 @@ class QModelMainWindow(QMainWindow):
         menu_id: str,
         *,
         exclude: Optional[Collection[str]] = None,
-        area: Optional[Qt.ToolBarArea] = None
+        area: Optional[Qt.ToolBarArea] = None,
     ) -> None:
         """Add a tool bar to the main window."""
         menu_bar = QModelToolBar(menu_id, self._app, exclude=exclude, parent=self)

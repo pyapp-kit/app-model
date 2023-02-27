@@ -6,7 +6,6 @@ from qtpy.QtGui import QKeySequence
 from app_model.backends.qt import _qkeymap, qkey2modelkey, qkeysequence2modelkeybinding
 from app_model.types import KeyBinding, KeyCode, KeyCombo, KeyMod
 
-
 # stuff we don't know how to deal with yet
 
 

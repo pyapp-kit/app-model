@@ -16,7 +16,7 @@ class OperatingSystem(Enum):
 
     @staticmethod
     def current() -> "OperatingSystem":
-        """Returns the current operating system as enum."""
+        """Return the current operating system as enum."""
         return _CURRENT
 
     @property

@@ -27,7 +27,7 @@ KWARGS = [
 
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(kwargs, simple_app: Application, mode):  # noqa: C901
+def test_register_action_decorator(kwargs, simple_app: Application, mode):
     # make sure mocks are working
     app = simple_app
     assert not list(app.commands)

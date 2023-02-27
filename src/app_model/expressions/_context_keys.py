@@ -176,13 +176,14 @@ class ContextNamespaceMeta(type):
     def __members__(self) -> MappingProxyType[str, ContextKey]:
         return MappingProxyType(self._members_map_)
 
-    def __dir__(self) -> List[str]:
-        return [  # pragma: no cover
+    def __dir__(self) -> List[str]:  # pragma: no cover
+        return [
             "__class__",
             "__doc__",
             "__members__",
             "__module__",
-        ] + list(self._members_map_)
+            *list(self._members_map_),
+        ]
 
 
 class ContextNamespace(Generic[A], metaclass=ContextNamespaceMeta):

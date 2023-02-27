@@ -215,7 +215,7 @@ class Expr(ast.AST, Generic[T]):
         return obj if isinstance(obj, Expr) else Constant(obj)
 
     # boolean operators
-    # '&' and '|' are normaly binary operators... but we use them here to
+    # '&' and '|' are normally binary operators... but we use them here to
     # combine expression objects meaning "and" and "or".
     # if you want the binary operators, use Expr.bitand, and Expr.bitor
 
@@ -324,7 +324,7 @@ class Expr(ast.AST, Generic[T]):
 
     @classmethod
     def validate(cls, v: Any) -> Expr:
-        """Validator for Expr. For use with Pydantic."""
+        """Validate v as an `Expr`. For use with Pydantic."""
         return v if isinstance(v, Expr) else parse_expression(v)
 
     def __hash__(self) -> int:
@@ -521,9 +521,9 @@ class _ExprSerializer(ast.NodeVisitor):
 
     or ... using this visitor directly:
 
-    >>> ser = ExprSerializer()
-    >>> ser.visit(expr)
-    >>> out = "".join(ser.result)
+    >>> serializer = ExprSerializer()
+    >>> serializer.visit(expr)
+    >>> out = "".join(serializer.result)
     """
 
     def __init__(self, node: Optional[Expr] = None) -> None:

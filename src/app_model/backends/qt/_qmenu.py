@@ -98,7 +98,7 @@ class _MenuMixin(QObject):
         Parameters
         ----------
         ctx : Mapping
-            A namepsace that will be used to `eval()` the `'enablement'` and
+            A namespace that will be used to `eval()` the `'enablement'` and
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
@@ -255,7 +255,7 @@ class QModelMenuBar(QMenuBar):
         Parameters
         ----------
         ctx : Mapping
-            A namepsace that will be used to `eval()` the `'enablement'` and
+            A namespace that will be used to `eval()` the `'enablement'` and
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
