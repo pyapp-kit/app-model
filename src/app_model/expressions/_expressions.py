@@ -324,7 +324,7 @@ class Expr(ast.AST, Generic[T]):
 
     @classmethod
     def validate(cls, v: Any) -> Expr:
-        """Validator for Expr. For use with Pydantic."""
+        """Validate v as an `Expr`. For use with Pydantic."""
         return v if isinstance(v, Expr) else parse_expression(v)
 
     def __hash__(self) -> int:

@@ -14,9 +14,9 @@ def _import_attr(name: str):
     return getattr(import_module(mod), attr)
 
 
-def define_env(env: "MacrosPlugin"):
+def define_env(env: "MacrosPlugin") -> None:
     @env.macro
-    def pydantic_table(name: str):
+    def pydantic_table(name: str) -> str:
         cls = _import_attr(name)
         assert issubclass(cls, BaseModel)
         rows = ["| Field | Type | Description |", "| ----  | ---- | ----------- |"]
@@ -43,7 +43,7 @@ def _build_type_link(typ: Any) -> str:
         isinstance(a, (TypeVar, ParamSpec)) for a in args
     ):
         return _type_link(origin)
-    types = [_build_type_link(a) for a in args if a is not type(None)]  # noqa
+    types = [_build_type_link(a) for a in args if a is not type(None)]
     if origin is Union:
         return " or ".join(types)
     type_ = ", ".join(types)
