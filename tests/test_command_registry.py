@@ -16,12 +16,12 @@ def test_commands_registry() -> None:
     with pytest.raises(ValueError, match="Command 'my.id' already registered"):
         reg.register_command("my.id", lambda: 42, "My Title")
 
-    assert reg.execute_command("my.id", execute_asychronously=True).result() == 42
-    assert reg.execute_command("my.id", execute_asychronously=False).result() == 42
+    assert reg.execute_command("my.id", execute_asynchronously=True).result() == 42
+    assert reg.execute_command("my.id", execute_asynchronously=False).result() == 42
 
     reg.register_command("my.id2", raise_exc, "My Title 2")
-    future_async = reg.execute_command("my.id2", execute_asychronously=True)
-    future_sync = reg.execute_command("my.id2", execute_asychronously=False)
+    future_async = reg.execute_command("my.id2", execute_asynchronously=True)
+    future_sync = reg.execute_command("my.id2", execute_asynchronously=False)
 
     with pytest.raises(RuntimeError, match="boom"):
         future_async.result()
