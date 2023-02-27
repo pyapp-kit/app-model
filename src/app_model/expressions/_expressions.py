@@ -215,7 +215,7 @@ class Expr(ast.AST, Generic[T]):
         return obj if isinstance(obj, Expr) else Constant(obj)
 
     # boolean operators
-    # '&' and '|' are normaly binary operators... but we use them here to
+    # '&' and '|' are normally binary operators... but we use them here to
     # combine expression objects meaning "and" and "or".
     # if you want the binary operators, use Expr.bitand, and Expr.bitor
 
@@ -521,9 +521,9 @@ class _ExprSerializer(ast.NodeVisitor):
 
     or ... using this visitor directly:
 
-    >>> ser = ExprSerializer()
-    >>> ser.visit(expr)
-    >>> out = "".join(ser.result)
+    >>> serializer = ExprSerializer()
+    >>> serializer.visit(expr)
+    >>> out = "".join(serializer.result)
     """
 
     def __init__(self, node: Optional[Expr] = None) -> None:

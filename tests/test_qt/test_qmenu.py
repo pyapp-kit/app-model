@@ -55,7 +55,7 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
     assert redo_action.isVisible()
     assert redo_action.isEnabled()
 
-    # usefull error when we forget a required name
+    # useful error when we forget a required name
     with pytest.raises(NameError, match="Names required to eval this expression"):
         menu.update_from_context({})
 

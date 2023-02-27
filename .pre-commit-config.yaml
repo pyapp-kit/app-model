@@ -43,3 +43,13 @@ repos:
         additional_dependencies:
           - pydantic
           - in-n-out
+
+  # manual hooks
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.2
+    hooks:
+      - id: codespell
+        exclude: CHANGELOG.md
+        stages:
+          - "manual"

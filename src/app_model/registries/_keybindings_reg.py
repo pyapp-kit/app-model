@@ -27,7 +27,7 @@ class _RegisteredKeyBinding(NamedTuple):
 
 
 class KeyBindingsRegistry:
-    """Registery for keybindings."""
+    """Registry for keybindings."""
 
     registered = Signal()
 
