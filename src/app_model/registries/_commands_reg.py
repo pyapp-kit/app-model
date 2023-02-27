@@ -156,7 +156,7 @@ class CommandsRegistry:
         self,
         id: str,
         *args: Any,
-        execute_asychronously: bool = False,
+        execute_asynchronously: bool = False,
         **kwargs: Any,
     ) -> Future:
         """Execute a registered command.
@@ -167,7 +167,7 @@ class CommandsRegistry:
             ID of the command to execute
         *args: Any
             Positional arguments to pass to the command
-        execute_asychronously : bool
+        execute_asynchronously : bool
             Whether to execute the command asynchronously in a thread,
             by default `False`.  Note that *regardless* of this setting,
             the return value will implement the `Future` API (so it's necessary)
@@ -192,7 +192,7 @@ class CommandsRegistry:
         except KeyError as e:
             raise KeyError(f"Command {id!r} not registered") from e  # pragma: no cover
 
-        if execute_asychronously:
+        if execute_asynchronously:
             with ThreadPoolExecutor() as executor:
                 return executor.submit(cmd, *args, **kwargs)
 
