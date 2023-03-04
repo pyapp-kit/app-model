@@ -19,28 +19,30 @@ try:
 except ImportError:
     QT6 = False
 
-QMETA = Qt.KeyboardModifier.MetaModifier
 QCTRL = Qt.KeyboardModifier.ControlModifier
+QSHIFT = Qt.KeyboardModifier.ShiftModifier
+QALT = Qt.KeyboardModifier.AltModifier
+QMETA = Qt.KeyboardModifier.MetaModifier
 
 MAC = OperatingSystem.current().is_mac
 
 _QMOD_LOOKUP = {
     "ctrl": QCTRL,
-    "shift": Qt.KeyboardModifier.ShiftModifier,
-    "alt": Qt.KeyboardModifier.AltModifier,
+    "shift": QSHIFT,
+    "alt": QALT,
     "meta": QMETA,
 }
 
-_SWAPPED_QMOD_LOOKUP = {
+_MAC_QMOD_LOOKUP = {
     **_QMOD_LOOKUP,
     "ctrl": QMETA,
     "meta": QCTRL,
 }
 
 
-def mac_ctrl_meta_swapped() -> bool:
-    """Whether or not Qt has swapped ctrl and meta for Macs."""
-    return MAC and not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
+def use_mac_keymap() -> bool:
+    """Whether or not to use the base Mac keymap."""
+    return MAC and QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
 
 
 if QT6:
@@ -48,7 +50,7 @@ if QT6:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
-        lookup = _SWAPPED_QMOD_LOOKUP if mac_ctrl_meta_swapped() else _QMOD_LOOKUP
+        lookup = _MAC_QMOD_LOOKUP if use_mac_keymap() else _QMOD_LOOKUP
         key = KEY_TO_QT.get(skb.key, 0)
         mods = (v for k, v in lookup.items() if getattr(skb, k))
         combo = QKeyCombination(reduce(operator.or_, mods), key)
@@ -59,7 +61,7 @@ else:
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
-        lookup = _SWAPPED_QMOD_LOOKUP if mac_ctrl_meta_swapped() else _QMOD_LOOKUP
+        lookup = _MAC_QMOD_LOOKUP if use_mac_keymap() else _QMOD_LOOKUP
         out = KEY_TO_QT.get(skb.key, 0)
         mods = (v for k, v in lookup.items() if getattr(skb, k))
         out = reduce(operator.or_, mods, out)
@@ -199,19 +201,25 @@ KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
     KeyCode.PauseBreak: Qt.Key.Key_Pause,
 }
 
+KEYMOD_FROM_QT = {
+    Qt.KeyboardModifier.NoModifier: KeyMod.NONE,
+    Qt.KeyboardModifier.AltModifier: KeyMod.Alt,
+    QCTRL: KeyMod.CtrlCmd,
+    Qt.KeyboardModifier.ShiftModifier: KeyMod.Shift,
+    QMETA: KeyMod.WinCtrl,
+}
+
+MAC_KEYMOD_FROM_QT = {**KEYMOD_FROM_QT, QCTRL: KeyMod.WinCtrl, QMETA: KeyMod.CtrlCmd}
+
 KEYMOD_TO_QT = {
     KeyMod.NONE: Qt.KeyboardModifier.NoModifier,
-    KeyMod.Alt: Qt.KeyboardModifier.AltModifier,
     KeyMod.CtrlCmd: QCTRL,
-    KeyMod.Shift: Qt.KeyboardModifier.ShiftModifier,
+    KeyMod.Alt: QALT,
+    KeyMod.Shift: QSHIFT,
     KeyMod.WinCtrl: QMETA,
 }
 
-SWAPPED_KEYMOD_TO_QT = {**KEYMOD_TO_QT, KeyMod.WinCtrl: QCTRL, KeyMod.CtrlCmd: QMETA}
-
-KEYMOD_FROM_QT = {v: k for k, v in KEYMOD_TO_QT.items()}
-
-SWAPPED_KEYMOD_FROM_QT = {v: k for k, v in SWAPPED_KEYMOD_TO_QT.items()}
+MAC_KEYMOD_TO_QT = {**KEYMOD_TO_QT, KeyMod.WinCtrl: QCTRL, KeyMod.CtrlCmd: QMETA}
 
 
 # unused/untested
@@ -253,7 +261,7 @@ KEY_FROM_QT.update(_QTONLY_KEYS)
 def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     """Return KeyMod from Qt.KeyboardModifier."""
     mod = KeyMod.NONE
-    lookup = SWAPPED_KEYMOD_FROM_QT if mac_ctrl_meta_swapped() else KEYMOD_FROM_QT
+    lookup = MAC_KEYMOD_FROM_QT if use_mac_keymap() else KEYMOD_FROM_QT
     for modifier in lookup:
         if modifiers & modifier:
             mod |= lookup[modifier]
@@ -262,7 +270,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
 
 def qkey2modelkey(key: Qt.Key) -> KeyCode:
     """Return KeyCode from Qt.Key."""
-    if mac_ctrl_meta_swapped():
+    if MAC and not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta):
         if key == Qt.Key.Key_Control:
             return KeyCode.Meta
         if key == Qt.Key.Key_Meta:
