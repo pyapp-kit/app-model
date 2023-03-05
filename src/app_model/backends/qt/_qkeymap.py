@@ -207,9 +207,9 @@ KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
 
 KEYMOD_FROM_QT = {
     Qt.KeyboardModifier.NoModifier: KeyMod.NONE,
-    Qt.KeyboardModifier.AltModifier: KeyMod.Alt,
+    QALT: KeyMod.Alt,
     QCTRL: KeyMod.CtrlCmd,
-    Qt.KeyboardModifier.ShiftModifier: KeyMod.Shift,
+    QSHIFT: KeyMod.Shift,
     QMETA: KeyMod.WinCtrl,
 }
 

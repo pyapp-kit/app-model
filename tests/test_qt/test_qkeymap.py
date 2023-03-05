@@ -3,7 +3,12 @@ from unittest.mock import patch
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QKeySequence
 
-from app_model.backends.qt import _qkeymap, qkey2modelkey, qkeysequence2modelkeybinding
+from app_model.backends.qt import (
+    _qkeymap,
+    qkey2modelkey,
+    qkeysequence2modelkeybinding,
+    qmods2modelmods,
+)
 from app_model.types import KeyBinding, KeyCode, KeyCombo, KeyMod
 
 # stuff we don't know how to deal with yet
@@ -27,6 +32,28 @@ def test_qkey_lookup() -> None:
     with patch.object(_qkeymap, "MAC", False):
         assert qkey2modelkey(Qt.Key.Key_Control) == KeyCode.Ctrl
         assert qkey2modelkey(Qt.Key.Key_Meta) == KeyCode.Meta
+
+
+def test_qmod_lookup() -> None:
+    assert qmods2modelmods(Qt.KeyboardModifier.ShiftModifier) == KeyMod.Shift
+    assert qmods2modelmods(Qt.KeyboardModifier.AltModifier) == KeyMod.Alt
+
+    with patch.object(_qkeymap, "MAC", True):
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+            assert (
+                qmods2modelmods(Qt.KeyboardModifier.ControlModifier) == KeyMod.WinCtrl
+            )
+            assert qmods2modelmods(Qt.KeyboardModifier.MetaModifier) == KeyMod.CtrlCmd
+
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+            assert (
+                qmods2modelmods(Qt.KeyboardModifier.ControlModifier) == KeyMod.CtrlCmd
+            )
+            assert qmods2modelmods(Qt.KeyboardModifier.MetaModifier) == KeyMod.WinCtrl
+
+    with patch.object(_qkeymap, "MAC", False):
+        assert qmods2modelmods(Qt.KeyboardModifier.ControlModifier) == KeyMod.CtrlCmd
+        assert qmods2modelmods(Qt.KeyboardModifier.MetaModifier) == KeyMod.WinCtrl
 
 
 def test_qkeysequence2modelkeybinding() -> None:
