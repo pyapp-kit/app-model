@@ -9,9 +9,26 @@ from app_model.backends.qt import (
     qkeysequence2modelkeybinding,
     qmods2modelmods,
 )
+from app_model.backends.qt._qkeymap import modelkey2qkey
 from app_model.types import KeyBinding, KeyCode, KeyCombo, KeyMod
 
 # stuff we don't know how to deal with yet
+
+
+def test_modelkey_lookup() -> None:
+    assert modelkey2qkey(KeyCode.KeyM) == Qt.Key.Key_M
+
+    with patch.object(_qkeymap, "MAC", True):
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+            assert modelkey2qkey(KeyCode.Ctrl) == Qt.Key.Key_Control
+            assert modelkey2qkey(KeyCode.Meta) == Qt.Key.Key_Meta
+        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+            assert modelkey2qkey(KeyCode.Meta) == Qt.Key.Key_Control
+            assert modelkey2qkey(KeyCode.Ctrl) == Qt.Key.Key_Meta
+
+    with patch.object(_qkeymap, "MAC", False):
+        assert modelkey2qkey(KeyCode.Ctrl) == Qt.Key.Key_Control
+        assert modelkey2qkey(KeyCode.Meta) == Qt.Key.Key_Meta
 
 
 def test_qkey_lookup() -> None:
