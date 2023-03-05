@@ -40,7 +40,7 @@ _SWAPPED_QMOD_LOOKUP = {
 }
 
 
-def qt_swapped_ctrl_meta() -> bool:
+def mac_ctrl_meta_swapped() -> bool:
     """Determine whether Qt is swapping Ctrl and Meta for keyboard interactions."""
     return not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
 
@@ -51,7 +51,7 @@ if QT6:
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
         lookup = (
-            _SWAPPED_QMOD_LOOKUP if MAC and qt_swapped_ctrl_meta() else _QMOD_LOOKUP
+            _SWAPPED_QMOD_LOOKUP if MAC and mac_ctrl_meta_swapped() else _QMOD_LOOKUP
         )
         key = modelkey2qkey(skb.key) if skb.key else 0
         mods = (v for k, v in lookup.items() if getattr(skb, k))
@@ -64,7 +64,7 @@ else:
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
         lookup = (
-            _SWAPPED_QMOD_LOOKUP if MAC and qt_swapped_ctrl_meta() else _QMOD_LOOKUP
+            _SWAPPED_QMOD_LOOKUP if MAC and mac_ctrl_meta_swapped() else _QMOD_LOOKUP
         )
         out = modelkey2qkey(skb.key) if skb.key else 0
         mods = (v for k, v in lookup.items() if getattr(skb, k))
@@ -266,7 +266,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
     """Return KeyMod from Qt.KeyboardModifier."""
     mod = KeyMod.NONE
     lookup = (
-        MAC_KEYMOD_FROM_QT if MAC and not qt_swapped_ctrl_meta() else KEYMOD_FROM_QT
+        MAC_KEYMOD_FROM_QT if MAC and not mac_ctrl_meta_swapped() else KEYMOD_FROM_QT
     )
     for modifier in lookup:
         if modifiers & modifier:
@@ -276,7 +276,7 @@ def qmods2modelmods(modifiers: Qt.KeyboardModifier) -> KeyMod:
 
 def modelkey2qkey(key: KeyCode) -> Qt.Key:
     """Return Qt.Key from KeyCode."""
-    if MAC and qt_swapped_ctrl_meta():
+    if MAC and mac_ctrl_meta_swapped():
         if key == KeyCode.Meta:
             return Qt.Key.Key_Control
         if key == KeyCode.Ctrl:
@@ -286,7 +286,7 @@ def modelkey2qkey(key: KeyCode) -> Qt.Key:
 
 def qkey2modelkey(key: Qt.Key) -> KeyCode:
     """Return KeyCode from Qt.Key."""
-    if MAC and qt_swapped_ctrl_meta():
+    if MAC and mac_ctrl_meta_swapped():
         if key == Qt.Key.Key_Control:
             return KeyCode.Meta
         if key == Qt.Key.Key_Meta:
