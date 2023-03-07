@@ -19,10 +19,10 @@ def test_modelkey_lookup() -> None:
     assert modelkey2qkey(KeyCode.KeyM) == Qt.Key.Key_M
 
     with patch.object(_qkeymap, "MAC", True):
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=False):
             assert modelkey2qkey(KeyCode.Ctrl) == Qt.Key.Key_Control
             assert modelkey2qkey(KeyCode.Meta) == Qt.Key.Key_Meta
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=True):
             assert modelkey2qkey(KeyCode.Meta) == Qt.Key.Key_Control
             assert modelkey2qkey(KeyCode.Ctrl) == Qt.Key.Key_Meta
 
@@ -39,10 +39,10 @@ def test_qkey_lookup() -> None:
     assert qkey2modelkey(Qt.Key.Key_M) == KeyCode.KeyM
 
     with patch.object(_qkeymap, "MAC", True):
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=False):
             assert qkey2modelkey(Qt.Key.Key_Control) == KeyCode.Ctrl
             assert qkey2modelkey(Qt.Key.Key_Meta) == KeyCode.Meta
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=True):
             assert qkey2modelkey(Qt.Key.Key_Control) == KeyCode.Meta
             assert qkey2modelkey(Qt.Key.Key_Meta) == KeyCode.Ctrl
 
@@ -56,13 +56,13 @@ def test_qmod_lookup() -> None:
     assert qmods2modelmods(Qt.KeyboardModifier.AltModifier) == KeyMod.Alt
 
     with patch.object(_qkeymap, "MAC", True):
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=False):
             assert (
                 qmods2modelmods(Qt.KeyboardModifier.ControlModifier) == KeyMod.WinCtrl
             )
             assert qmods2modelmods(Qt.KeyboardModifier.MetaModifier) == KeyMod.CtrlCmd
 
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=True):
             assert (
                 qmods2modelmods(Qt.KeyboardModifier.ControlModifier) == KeyMod.CtrlCmd
             )
@@ -87,7 +87,7 @@ def test_qkeysequence2modelkeybinding() -> None:
     assert qkeysequence2modelkeybinding(seq) == app_key
 
     with patch.object(_qkeymap, "MAC", True):
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=False):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=False):
             # on Macs, unswapped, Meta -> Cmd
             seq = QKeySequence(
                 Qt.Modifier.META | Qt.Key.Key_M,
@@ -113,7 +113,7 @@ def test_qkeysequence2modelkeybinding() -> None:
             )
             assert qkeysequence2modelkeybinding(seq) == app_key
 
-        with patch.object(_qkeymap, "mac_ctrl_meta_swapped", return_value=True):
+        with patch.object(_qkeymap, "_mac_ctrl_meta_swapped", return_value=True):
             # on Mac swapped, Ctrl -> Meta/Cmd
             seq = QKeySequence(
                 Qt.Modifier.CTRL | Qt.Key.Key_M,
