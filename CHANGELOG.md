@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.1.2](https://github.com/pyapp-kit/app-model/tree/v0.1.2) (2023-03-07)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.1...v0.1.2)
+
+**Fixed bugs:**
+
+- fix: Fix typo in execute\_command method [\#86](https://github.com/pyapp-kit/app-model/pull/86) ([davidbrochart](https://github.com/davidbrochart))
+- fix: Fix ctrl meta key swap \(for real this time \(i think\)\) [\#82](https://github.com/pyapp-kit/app-model/pull/82) ([kne42](https://github.com/kne42))
+
+**Tests & CI:**
+
+- Precommit updates [\#88](https://github.com/pyapp-kit/app-model/pull/88) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: fix docs build \(add ToggleRule\) [\#79](https://github.com/pyapp-kit/app-model/pull/79) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: use hatch for build and ruff for linting [\#81](https://github.com/pyapp-kit/app-model/pull/81) ([tlambert03](https://github.com/tlambert03))
+- chore: rename napari org to pyapp-kit [\#78](https://github.com/pyapp-kit/app-model/pull/78) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.1.1](https://github.com/pyapp-kit/app-model/tree/v0.1.1) (2022-11-10)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.0...v0.1.1)
