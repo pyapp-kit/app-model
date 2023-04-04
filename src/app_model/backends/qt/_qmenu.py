@@ -29,66 +29,6 @@ if TYPE_CHECKING:
     from qtpy.QtWidgets import QAction, QWidget
 
 
-def _rebuild(
-    menu: QMenu | QToolBar,
-    app: Application,
-    menu_id: str,
-    include_submenus: bool = True,
-    exclude: Optional[Collection[str]] = None,
-) -> None:
-    """Rebuild menu by looking up self._menu_id in menu_registry."""
-    menu.clear()
-    _exclude = exclude or set()
-
-    groups = list(app.menus.iter_menu_groups(menu_id))
-    n_groups = len(groups)
-    for n, group in enumerate(groups):
-        for item in group:
-            if isinstance(item, SubmenuItem) and include_submenus:
-                submenu = QModelSubmenu(item, app, parent=menu)
-                cast("QMenu", menu).addMenu(submenu)
-            elif item.command.id not in _exclude:  # type: ignore
-                action = QMenuItemAction(item, app=app, parent=menu)  # type: ignore
-                menu.addAction(action)
-        if n < n_groups - 1:
-            menu.addSeparator()
-
-
-def _update_from_context(
-    actions: Iterable[QAction], ctx: Mapping[str, object], _recurse: bool = True
-) -> None:
-    """Update the enabled/visible state of each menu item with `ctx`.
-
-    See `app_model.expressions` for details on expressions.
-
-    Parameters
-    ----------
-    actions : Iterable[QAction]
-        Actions to update.
-    ctx : Mapping
-        A namespace that will be used to `eval()` the `'enablement'` and
-        `'when'` expressions provided for each action in the menu.
-        *ALL variables used in these expressions must either be present in
-        the `ctx` dict, or be builtins*.
-    _recurse : bool
-        recursion check, internal use only
-    """
-    for action in actions:
-        if isinstance(action, QMenuItemAction):
-            action.update_from_context(ctx)
-        elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
-            menu.update_from_context(ctx)
-        elif isinstance(parent := action.parent(), QModelMenu):
-            # FIXME: this is a hack for Qt6 that I don't entirely understand.
-            # QAction has lost the `.menu()` method, and it's a bit hard to find
-            # how to get to the parent menu now. Checking parent() seems to work,
-            # but I'm not sure if it's the right thing to do, and it leads to a
-            # recursion error.  I stop it with the _recurse flag here, but I wonder
-            # whether that will cause other problems.
-            if _recurse:
-                parent.update_from_context(ctx, _recurse=False)
-
-
 class QModelMenu(QMenu):
     """QMenu for a menu_id in an `app_model` MenusRegistry.
 
@@ -98,6 +38,8 @@ class QModelMenu(QMenu):
         Menu ID to look up in the registry.
     app : Union[str, Application]
         Application instance or name of application instance.
+    title : Optional[str]
+        Optional title for the menu, by default None
     parent : Optional[QWidget]
         Optional parent widget, by default None
     """
@@ -120,6 +62,7 @@ class QModelMenu(QMenu):
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
         self.destroyed.connect(self._disconnect)
+        # ----------------------
 
         if title is not None:
             self.setTitle(title)
@@ -220,7 +163,21 @@ class QModelSubmenu(QModelMenu):
 
 
 class QModelToolBar(QToolBar):
-    """QToolBar that is built from a list of model menu ids."""
+    """QToolBar that is built from a list of model menu ids.
+
+    Parameters
+    ----------
+    menu_id : str
+        Menu ID to look up in the registry.
+    app : Union[str, Application]
+        Application instance or name of application instance.
+    exclude : Optional[Collection[str]]
+        Optional list of menu ids to exclude from the toolbar, by default None
+    title : Optional[str]
+        Optional title for the menu, by default None
+    parent : Optional[QWidget]
+        Optional parent widget, by default None
+    """
 
     def __init__(
         self,
@@ -243,6 +200,7 @@ class QModelToolBar(QToolBar):
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
         self.destroyed.connect(self._disconnect)
+        # ----------------------
 
         if title is not None:
             self.setWindowTitle(title)
@@ -266,7 +224,7 @@ class QModelToolBar(QToolBar):
             app=self._app,
             menu_id=self._menu_id,
             include_submenus=include_submenus,
-            exclude=self._exclude,  # add comment as to why not use exclude?
+            exclude=self._exclude if exclude is None else exclude,
         )
 
     def update_from_context(
@@ -320,17 +278,65 @@ class QModelMenuBar(QMenuBar):
         _recurse : bool
             recursion check, internal use only
         """
-        for action in self.actions():
-            if isinstance(action, QMenuItemAction):
-                action.update_from_context(ctx)
-            elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
-                menu.update_from_context(ctx)
-            elif isinstance(parent := action.parent(), QModelMenu):
-                # FIXME: this is a hack for Qt6 that I don't entirely understand.
-                # QAction has lost the `.menu()` method, and it's a bit hard to find
-                # how to get to the parent menu now. Checking parent() seems to work,
-                # but I'm not sure if it's the right thing to do, and it leads to a
-                # recursion error.  I stop it with the _recurse flag here, but I wonder
-                # whether that will cause other problems.
-                if _recurse:
-                    parent.update_from_context(ctx, _recurse=False)
+        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+
+
+def _rebuild(
+    menu: QMenu | QToolBar,
+    app: Application,
+    menu_id: str,
+    include_submenus: bool = True,
+    exclude: Optional[Collection[str]] = None,
+) -> None:
+    """Rebuild menu by looking up `menu` in `Application`'s menu_registry."""
+    menu.clear()
+    _exclude = exclude or set()
+
+    groups = list(app.menus.iter_menu_groups(menu_id))
+    n_groups = len(groups)
+    for n, group in enumerate(groups):
+        for item in group:
+            if isinstance(item, SubmenuItem):
+                if include_submenus:
+                    submenu = QModelSubmenu(item, app, parent=menu)
+                    cast("QMenu", menu).addMenu(submenu)
+            elif item.command.id not in _exclude:
+                action = QMenuItemAction(item, app=app, parent=menu)
+                menu.addAction(action)
+        if n < n_groups - 1:
+            menu.addSeparator()
+
+
+def _update_from_context(
+    actions: Iterable[QAction], ctx: Mapping[str, object], _recurse: bool = True
+) -> None:
+    """Update the enabled/visible state of each menu item with `ctx`.
+
+    See `app_model.expressions` for details on expressions.
+
+    Parameters
+    ----------
+    actions : Iterable[QAction]
+        Actions to update.
+    ctx : Mapping
+        A namespace that will be used to `eval()` the `'enablement'` and
+        `'when'` expressions provided for each action in the menu.
+        *ALL variables used in these expressions must either be present in
+        the `ctx` dict, or be builtins*.
+    _recurse : bool
+        recursion check, internal use only
+    """
+    for action in actions:
+        if isinstance(action, QMenuItemAction):
+            action.update_from_context(ctx)
+        elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
+            menu.update_from_context(ctx)
+        elif isinstance(parent := action.parent(), QModelMenu):
+            # FIXME: this is a hack for Qt6 that I don't entirely understand.
+            # QAction has lost the `.menu()` method, and it's a bit hard to find
+            # how to get to the parent menu now. Checking parent() seems to work,
+            # but I'm not sure if it's the right thing to do, and it leads to a
+            # recursion error.  I stop it with the _recurse flag here, but I wonder
+            # whether that will cause other problems.
+            if _recurse:
+                parent.update_from_context(ctx, _recurse=False)
