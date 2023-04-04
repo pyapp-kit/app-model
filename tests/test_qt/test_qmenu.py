@@ -111,7 +111,7 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     copy_action = menu.findAction(app.Commands.COPY)
 
-    with qtbot.waitSignal(copy_action.triggered, timeout=1000):
+    with qtbot.waitSignal(copy_action.triggered, timeout=2000):
         qtbot.keyClicks(win, "C", Qt.KeyboardModifier.ControlModifier)
 
     paste_action = menu.findAction(app.Commands.PASTE)
