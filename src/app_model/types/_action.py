@@ -6,7 +6,7 @@ from pydantic import Field, validator
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule
-from ._menu_rule import MenuRule
+from ._menu_rule import MenuRuleOrDict
 from ._utils import _validate_python_name
 
 # maintain runtime compatibility with older typing_extensions
@@ -41,7 +41,7 @@ class Action(CommandRule, Generic[P, R]):
         "`{obj.__module__}:{obj.__qualname__}` "
         "(e.g. `my_package.a_module:some_function`)",
     )
-    menus: Optional[List[MenuRule]] = Field(
+    menus: Optional[List[MenuRuleOrDict]] = Field(
         None,
         description="(Optional) Menus to which this action should be added.",
     )
