@@ -122,7 +122,10 @@ keep-runtime-typing = true
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = ["error", "ignore:QPixmapCache.find:DeprecationWarning:"]
+filterwarnings = [
+    "error",
+    "ignore:Enum value:DeprecationWarning:superqt",
+]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]

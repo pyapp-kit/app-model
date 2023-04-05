@@ -9,7 +9,7 @@ from ._qkeymap import (
     qmods2modelmods,
 )
 from ._qmainwindow import QModelMainWindow
-from ._qmenu import QModelMenu, QModelMenuBar, QModelSubmenu
+from ._qmenu import QModelMenu, QModelMenuBar, QModelSubmenu, QModelToolBar
 from ._util import to_qicon
 
 __all__ = [
@@ -25,6 +25,7 @@ __all__ = [
     "QModelMenu",
     "QModelMenuBar",
     "QModelSubmenu",
+    "QModelToolBar",
     "qmods2modelmods",
     "to_qicon",
 ]
