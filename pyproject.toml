@@ -84,20 +84,19 @@ src_paths = ["src/app_model", "tests"]
 line-length = 88
 src = ["src", "tests"]
 target-version = "py38"
-extend-select = [
+select = [
     "E",    # style errors
+    "W",    # style warnings
     "F",    # flakes
     "D",    # pydocstyle
-    "I", # isort
-    "U",    # pyupgrade
-    # "N",  # pep8-naming
-    # "S",  # bandit
-    "C",    # flake8-comprehensions
+    "I",    # isort
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     "RUF",  # ruff-specific rules
 ]
-extend-ignore = [
+ignore = [
     "D100", # Missing docstring in public module
     "D107", # Missing docstring in __init__
     "D203", # 1 blank line required before class docstring
@@ -133,6 +132,7 @@ disallow_any_generics = false
 disallow_subclassing_any = false
 show_error_codes = true
 pretty = true
+plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = ["tests.*"]
