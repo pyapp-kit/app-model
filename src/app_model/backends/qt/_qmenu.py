@@ -77,20 +77,7 @@ class QModelMenu(QMenu):
             Action ID to find. Note that `QCommandAction` have `ObjectName` set
             to their `command.id`
         """
-        return next((a for a in self.actions() if a.objectName() == object_name), None)
-
-    def _on_about_to_show(self) -> None:
-        # this would also be a reasonable place to call
-        for action in self.actions():
-            if isinstance(action, QCommandRuleAction):
-                action._refresh()
-
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
-
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
-        if self._menu_id in changed_ids:
-            self.rebuild()
+        return _find_action(self.actions(), object_name)
 
     def update_from_context(
         self, ctx: Mapping[str, object], _recurse: bool = True
@@ -122,6 +109,19 @@ class QModelMenu(QMenu):
             include_submenus=include_submenus,
             exclude=exclude,
         )
+
+    def _on_about_to_show(self) -> None:
+        # this would also be a reasonable place to call
+        for action in self.actions():
+            if isinstance(action, QCommandRuleAction):
+                action._refresh()
+
+    def _disconnect(self) -> None:
+        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+
+    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+        if self._menu_id in changed_ids:
+            self.rebuild()
 
 
 class QModelSubmenu(QModelMenu):
@@ -208,24 +208,16 @@ class QModelToolBar(QToolBar):
     def addMenu(self, menu: QMenu) -> None:
         """No-op for toolbar."""
 
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+        """Find an action by its ObjectName.
 
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
-        if self._menu_id in changed_ids:
-            self.rebuild()
-
-    def rebuild(
-        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
-    ) -> None:
-        """Rebuild toolbar by looking up self._menu_id in menu_registry."""
-        _rebuild(
-            menu=self,
-            app=self._app,
-            menu_id=self._menu_id,
-            include_submenus=include_submenus,
-            exclude=self._exclude if exclude is None else exclude,
-        )
+        Parameters
+        ----------
+        object_name : str
+            Action ID to find. Note that `QCommandAction` have `ObjectName` set
+            to their `command.id`
+        """
+        return _find_action(self.actions(), object_name)
 
     def update_from_context(
         self, ctx: Mapping[str, object], _recurse: bool = True
@@ -245,6 +237,25 @@ class QModelToolBar(QToolBar):
             recursion check, internal use only
         """
         _update_from_context(self.actions(), ctx, _recurse=_recurse)
+
+    def rebuild(
+        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+    ) -> None:
+        """Rebuild toolbar by looking up self._menu_id in menu_registry."""
+        _rebuild(
+            menu=self,
+            app=self._app,
+            menu_id=self._menu_id,
+            include_submenus=include_submenus,
+            exclude=self._exclude if exclude is None else exclude,
+        )
+
+    def _disconnect(self) -> None:
+        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+
+    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+        if self._menu_id in changed_ids:
+            self.rebuild()
 
 
 class QModelMenuBar(QMenuBar):
@@ -340,3 +351,7 @@ def _update_from_context(
             # whether that will cause other problems.
             if _recurse:
                 parent.update_from_context(ctx, _recurse=False)
+
+
+def _find_action(actions: Iterable[QAction], object_name: str) -> Union[QAction, None]:
+    return next((a for a in actions if a.objectName() == object_name), None)

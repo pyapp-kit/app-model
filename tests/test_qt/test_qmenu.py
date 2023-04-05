@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QAction, QMainWindow
 
-from app_model.backends.qt import QModelMenu
+from app_model.backends.qt import QModelMenu, QModelToolBar
 
 if TYPE_CHECKING:
     from pytestqt.plugin import QtBot
@@ -16,10 +18,13 @@ SEP = ""
 LINUX = sys.platform.startswith("linux")
 
 
-def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
+@pytest.mark.parametrize("MenuCls", [QModelMenu, QModelToolBar])
+def test_menu(
+    MenuCls: type[QModelMenu] | type[QModelToolBar], qtbot: QtBot, full_app: FullApp
+) -> None:
     app = full_app
 
-    menu = QModelMenu(app.Menus.EDIT, app)
+    menu = MenuCls(app.Menus.EDIT, app)
     qtbot.addWidget(menu)
 
     # The "" are separators, according to our group settings in full_app
@@ -28,12 +33,12 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     # check that triggering the actions calls the associated commands
     for cmd in (app.Commands.UNDO, app.Commands.REDO):
-        action: QAction = menu.findAction(cmd)
+        action = cast(QAction, menu.findAction(cmd))
         with qtbot.waitSignal(action.triggered):
             action.trigger()
             getattr(app.mocks, cmd).assert_called_once()
 
-    redo_action: QAction = menu.findAction(app.Commands.REDO)
+    redo_action = cast(QAction, menu.findAction(app.Commands.REDO))
 
     assert redo_action.isVisible()
     assert redo_action.isEnabled()
@@ -59,8 +64,10 @@ def test_menu(qtbot: "QtBot", full_app: "FullApp") -> None:
     with pytest.raises(NameError, match="Names required to eval this expression"):
         menu.update_from_context({})
 
+    menu._disconnect()
 
-def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
+
+def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
     app = full_app
 
     menu = QModelMenu(app.Menus.FILE, app)
@@ -97,7 +104,7 @@ def test_submenu(qtbot: "QtBot", full_app: "FullApp") -> None:
 
 @pytest.mark.filterwarnings("ignore:QPixmapCache.find:")
 @pytest.mark.skipif(LINUX, reason="Linux keytest not working")
-def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
+def test_shortcuts(qtbot: QtBot, full_app: FullApp) -> None:
     app = full_app
 
     win = QMainWindow()
@@ -119,7 +126,7 @@ def test_shortcuts(qtbot: "QtBot", full_app: "FullApp") -> None:
         qtbot.keyClicks(win, "V", Qt.KeyboardModifier.ControlModifier)
 
 
-def test_toggled_menu_item(qtbot: "QtBot", full_app: "FullApp") -> None:
+def test_toggled_menu_item(qtbot: QtBot, full_app: FullApp) -> None:
     app = full_app
     menu = QModelMenu(app.Menus.HELP, app)
     qtbot.addWidget(menu)
@@ -130,3 +137,29 @@ def test_toggled_menu_item(qtbot: "QtBot", full_app: "FullApp") -> None:
 
     menu.update_from_context({"thing_toggled": False})
     assert not action.isChecked()
+
+
+@pytest.mark.parametrize("MenuCls", [QModelMenu, QModelToolBar])
+def test_menu_events(
+    MenuCls: type[QModelMenu] | type[QModelToolBar], qtbot: QtBot, full_app: FullApp
+) -> None:
+    app = full_app
+    menu = MenuCls(app.Menus.EDIT, app)
+
+    qtbot.addWidget(menu)
+
+    # The "" are separators, according to our group settings in full_app
+    menu_texts = [a.text() for a in menu.actions()]
+    assert menu_texts == ["AtTop", SEP, "Undo", "Redo", SEP, "Copy", "Paste"]
+
+    # simulate something changing the edit menu... normally this would be
+    # triggered by a dispose() call, but that's a bit hard to do currently with the
+    # test app fixture.
+    copy_item = next(
+        x for x in full_app.menus._menu_items["edit"] if x.command.title == "Copy"
+    )
+    full_app.menus._menu_items["edit"].pop(copy_item)
+    full_app.menus.menus_changed.emit(app.Menus.EDIT)
+
+    menu_texts = [a.text() for a in menu.actions()]
+    assert menu_texts == ["AtTop", SEP, "Undo", "Redo", SEP, "Paste"]
