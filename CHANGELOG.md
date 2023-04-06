@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3](https://github.com/pyapp-kit/app-model/tree/0.1.3) (2023-04-06)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.2...0.1.3)
+
+**Merged pull requests:**
+
+- fix: don't use mixin for menus [\#95](https://github.com/pyapp-kit/app-model/pull/95) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#92](https://github.com/pyapp-kit/app-model/pull/92) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.1.2](https://github.com/pyapp-kit/app-model/tree/v0.1.2) (2023-03-07)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.1...v0.1.2)
