@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, TypedDict, TypeVar, Union
+from typing import Any, Callable, Optional, Type, TypedDict, TypeVar, Union
 
 from pydantic import Field
 
@@ -71,7 +71,7 @@ class KeyBindingRule(_BaseModel):
     @model_validator(mode="wrap")
     @classmethod
     def _model_val(
-        cls: type[M], v: Any, handler: Callable[[Any], M]
+        cls: Type[M], v: Any, handler: Callable[[Any], M]
     ) -> "KeyBindingRule":
         if isinstance(v, StandardKeyBinding):
             return v.to_keybinding_rule()
