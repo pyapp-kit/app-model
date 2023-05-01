@@ -60,13 +60,9 @@ class SimpleKeyBinding(BaseModel):
         # sourcery skip: remove-unnecessary-cast
         if not isinstance(other, SimpleKeyBinding):
             try:
-                if isinstance(other, dict):
-                    other = SimpleKeyBinding(**other)
-                else:
-                    other = SimpleKeyBinding._parse_input(other)
+                if (other := SimpleKeyBinding._parse_input(other)) is None:
+                    return NotImplemented
             except TypeError:
-                return NotImplemented
-            if other is None:
                 return NotImplemented
         return bool(
             self.ctrl == other.ctrl
@@ -136,7 +132,7 @@ class SimpleKeyBinding(BaseModel):
 
     @classmethod
     def _validate(cls, input: Any) -> "SimpleKeyBinding":
-        return cls._parse_input(input) or cls(**input)
+        return cls._parse_input(input) or cls(**input)  # pragma: no cover
 
     # for v2
     @model_validator(mode="wrap")
