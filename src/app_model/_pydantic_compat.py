@@ -15,6 +15,7 @@ if PYDANTIC2:
         return obj.model_dump_json(*args, **kwargs)
 
 else:
+    from pydantic import validator as validator  # noqa
 
     def asdict(obj: BaseModel, *args, **kwargs):
         return obj.dict(*args, **kwargs)

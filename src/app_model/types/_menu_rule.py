@@ -9,9 +9,9 @@ from typing import (
 )
 
 from pydantic import Field
-from app_model._pydantic_compat import validator
 
 from app_model import expressions
+from app_model._pydantic_compat import validator
 
 from ._base import _BaseModel
 from ._command_rule import CommandRule
