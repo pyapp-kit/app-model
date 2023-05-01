@@ -6,8 +6,18 @@ PYDANTIC2 = __version__.startswith("2")
 M = TypeVar("M", bound=BaseModel)
 C = TypeVar("C", bound=Callable[..., Any])
 
+
+# no-op for v1, put first for typing.
+def model_validator(*, mode: Literal["wrap", "before", "after"]) -> Callable[[C], C]:
+    def decorator(func: C) -> C:
+        return func
+
+    return decorator
+
+
 if PYDANTIC2:
     from pydantic import field_validator  # type: ignore
+    from pydantic import model_validator as model_validator  # type: ignore # noqa
 
     def validator(*args: Any, **kwargs: Any) -> Callable[[Callable], Callable]:
         return field_validator(*args, **kwargs)  # type: ignore
@@ -18,18 +28,8 @@ if PYDANTIC2:
     def asjson(obj: BaseModel, *args: Any, **kwargs: Any) -> str:
         return obj.model_dump_json(*args, **kwargs)  # type: ignore
 
-    # no-op for v1
-    def model_validator(
-        *, mode: Literal["wrap", "before", "after"]
-    ) -> Callable[[C], C]:
-        def decorator(func: C) -> C:
-            return func
-
-        return decorator
-
 else:
     from pydantic import validator as validator  # type: ignore # noqa
-    from pydantic import model_validator as model_validator  # type: ignore # noqa
 
     def asdict(obj: BaseModel, *args: Any, **kwargs: Any) -> dict:
         return obj.dict(*args, **kwargs)
