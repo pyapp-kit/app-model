@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional
 
 from pydantic import BaseModel, Field
 
+from app_model._pydantic_compat import PYDANTIC2
 from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod
@@ -162,6 +163,9 @@ class SimpleKeyBinding(BaseModel):
     #     return core_schema.str_schema()
 
 
+MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
+
+
 class KeyBinding:
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
@@ -176,7 +180,7 @@ class KeyBinding:
     def __init__(self, *, parts: List[SimpleKeyBinding]):
         self.parts = parts
 
-    parts: List[SimpleKeyBinding] = Field(..., min_items=1)
+    parts: List[SimpleKeyBinding] = Field(..., **MIN1)
 
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)

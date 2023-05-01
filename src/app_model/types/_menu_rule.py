@@ -8,7 +8,8 @@ from typing import (
     Union,
 )
 
-from pydantic import Field, validator
+from pydantic import Field
+from app_model._pydantic_compat import validator
 
 from app_model import expressions
 
