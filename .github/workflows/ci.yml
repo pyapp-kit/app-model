@@ -75,7 +75,11 @@ jobs:
           pip install git+https://github.com/pydantic/pydantic
 
       - name: Test
-        run: pytest -s --color=yes
+        run: pytest --color=yes --cov=app_model --cov-report=xml
+
+      - name: Coverage
+        uses: codecov/codecov-action@v3
+
 
   test-qt:
     name: ${{ matrix.platform }} ${{ matrix.qt-backend }} (${{ matrix.python-version }})
