@@ -1,5 +1,6 @@
 from enum import IntEnum, IntFlag, auto
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -11,6 +12,10 @@ from typing import (
     Union,
     overload,
 )
+
+if TYPE_CHECKING:
+    from pydantic.annotated import GetCoreSchemaHandler  # type: ignore [attr-defined]
+    from pydantic_core import core_schema
 
 __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
@@ -166,6 +171,14 @@ class KeyCode(IntEnum):
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., 'KeyCode'], None, None]:
         yield cls.validate
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type, handler: 'GetCoreSchemaHandler'
+    ) -> 'core_schema.CoreSchema':
+        from pydantic_core import core_schema
+
+        return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, value: Any) -> 'KeyCode':

@@ -49,7 +49,7 @@ class MenusRegistry:
         changed_ids: Set[str] = set()
         disposers: List[Callable[[], None]] = []
         for menu_id, item in items:
-            item = MenuItem.validate(item)  # type: ignore
+            item = MenuItem._validate(item)  # type: ignore
             menu_dict = self._menu_items.setdefault(menu_id, {})
             menu_dict[item] = None
             changed_ids.add(menu_id)

@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -7,12 +7,26 @@ from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod
 
+if TYPE_CHECKING:
+    from pydantic.annotated import GetCoreSchemaHandler  # type: ignore [attr-defined]
+    from pydantic_core import core_schema
+
 _re_ctrl = re.compile(r"ctrl[\+|\-]")
 _re_shift = re.compile(r"shift[\+|\-]")
 _re_alt = re.compile(r"alt[\+|\-]")
 _re_meta = re.compile(r"meta[\+|\-]")
 _re_win = re.compile(r"win[\+|\-]")
 _re_cmd = re.compile(r"cmd[\+|\-]")
+
+try:
+    from pydantic import model_validator
+except ImportError:
+
+    def model_validator(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
 
 
 class SimpleKeyBinding(BaseModel):
@@ -55,8 +69,13 @@ class SimpleKeyBinding(BaseModel):
         # sourcery skip: remove-unnecessary-cast
         if not isinstance(other, SimpleKeyBinding):
             try:
-                other = SimpleKeyBinding.validate(other)
+                if isinstance(other, dict):
+                    other = SimpleKeyBinding(**other)
+                else:
+                    other = SimpleKeyBinding._parse_input(other)
             except TypeError:
+                return NotImplemented
+            if other is None:
                 return NotImplemented
         return bool(
             self.ctrl == other.ctrl
@@ -111,19 +130,36 @@ class SimpleKeyBinding(BaseModel):
         return mods | (self.key or 0)
 
     @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate  # pragma: no cover
-
-    @classmethod
-    def validate(cls, v: Any) -> "SimpleKeyBinding":
-        """Validate a SimpleKeyBinding."""
+    def _parse_input(cls, v) -> Optional["SimpleKeyBinding"]:
         if isinstance(v, SimpleKeyBinding):
             return v
         if isinstance(v, str):
             return cls.from_str(v)
         if isinstance(v, int):
             return cls.from_int(v)
-        return super().validate(v)
+        return None
+
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
+        yield cls._validate  # pragma: no cover
+
+    @classmethod
+    def _validate(cls, input: Any) -> "SimpleKeyBinding":
+        return cls._parse_input(input) or cls(**input)
+
+    # for v2
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(cls, input: Any, handler) -> "SimpleKeyBinding":
+        return cls._parse_input(input) or handler(input)
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type, handler: "GetCoreSchemaHandler"
+    ) -> "core_schema.CoreSchema":
+        from pydantic_core import core_schema
+
+        return core_schema.str_schema()
 
 
 class KeyBinding:
@@ -210,6 +246,14 @@ class KeyBinding:
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
         yield cls.validate  # pragma: no cover
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type, handler: "GetCoreSchemaHandler"
+    ) -> "core_schema.CoreSchema":
+        from pydantic_core import core_schema
+
+        return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, v: Any) -> "KeyBinding":

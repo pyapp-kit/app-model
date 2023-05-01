@@ -25,7 +25,7 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
 
     # we can compare it with another SimpleKeyBinding
     # using validate method just for test coverage... will pass to from_str
-    assert kb == SimpleKeyBinding.validate(f"{_mod}{key}")
+    assert kb == SimpleKeyBinding._parse_input(f"{_mod}{key}")
     # or with a string
     assert kb == f"{_mod}{key}"
     assert kb != ["A", "B"]  # check type error during comparison
@@ -33,8 +33,8 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
     # round trip to int
     assert isinstance(kb.to_int(), KeyCombo)
     # using validate method just for test coverage... will pass to from_int
-    assert SimpleKeyBinding.validate(int(kb)) == kb
-    assert SimpleKeyBinding.validate(kb) == kb
+    assert SimpleKeyBinding._parse_input(int(kb)) == kb
+    assert SimpleKeyBinding._parse_input(kb) == kb
 
     # first part of a Keybinding is a simple keybinding
     as_full_kb = KeyBinding.validate(kb)

@@ -1,4 +1,12 @@
-from typing import Any, Callable, Generator, Optional, Type, TypedDict, Union
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    Optional,
+    Type,
+    TypedDict,
+    Union,
+)
 
 from pydantic import Field, validator
 
@@ -32,10 +40,10 @@ class _MenuItemBase(_BaseModel):
 
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate
+        yield cls._validate
 
     @classmethod
-    def validate(cls: Type["_MenuItemBase"], v: Any) -> "_MenuItemBase":
+    def _validate(cls: Type["_MenuItemBase"], v: Any) -> "_MenuItemBase":
         """Validate icon."""
         if isinstance(v, _MenuItemBase):
             return v
@@ -46,7 +54,7 @@ class _MenuItemBase(_BaseModel):
                 return MenuRule(**v)
             if "submenu" in v:
                 return SubmenuItem(**v)
-        raise TypeError(f"Invalid menu item: {v!r}", cls)  # pragma: no cover
+        raise ValueError(f"Invalid menu item: {v!r}", cls)  # pragma: no cover
 
 
 class MenuRule(_MenuItemBase):

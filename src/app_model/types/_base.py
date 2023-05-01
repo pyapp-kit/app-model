@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
 class _BaseModel(BaseModel):
@@ -7,5 +7,5 @@ class _BaseModel(BaseModel):
     class Config:
         # don't switch to exclude ... it makes it hard to add fields to the
         # schema without breaking backwards compatibility
-        extra = Extra.ignore
+        extra = "ignore"
         frozen = True
