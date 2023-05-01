@@ -15,6 +15,16 @@ _WIN = _OS.is_windows
 _MAC = _OS.is_mac
 _LINUX = _OS.is_linux
 
+try:
+    from pydantic import model_validator
+except ImportError:
+
+    def model_validator(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
 
 class KeyBindingRule(_BaseModel):
     """Data representing a keybinding and when it should be active.
@@ -64,6 +74,14 @@ class KeyBindingRule(_BaseModel):
         if isinstance(value, StandardKeyBinding):
             return value.to_keybinding_rule()
         return super().validate(value)
+
+    # for v2
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(cls, v: Any, handler) -> "KeyBindingRule":
+        if isinstance(v, StandardKeyBinding):
+            return v.to_keybinding_rule()
+        return handler(v)
 
 
 class KeyBindingRuleDict(TypedDict, total=False):
