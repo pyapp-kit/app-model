@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional
 
 from pydantic import BaseModel, Field
 
-from app_model._pydantic_compat import PYDANTIC2
+from app_model._pydantic_compat import PYDANTIC2, model_validator
 from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler  # type: ignore [attr-defined]
+    from pydantic.annotated import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
 _re_ctrl = re.compile(r"ctrl[\+|\-]")
@@ -18,16 +18,6 @@ _re_alt = re.compile(r"alt[\+|\-]")
 _re_meta = re.compile(r"meta[\+|\-]")
 _re_win = re.compile(r"win[\+|\-]")
 _re_cmd = re.compile(r"cmd[\+|\-]")
-
-try:
-    from pydantic import model_validator
-except ImportError:
-
-    def model_validator(*args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
 
 
 class SimpleKeyBinding(BaseModel):
@@ -131,7 +121,7 @@ class SimpleKeyBinding(BaseModel):
         return mods | (self.key or 0)
 
     @classmethod
-    def _parse_input(cls, v) -> Optional["SimpleKeyBinding"]:
+    def _parse_input(cls, v: Any) -> Optional["SimpleKeyBinding"]:
         if isinstance(v, SimpleKeyBinding):
             return v
         if isinstance(v, str):
@@ -151,16 +141,10 @@ class SimpleKeyBinding(BaseModel):
     # for v2
     @model_validator(mode="wrap")
     @classmethod
-    def _model_val(cls, input: Any, handler) -> "SimpleKeyBinding":
+    def _model_val(
+        cls, input: Any, handler: Callable[[Any], "SimpleKeyBinding"]
+    ) -> "SimpleKeyBinding":
         return cls._parse_input(input) or handler(input)
-
-    # @classmethod
-    # def __get_pydantic_core_schema__(
-    #     cls, source: type, handler: "GetCoreSchemaHandler"
-    # ) -> "core_schema.CoreSchema":
-    #     from pydantic_core import core_schema
-
-    #     return core_schema.str_schema()
 
 
 MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
@@ -180,7 +164,7 @@ class KeyBinding:
     def __init__(self, *, parts: List[SimpleKeyBinding]):
         self.parts = parts
 
-    parts: List[SimpleKeyBinding] = Field(..., **MIN1)
+    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)

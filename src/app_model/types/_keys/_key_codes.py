@@ -14,7 +14,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler  # type: ignore [attr-defined]
+    from pydantic.annotated import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
 __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]

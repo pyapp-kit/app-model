@@ -1,21 +1,10 @@
-from typing import TYPE_CHECKING, Any, Callable, Generator, Optional, TypedDict, Union
+from typing import Any, Callable, Generator, Optional, TypedDict, Union
 
 from pydantic import Field
 
+from app_model._pydantic_compat import model_validator
+
 from ._base import _BaseModel
-
-if TYPE_CHECKING:
-    pass
-
-try:
-    from pydantic import model_validator
-except ImportError:
-
-    def model_validator(*args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
 
 
 class Icon(_BaseModel):
@@ -53,7 +42,7 @@ class Icon(_BaseModel):
     # for v2
     @model_validator(mode="wrap")
     @classmethod
-    def _model_val(cls, v: Any, handler) -> "Icon":
+    def _model_val(cls, v: Any, handler: Callable[[Any], "Icon"]) -> "Icon":
         if isinstance(v, str):
             v = {"dark": v, "light": v}
         return handler(v)

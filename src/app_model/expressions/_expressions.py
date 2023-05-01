@@ -56,7 +56,7 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler  # type: ignore [attr-defined]
+    from pydantic.annotated import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
     from ._context_keys import ContextKey
