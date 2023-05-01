@@ -333,10 +333,6 @@ class Expr(ast.AST, Generic[T]):
 
         return core_schema.no_info_plain_validator_function(cls._validate)
 
-    # @classmethod
-    # def __get_pydantic_json_schema__(cls, core_schema, handler):
-    #     return dict(type="integer", multipleOf=2, examples=[2, 4, 6])
-
     @classmethod
     def _validate(cls, v: Any) -> Expr:
         """Validate v as an `Expr`. For use with Pydantic."""

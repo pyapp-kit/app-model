@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Callable, Literal, TypeVar
 
 from pydantic import BaseModel, __version__
@@ -36,3 +38,7 @@ else:
 
     def asjson(obj: BaseModel, *args: Any, **kwargs: Any) -> str:
         return obj.json(*args, **kwargs)
+
+
+def model_config(**kwargs: Any) -> dict | type:
+    return kwargs if PYDANTIC2 else type("Config", (), kwargs)

@@ -1,17 +1,16 @@
-from pydantic import BaseModel, __version__
+from pydantic import BaseModel
 
-PYDANTIC2 = __version__.startswith("2")
+from app_model._pydantic_compat import PYDANTIC2, model_config
+
+# don't switch to exclude ... it makes it hard to add fields to the
+# schema without breaking backwards compatibility
+_config = model_config(extra="ignore", frozen=True)
 
 
 class _BaseModel(BaseModel):
     """Base model for all types."""
 
     if PYDANTIC2:
-        model_config = {"extra": "ignore", "frozen": True}
+        model_config = _config
     else:
-
-        class Config:
-            # don't switch to exclude ... it makes it hard to add fields to the
-            # schema without breaking backwards compatibility
-            extra = "ignore"
-            frozen = True
+        Config = _config  # type: ignore
