@@ -106,7 +106,8 @@ def test_in_model():
             json_encoders = {KeyBinding: str}
 
     m = M(key="Shift+A B")
-    assert m.json() == '{"key": "Shift+A B"}'
+    # pydantic v1 and v2 have slightly different json outputs
+    assert m.json().replace('": "', '":"') == '{"key":"Shift+A B"}'
 
 
 def test_standard_keybindings():

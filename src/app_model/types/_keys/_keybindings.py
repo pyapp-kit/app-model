@@ -153,13 +153,13 @@ class SimpleKeyBinding(BaseModel):
     def _model_val(cls, input: Any, handler) -> "SimpleKeyBinding":
         return cls._parse_input(input) or handler(input)
 
-    @classmethod
-    def __get_pydantic_core_schema__(
-        cls, source: type, handler: "GetCoreSchemaHandler"
-    ) -> "core_schema.CoreSchema":
-        from pydantic_core import core_schema
+    # @classmethod
+    # def __get_pydantic_core_schema__(
+    #     cls, source: type, handler: "GetCoreSchemaHandler"
+    # ) -> "core_schema.CoreSchema":
+    #     from pydantic_core import core_schema
 
-        return core_schema.str_schema()
+    #     return core_schema.str_schema()
 
 
 class KeyBinding:
@@ -253,7 +253,9 @@ class KeyBinding:
     ) -> "core_schema.CoreSchema":
         from pydantic_core import core_schema
 
-        return core_schema.no_info_plain_validator_function(cls.validate)
+        return core_schema.no_info_plain_validator_function(
+            cls.validate, serialization=core_schema.to_string_ser_schema()
+        )
 
     @classmethod
     def validate(cls, v: Any) -> "KeyBinding":
