@@ -70,9 +70,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -e .[test]
-          pip uninstall -y pydantic
-          # until @model_validator gets merged
-          pip install git+https://github.com/pydantic/pydantic
+          pip install -U --pre pydantic
 
       - name: Test
         run: pytest --color=yes --cov=app_model --cov-report=xml
