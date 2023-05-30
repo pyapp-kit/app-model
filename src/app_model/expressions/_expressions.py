@@ -56,6 +56,9 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
+    from pydantic.annotated import GetCoreSchemaHandler
+    from pydantic_core import core_schema
+
     from ._context_keys import ContextKey
 
 
@@ -320,10 +323,18 @@ class Expr(ast.AST, Generic[T]):
     @classmethod
     def __get_validators__(cls) -> Iterator[Callable[[Any], Expr]]:
         """Pydantic validators for this class."""
-        yield cls.validate
+        yield cls._validate
 
     @classmethod
-    def validate(cls, v: Any) -> Expr:
+    def __get_pydantic_core_schema__(
+        cls, source: type, handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        from pydantic_core import core_schema
+
+        return core_schema.no_info_plain_validator_function(cls._validate)
+
+    @classmethod
+    def _validate(cls, v: Any) -> Expr:
         """Validate v as an `Expr`. For use with Pydantic."""
         return v if isinstance(v, Expr) else parse_expression(v)
 

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
 
-from pydantic import Field, validator
+from pydantic import Field
+
+from app_model._pydantic_compat import validator
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule

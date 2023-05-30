@@ -75,4 +75,4 @@ class CommandRule(_BaseModel):
 
     def _as_command_rule(self) -> "CommandRule":
         """Simplify (subclasses) to a plain CommandRule."""
-        return CommandRule(**{f: getattr(self, f) for f in CommandRule.__fields__})
+        return CommandRule(**{f: getattr(self, f) for f in CommandRule.__annotations__})

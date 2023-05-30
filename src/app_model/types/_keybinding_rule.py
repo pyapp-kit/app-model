@@ -1,14 +1,16 @@
-from typing import Any, Optional, TypedDict, Union
+from typing import Any, Callable, Optional, Type, TypedDict, TypeVar, Union
 
 from pydantic import Field
 
 from app_model import expressions
+from app_model._pydantic_compat import model_validator
 
 from ._base import _BaseModel
 from ._constants import OperatingSystem
 from ._keys import StandardKeyBinding
 
 KeyEncoding = Union[int, str]
+M = TypeVar("M")
 
 _OS = OperatingSystem.current()
 _WIN = _OS.is_windows
@@ -64,6 +66,16 @@ class KeyBindingRule(_BaseModel):
         if isinstance(value, StandardKeyBinding):
             return value.to_keybinding_rule()
         return super().validate(value)
+
+    # for v2
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(
+        cls: Type[M], v: Any, handler: Callable[[Any], M]
+    ) -> "KeyBindingRule":
+        if isinstance(v, StandardKeyBinding):
+            return v.to_keybinding_rule()
+        return handler(v)  # type: ignore
 
 
 class KeyBindingRuleDict(TypedDict, total=False):

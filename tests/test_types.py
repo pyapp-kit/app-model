@@ -5,7 +5,7 @@ from app_model.types import Action, Icon
 
 
 def test_icon_validate():
-    assert Icon.validate('"fa6s.arrow_down"') == Icon(
+    assert Icon._validate('"fa6s.arrow_down"') == Icon(
         dark='"fa6s.arrow_down"', light='"fa6s.arrow_down"'
     )
 

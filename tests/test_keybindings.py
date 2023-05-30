@@ -3,6 +3,7 @@ import sys
 import pytest
 from pydantic import BaseModel
 
+from app_model._pydantic_compat import PYDANTIC2, asjson
 from app_model.types import (
     KeyBinding,
     KeyBindingRule,
@@ -25,7 +26,7 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
 
     # we can compare it with another SimpleKeyBinding
     # using validate method just for test coverage... will pass to from_str
-    assert kb == SimpleKeyBinding.validate(f"{_mod}{key}")
+    assert kb == SimpleKeyBinding._parse_input(f"{_mod}{key}")
     # or with a string
     assert kb == f"{_mod}{key}"
     assert kb != ["A", "B"]  # check type error during comparison
@@ -33,8 +34,8 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
     # round trip to int
     assert isinstance(kb.to_int(), KeyCombo)
     # using validate method just for test coverage... will pass to from_int
-    assert SimpleKeyBinding.validate(int(kb)) == kb
-    assert SimpleKeyBinding.validate(kb) == kb
+    assert SimpleKeyBinding._parse_input(int(kb)) == kb
+    assert SimpleKeyBinding._parse_input(kb) == kb
 
     # first part of a Keybinding is a simple keybinding
     as_full_kb = KeyBinding.validate(kb)
@@ -102,11 +103,14 @@ def test_in_model():
     class M(BaseModel):
         key: KeyBinding
 
-        class Config:
-            json_encoders = {KeyBinding: str}
+        if not PYDANTIC2:
+
+            class Config:
+                json_encoders = {KeyBinding: str}
 
     m = M(key="Shift+A B")
-    assert m.json() == '{"key": "Shift+A B"}'
+    # pydantic v1 and v2 have slightly different json outputs
+    assert asjson(m).replace('": "', '":"') == '{"key":"Shift+A B"}'
 
 
 def test_standard_keybindings():

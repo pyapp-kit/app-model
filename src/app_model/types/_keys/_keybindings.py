@@ -1,11 +1,16 @@
 import re
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
+from app_model._pydantic_compat import PYDANTIC2, model_validator
 from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod
+
+if TYPE_CHECKING:
+    from pydantic.annotated import GetCoreSchemaHandler
+    from pydantic_core import core_schema
 
 _re_ctrl = re.compile(r"ctrl[\+|\-]")
 _re_shift = re.compile(r"shift[\+|\-]")
@@ -55,8 +60,9 @@ class SimpleKeyBinding(BaseModel):
         # sourcery skip: remove-unnecessary-cast
         if not isinstance(other, SimpleKeyBinding):
             try:
-                other = SimpleKeyBinding.validate(other)
-            except TypeError:
+                if (other := SimpleKeyBinding._parse_input(other)) is None:
+                    return NotImplemented
+            except TypeError:  # pragma: no cover  # can happen with pydantic v2
                 return NotImplemented
         return bool(
             self.ctrl == other.ctrl
@@ -111,19 +117,33 @@ class SimpleKeyBinding(BaseModel):
         return mods | (self.key or 0)
 
     @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate  # pragma: no cover
-
-    @classmethod
-    def validate(cls, v: Any) -> "SimpleKeyBinding":
-        """Validate a SimpleKeyBinding."""
+    def _parse_input(cls, v: Any) -> Optional["SimpleKeyBinding"]:
         if isinstance(v, SimpleKeyBinding):
             return v
         if isinstance(v, str):
             return cls.from_str(v)
         if isinstance(v, int):
             return cls.from_int(v)
-        return super().validate(v)
+        return None
+
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
+        yield cls._validate  # pragma: no cover
+
+    @classmethod
+    def _validate(cls, input: Any) -> "SimpleKeyBinding":
+        return cls._parse_input(input) or cls(**input)  # pragma: no cover
+
+    # for v2
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(
+        cls, input: Any, handler: Callable[[Any], "SimpleKeyBinding"]
+    ) -> "SimpleKeyBinding":
+        return cls._parse_input(input) or handler(input)
+
+
+MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
 
 
 class KeyBinding:
@@ -140,7 +160,7 @@ class KeyBinding:
     def __init__(self, *, parts: List[SimpleKeyBinding]):
         self.parts = parts
 
-    parts: List[SimpleKeyBinding] = Field(..., min_items=1)
+    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)
@@ -210,6 +230,16 @@ class KeyBinding:
     @classmethod
     def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
         yield cls.validate  # pragma: no cover
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type, handler: "GetCoreSchemaHandler"
+    ) -> "core_schema.CoreSchema":
+        from pydantic_core import core_schema
+
+        return core_schema.no_info_plain_validator_function(
+            cls.validate, serialization=core_schema.to_string_ser_schema()
+        )
 
     @classmethod
     def validate(cls, v: Any) -> "KeyBinding":
