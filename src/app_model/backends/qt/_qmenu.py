@@ -4,7 +4,6 @@ from typing import (
     TYPE_CHECKING,
     Collection,
     Iterable,
-    List,
     Mapping,
     Optional,
     Set,
@@ -12,6 +11,7 @@ from typing import (
     cast,
 )
 
+from git import Sequence
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
 from app_model import Application
@@ -259,18 +259,30 @@ class QModelToolBar(QToolBar):
 
 
 class QModelMenuBar(QMenuBar):
-    """QMenuBar that is built from a list of model menu ids."""
+    """QMenuBar that is built from a list of model menu ids.
+
+    Parameters
+    ----------
+    menus : Mapping[str, str] | Sequence[str | tuple[str, str]]
+        A mapping of menu ids to menu titles or a sequence of menu ids.
+    app : Union[str, Application]
+        Application instance or name of application instance.
+    parent : Optional[QWidget]
+        Optional parent widget, by default None
+    """
 
     def __init__(
         self,
-        menus: List[str],
+        menus: Mapping[str, str] | Sequence[str | tuple[str, str]],
         app: Union[str, Application],
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
 
-        for menu_id in menus:
-            self.addMenu(QModelMenu(menu_id, app, "File", self))
+        menu_items = menus.items() if isinstance(menus, Mapping) else menus
+        for item in menu_items:
+            id_, title = item if isinstance(item, tuple) else (item, item.title())
+            self.addMenu(QModelMenu(id_, app, title, self))
 
     def update_from_context(
         self, ctx: Mapping[str, object], _recurse: bool = True
