@@ -1,8 +1,18 @@
 # Changelog
 
-## [0.1.4](https://github.com/pyapp-kit/app-model/tree/0.1.4) (2023-04-06)
+## [0.2.0](https://github.com/pyapp-kit/app-model/tree/0.2.0) (2023-05-30)
 
-[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.3...0.1.4)
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.4...0.2.0)
+
+**Merged pull requests:**
+
+- fix: fix menu titles in QtModelMenuBar [\#102](https://github.com/pyapp-kit/app-model/pull/102) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#99](https://github.com/pyapp-kit/app-model/pull/99) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- feat: support pydantic v2 [\#98](https://github.com/pyapp-kit/app-model/pull/98) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.1.4](https://github.com/pyapp-kit/app-model/tree/v0.1.4) (2023-04-06)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.3...v0.1.4)
 
 **Merged pull requests:**
 
