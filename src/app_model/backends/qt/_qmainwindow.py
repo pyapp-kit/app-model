@@ -1,6 +1,5 @@
-from typing import Collection, Mapping, Optional, Union
+from typing import Collection, Mapping, Optional, Sequence, Union
 
-from git import Sequence
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
 

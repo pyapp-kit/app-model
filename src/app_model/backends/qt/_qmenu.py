@@ -6,12 +6,12 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
+    Sequence,
     Set,
     Union,
     cast,
 )
 
-from git import Sequence
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
 from app_model import Application
