@@ -62,7 +62,7 @@ class SimpleKeyBinding(BaseModel):
             try:
                 if (other := SimpleKeyBinding._parse_input(other)) is None:
                     return NotImplemented
-            except TypeError:
+            except TypeError:  # pragma: no cover  # can happen with pydantic v2
                 return NotImplemented
         return bool(
             self.ctrl == other.ctrl
