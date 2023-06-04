@@ -123,7 +123,7 @@ _STANDARD_KEYS = [
     SK(StandardKeyBinding.NextChild, KeyMod.CtrlCmd | KeyCode.Tab, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.BracketRight),
     SK(StandardKeyBinding.Open, KeyMod.CtrlCmd | KeyCode.KeyO),
     SK(StandardKeyBinding.Paste, KeyMod.CtrlCmd | KeyCode.KeyV),
-    SK(StandardKeyBinding.Preferences, _, _, KeyMod.CtrlCmd, KeyCode.Comma),
+    SK(StandardKeyBinding.Preferences, KeyMod.CtrlCmd | KeyCode.Comma),
     SK(StandardKeyBinding.PreviousChild, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Tab, _, KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.BracketLeft),
     SK(StandardKeyBinding.Print, KeyMod.CtrlCmd | KeyCode.KeyP),
     SK(StandardKeyBinding.Quit, KeyMod.CtrlCmd | KeyCode.KeyQ),
