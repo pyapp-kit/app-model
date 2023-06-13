@@ -103,8 +103,9 @@ class Expr(ast.AST, Generic[T]):
     Expressions that are supported:
     - Names: 'myvar' (these must be evaluated along with some context)
     - Constants: '1'
-    - Comparisons: 'myvar > 1' (includes `in`, `not in`)
-    - Boolean Operators: 'myvar and yourvar'
+    - Comparisons: 'myvar > 1'
+    - Boolean Operators: 'myvar & yourvar' (bitwise `&` and `|` are overloaded
+      here to mean boolean `and` and `or`)
     - Binary Operators: 'myvar + 42' (includes `//`, `@`, `^`)
     - Unary Operators: 'not myvar'
 
