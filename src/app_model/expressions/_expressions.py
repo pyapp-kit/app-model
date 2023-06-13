@@ -1,28 +1,4 @@
-"""Provides the  :class:`Expr` and its subclasses.
-
-`Expr` is a subclass of `ast.AST` that provides rich dunder methods that
-facilitate joining and comparing typed expressions.  It only implements a
-subset of ast Expressions (for safety of evaluation), but provides more
-than ast.literal_eval.
-
-Expressions that are supported:
-- Names: 'myvar' (these must be evaluated along with some context)
-- Constants: '1'
-- Comparisons: 'myvar > 1'
-- Boolean Operators: 'myvar and yourvar'
-- Binary Operators: 'myvar + 42'
-- Unary Operators: 'not myvar'
-
-Things that are *NOT* supported:
-- attribute access: 'my.attr'
-- calls: 'f(x)'
-- containers (lists, tuples, sets, dicts)
-- indexing or slicing
-- joined strings (f-strings)
-- named expressions (walrus operator)
-- comprehensions (list, set, dict, generator)
-- statements & assignments (e.g. 'a = b')
-"""
+"""Provides the  :class:`Expr` and its subclasses."""
 from __future__ import annotations
 
 import ast
@@ -118,6 +94,29 @@ def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -
 
 class Expr(ast.AST, Generic[T]):
     """Base Expression class providing dunder and convenience methods.
+
+    This is a subclass of `ast.AST` that provides rich dunder methods that
+    facilitate joining and comparing typed expressions.  It only implements a
+    subset of ast Expressions (for safety of evaluation), but provides more
+    than `ast.literal_eval`.
+
+    Expressions that are supported:
+    - Names: 'myvar' (these must be evaluated along with some context)
+    - Constants: '1'
+    - Comparisons: 'myvar > 1'
+    - Boolean Operators: 'myvar and yourvar'
+    - Binary Operators: 'myvar + 42'
+    - Unary Operators: 'not myvar'
+
+    Things that are *NOT* supported:
+    - attribute access: 'my.attr'
+    - calls: 'f(x)'
+    - containers (lists, tuples, sets, dicts)
+    - indexing or slicing
+    - joined strings (f-strings)
+    - named expressions (walrus operator)
+    - comprehensions (list, set, dict, generator)
+    - statements & assignments (e.g. 'a = b')
 
     This class is not meant to be instantiated directly. Instead, use
     [`parse_expression`][app_model.expressions._expressions.parse_expression], or the
