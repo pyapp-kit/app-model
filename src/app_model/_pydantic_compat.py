@@ -31,7 +31,7 @@ if PYDANTIC2:
         return obj.model_dump_json(*args, **kwargs)  # type: ignore
 
 else:
-    from pydantic import validator as validator  # type: ignore # noqa
+    from pydantic import validator as validator  # type: ignore
 
     def asdict(obj: BaseModel, *args: Any, **kwargs: Any) -> dict:
         return obj.dict(*args, **kwargs)
