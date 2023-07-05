@@ -5,6 +5,7 @@ from types import MappingProxyType
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Generic,
     List,
@@ -86,7 +87,7 @@ class ContextKey(Name, Generic[A, T]):
     # This will catalog all ContextKeys that get instantiated, which provides
     # an easy way to organize documentation.
     # ContextKey.info() returns a list with info for all ContextKeys
-    _info: List[ContextKeyInfo] = []
+    _info: ClassVar[List[ContextKeyInfo]] = []
     MISSING = MISSING
 
     def __init__(

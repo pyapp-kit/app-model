@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Dict, Mapping, Optional, Tuple, Type, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Dict,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from qtpy.QtWidgets import QAction
 
@@ -116,7 +126,7 @@ class QMenuItemAction(QCommandRuleAction):
     to toggle visibility.
     """
 
-    _cache: Dict[Tuple[int, int], QMenuItemAction] = {}
+    _cache: ClassVar[Dict[Tuple[int, int], QMenuItemAction]] = {}
 
     def __new__(
         cls: Type[QMenuItemAction],

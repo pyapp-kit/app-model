@@ -18,20 +18,20 @@ def model_validator(*, mode: Literal["wrap", "before", "after"]) -> Callable[[C]
 
 
 if PYDANTIC2:
-    from pydantic import field_validator  # type: ignore
+    from pydantic import field_validator
     from pydantic import model_validator as model_validator  # type: ignore # noqa
 
     def validator(*args: Any, **kwargs: Any) -> Callable[[Callable], Callable]:
-        return field_validator(*args, **kwargs)  # type: ignore
+        return field_validator(*args, **kwargs)
 
     def asdict(obj: BaseModel, *args: Any, **kwargs: Any) -> dict:
-        return obj.model_dump(*args, **kwargs)  # type: ignore
+        return obj.model_dump(*args, **kwargs)
 
     def asjson(obj: BaseModel, *args: Any, **kwargs: Any) -> str:
-        return obj.model_dump_json(*args, **kwargs)  # type: ignore
+        return obj.model_dump_json(*args, **kwargs)
 
 else:
-    from pydantic import validator as validator  # type: ignore
+    from pydantic import validator as validator
 
     def asdict(obj: BaseModel, *args: Any, **kwargs: Any) -> dict:
         return obj.dict(*args, **kwargs)
