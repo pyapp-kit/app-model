@@ -1,4 +1,5 @@
 import sys
+from typing import ClassVar
 
 import pytest
 from pydantic import BaseModel
@@ -106,7 +107,7 @@ def test_in_model():
         if not PYDANTIC2:
 
             class Config:
-                json_encoders = {KeyBinding: str}
+                json_encoders: ClassVar[dict] = {KeyBinding: str}
 
     m = M(key="Shift+A B")
     # pydantic v1 and v2 have slightly different json outputs
