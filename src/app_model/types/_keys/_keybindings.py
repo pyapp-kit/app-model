@@ -1,4 +1,5 @@
 import re
+import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
@@ -77,6 +78,14 @@ class SimpleKeyBinding(BaseModel):
         """Parse a string into a SimpleKeyBinding."""
         mods, remainder = _parse_modifiers(key_str.strip())
         key = KeyCode.from_string(remainder)
+        if key == KeyCode.UNKNOWN:
+            warnings.warn(
+                f"Unknown key: {remainder!r}, this will become an error in the"
+                f" future. Please construct a {cls} directly if you wish to"
+                " have an Unknown Key.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         return cls(**mods, key=key)
 
     @classmethod

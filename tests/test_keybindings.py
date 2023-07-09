@@ -46,13 +46,17 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
     assert int(as_full_kb) == int(kb)
 
 
-def test_simple_keybinding_multi_mod():
+@pytest.mark.skipif(sys.platform != "darwin", reason="mac only")
+def test_simple_keybinding_multi_mod_mac():
     # here we're also testing that cmd and win get cast to 'KeyMod.CtrlCmd'
 
     kb = SimpleKeyBinding.from_str("cmd+shift+A")
     assert not kb.is_modifier_key()
     assert int(kb) & KeyMod.CtrlCmd | KeyMod.Shift
 
+
+@pytest.mark.skipif(sys.platform == "darwin", reason="win not defined on mac")
+def test_simple_keybinding_multi_mod_win():
     kb = SimpleKeyBinding.from_str("win+shift+A")
     assert not kb.is_modifier_key()
     assert int(kb) & KeyMod.CtrlCmd | KeyMod.Shift
@@ -98,6 +102,11 @@ def test_in_dict():
 
     with pytest.raises(KeyError):
         kbs[new_a]
+
+
+def test_warn_from_string_unknown():
+    with pytest.warns(DeprecationWarning):
+        KeyBinding.from_str("Shift+Return")
 
 
 def test_in_model():
