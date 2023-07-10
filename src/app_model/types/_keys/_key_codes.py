@@ -557,7 +557,11 @@ def _build_maps() -> Tuple[
     SCANCODE_FROM_LOWERCASE_STRING: Dict[str, ScanCode] = {}
 
     KEYCODE_TO_STRING: Dict[KeyCode, str] = {}
-    KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {}
+    KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {
+        # two special cases for assigning os-specific strings to the meta key
+        'win': KeyCode.Meta,
+        'cmd': KeyCode.Meta,
+    }
 
     seen_scancodes: Set[ScanCode] = set()
     seen_keycodes: Set[KeyCode] = set()
