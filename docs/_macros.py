@@ -20,9 +20,18 @@ def define_env(env: "MacrosPlugin") -> None:
         cls = _import_attr(name)
         assert issubclass(cls, BaseModel)
         rows = ["| Field | Type | Description |", "| ----  | ---- | ----------- |"]
-        for f in cls.__fields__.values():
-            type_ = _build_type_link(f.outer_type_)
-            row = f"| {f.name} | {type_} | {f.field_info.description} |"
+        if hasattr(cls, "model_fields"):
+            fields = cls.model_fields
+        else:
+            fields = cls.__fields__
+        for fname, f in fields.items():
+            typ = f.outer_type_ if hasattr(f, "outer_type_") else f.annotation
+            type_ = _build_type_link(typ)
+            if hasattr(f, "field_info"):
+                description = f.field_info.description or ""
+            else:
+                description = f.description
+            row = f"| {fname} | {type_} | {description} |"
             rows.append(row)
         return "\n".join(rows)
 
