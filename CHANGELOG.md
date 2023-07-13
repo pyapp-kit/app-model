@@ -1,14 +1,26 @@
 # Changelog
 
-## [0.2.0](https://github.com/pyapp-kit/app-model/tree/0.2.0) (2023-05-30)
+## [v0.2.0](https://github.com/pyapp-kit/app-model/tree/v0.2.0) (2023-07-13)
 
-[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.4...0.2.0)
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.4...v0.2.0)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
-- fix: fix menu titles in QtModelMenuBar [\#102](https://github.com/pyapp-kit/app-model/pull/102) ([tlambert03](https://github.com/tlambert03))
-- ci: \[pre-commit.ci\] autoupdate [\#99](https://github.com/pyapp-kit/app-model/pull/99) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- feat: map win and cmd to meta [\#113](https://github.com/pyapp-kit/app-model/pull/113) ([tlambert03](https://github.com/tlambert03))
 - feat: support pydantic v2 [\#98](https://github.com/pyapp-kit/app-model/pull/98) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: Amend preferences `StandardKeyBinding` [\#104](https://github.com/pyapp-kit/app-model/pull/104) ([lucyleeow](https://github.com/lucyleeow))
+- fix: fix menu titles in QtModelMenuBar [\#102](https://github.com/pyapp-kit/app-model/pull/102) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- ci: test pydantic1 [\#115](https://github.com/pyapp-kit/app-model/pull/115) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: Move `_expressions.py` docstring to be included in documentation [\#107](https://github.com/pyapp-kit/app-model/pull/107) ([lucyleeow](https://github.com/lucyleeow))
 
 ## [v0.1.4](https://github.com/pyapp-kit/app-model/tree/v0.1.4) (2023-04-06)
 
