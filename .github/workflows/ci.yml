@@ -50,8 +50,8 @@ jobs:
       - name: Test
         run: pytest -s --color=yes
 
-  test-pydantic2:
-    name: pydantic2 (py${{ matrix.python-version }})
+  test-pydantic1:
+    name: pydantic1 (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -70,7 +70,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -e .[test]
-          pip install -U --pre pydantic
+          pip install 'pydantic<2'
 
       - name: Test
         run: pytest --color=yes --cov=app_model --cov-report=xml
