@@ -25,6 +25,12 @@ class Context(ChainMap):
 
     changed = Signal(set)  # Set[str]
 
+    def __init__(self, *maps: MutableMapping) -> None:
+        super().__init__(*maps)
+        for m in maps:
+            if isinstance(m, Context):
+                m.changed.connect(self.changed)
+
     @contextmanager
     def buffered_changes(self) -> Iterator[None]:
         """Context in which to accumulated changes before emitting."""
