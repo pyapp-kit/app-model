@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.2.1](https://github.com/pyapp-kit/app-model/tree/v0.2.1) (2023-08-30)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.0...v0.2.1)
+
+**Fixed bugs:**
+
+- fix: properly connect events for Contexts comprised of other Contexts [\#119](https://github.com/pyapp-kit/app-model/pull/119) ([kne42](https://github.com/kne42))
+
 ## [v0.2.0](https://github.com/pyapp-kit/app-model/tree/v0.2.0) (2023-07-13)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.1.4...v0.2.0)
