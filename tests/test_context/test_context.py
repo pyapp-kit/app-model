@@ -96,3 +96,53 @@ def test_context_events():
         scoped["e"] = "f"
         scoped["f"] = "f"
     mock.assert_called_once_with({"d", "e", "f"})
+
+    # check events properly propagated when adding already existing context as child
+    mock3 = Mock()
+    root2a = Context()
+    root2b = Context()
+    scoped2 = root2a.new_child(root2b)
+    scoped2.changed.connect(mock3)  # connect the mock to the child
+
+    root2a["a"] = 1
+    # child re-emits parent events
+    assert mock3.call_args[0][0] == {"a"}
+
+    mock3.reset_mock()
+    root2b["b"] = 1
+    # child re-emits added events
+    assert mock3.call_args[0][0] == {"b"}
+
+    mock3.reset_mock()
+    scoped2["c"] = 1
+    # also emits own events
+    assert mock3.call_args[0][0] == {"c"}
+
+    # check events properly propagated when making a context of contexts
+    mock4 = Mock()
+    root3a = Context()
+    root3b = Context()
+    root3c = Context()
+    root3d = Context()
+    root3e = Context()
+    combined = Context(root3a, root3b, root3c, root3d, root3e)
+    combined.changed.connect(mock4)
+
+    root3a["a"] = 1
+    assert mock4.call_args[0][0] == {"a"}
+
+    mock4.reset_mock()
+    root3b["b"] = 1
+    assert mock4.call_args[0][0] == {"b"}
+
+    mock4.reset_mock()
+    root3c["c"] = 1
+    assert mock4.call_args[0][0] == {"c"}
+
+    mock4.reset_mock()
+    root3d["d"] = 1
+    assert mock4.call_args[0][0] == {"d"}
+
+    mock4.reset_mock()
+    root3e["e"] = 1
+    assert mock4.call_args[0][0] == {"e"}
