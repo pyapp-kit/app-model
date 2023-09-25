@@ -155,7 +155,7 @@ class QModelSubmenu(QModelMenu):
         self, ctx: Mapping[str, object], _recurse: bool = True
     ) -> None:
         """Update the enabled state of this menu item from `ctx`."""
-        super().update_from_context(ctx)
+        super().update_from_context(ctx, _recurse=_recurse)
         self.setEnabled(expr.eval(ctx) if (expr := self._submenu.enablement) else True)
         # TODO: ... visibility needs to be controlled at the level of placement
         # in the submenu.  consider only using the `when` expression
