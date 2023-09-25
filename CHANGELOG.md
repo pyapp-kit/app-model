@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.2.2](https://github.com/pyapp-kit/app-model/tree/v0.2.2) (2023-09-25)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.1...v0.2.2)
+
+**Fixed bugs:**
+
+- fix: propagate \_recurse value in `QModelSubmenu.update_from_context` method [\#122](https://github.com/pyapp-kit/app-model/pull/122) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump actions/checkout from 3 to 4 [\#121](https://github.com/pyapp-kit/app-model/pull/121) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.2.1](https://github.com/pyapp-kit/app-model/tree/v0.2.1) (2023-08-30)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.0...v0.2.1)
