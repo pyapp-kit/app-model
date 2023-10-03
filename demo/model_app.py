@@ -60,7 +60,7 @@ class MainWindow(QModelMainWindow):
         error = None
         QApplication.setOverrideCursor(Qt.WaitCursor)
         file = QSaveFile(fileName)
-        if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):  # type: ignore # noqa
+        if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):  # type: ignore
             outf = QTextStream(file)
             outf << self._text_edit.toPlainText()
             if not file.commit():
@@ -105,7 +105,7 @@ class MainWindow(QModelMainWindow):
 
     def load_file(self, fileName: str) -> None:
         file = QFile(fileName)
-        if not file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):  # type: ignore # noqa
+        if not file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):  # type: ignore
             reason = file.errorString()
             QMessageBox.warning(
                 self, "Application", f"Cannot read file {fileName}:\n{reason}."
