@@ -128,7 +128,7 @@ class ContextKey(Name, Generic[A, T]):
         (this happens when you instantiate this class as a class attribute).
         """
         if self.id:
-            raise ValueError(
+            raise RuntimeError(
                 f"Cannot change id of ContextKey (already {self.id!r})",
             )
         self._owner = owner
