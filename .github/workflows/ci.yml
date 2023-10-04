@@ -80,7 +80,6 @@ jobs:
       - name: Coverage
         uses: codecov/codecov-action@v3
 
-
   test-qt:
     name: ${{ matrix.platform }} ${{ matrix.qt-backend }} (${{ matrix.python-version }})
     runs-on: ${{ matrix.platform }}
@@ -124,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        napari-version: [""]  # "" is HEAD
+        napari-version: [""] # "" is HEAD
         qt-backend: [pyqt5, pyside2]
 
     steps:
@@ -163,7 +162,9 @@ jobs:
     needs: [check-manifest, test, test-qt, test_napari]
     if: "success() && startsWith(github.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
-
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -172,21 +173,15 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: install
+      - name: 👷 Build
         run: |
-          git tag
-          pip install -U pip
-          pip install -U build twine
+          python -m pip install build
           python -m build
-          twine check dist/*
-          ls -lh dist
 
-      - name: Build and publish
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
+      - name: 🚢 Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
 
       - uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
+          files: "./dist/*"
