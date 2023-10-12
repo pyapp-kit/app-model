@@ -101,6 +101,7 @@ class Expr(ast.AST, Generic[T]):
     than `ast.literal_eval`.
 
     Expressions that are supported:
+
     - Names: 'myvar' (these must be evaluated along with some context)
     - Constants: '1'
     - Comparisons: 'myvar > 1'
@@ -110,6 +111,7 @@ class Expr(ast.AST, Generic[T]):
     - Unary Operators: 'not myvar'
 
     Things that are *NOT* supported:
+
     - attribute access: 'my.attr'
     - calls: 'f(x)'
     - containers (lists, tuples, sets, dicts)
