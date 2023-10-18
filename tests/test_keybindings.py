@@ -68,7 +68,7 @@ def test_chord_keybinding():
     assert kb == KeyBinding.from_str("Shift+A Cmd+9")
     assert kb.part0 == SimpleKeyBinding(shift=True, key=KeyCode.KeyA)
     assert kb.part0 == "Shift+A"
-
+    assert str(kb) in repr(kb)
     # round trip to int
     assert isinstance(kb.to_int(), KeyChord)
     # using validate method just for test coverage... will pass to from_int

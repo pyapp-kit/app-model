@@ -165,6 +165,9 @@ class KeyBinding:
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} at {hex(id(self))}: {self}>"
+
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, KeyBinding):
             try:
