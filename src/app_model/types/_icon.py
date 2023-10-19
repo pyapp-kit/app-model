@@ -38,12 +38,12 @@ class Icon(_BaseModel):
         return cls(**v)
 
     # for v2
-    @model_validator(mode="wrap")
+    @model_validator(mode="before")
     @classmethod
-    def _model_val(cls, v: Any, handler: Callable[[Any], "Icon"]) -> "Icon":
+    def _model_val(cls, v: dict) -> dict:
         if isinstance(v, str):
             v = {"dark": v, "light": v}
-        return handler(v)
+        return v
 
 
 class IconDict(TypedDict):

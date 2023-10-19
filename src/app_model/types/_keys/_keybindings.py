@@ -116,30 +116,19 @@ class SimpleKeyBinding(BaseModel):
         return mods | (self.key or 0)
 
     @classmethod
-    def _parse_input(cls, v: Any) -> Optional["SimpleKeyBinding"]:
+    def _parse_input(cls, v: Any) -> "SimpleKeyBinding":
         if isinstance(v, SimpleKeyBinding):
             return v
         if isinstance(v, str):
             return cls.from_str(v)
         if isinstance(v, int):
             return cls.from_int(v)
-        return None
+        raise TypeError(f"invalid type: {type(v)}")
 
+    @model_validator(mode="after")  # type: ignore
     @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls._validate  # pragma: no cover
-
-    @classmethod
-    def _validate(cls, input: Any) -> "SimpleKeyBinding":
-        return cls._parse_input(input) or cls(**input)  # pragma: no cover
-
-    # for v2
-    @model_validator(mode="wrap")
-    @classmethod
-    def _model_val(
-        cls, input: Any, handler: Callable[[Any], "SimpleKeyBinding"]
-    ) -> "SimpleKeyBinding":
-        return cls._parse_input(input) or handler(input)
+    def _model_val(cls, instance: "SimpleKeyBinding") -> "SimpleKeyBinding":
+        return cls._parse_input(instance)
 
 
 MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
