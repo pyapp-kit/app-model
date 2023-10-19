@@ -1,9 +1,8 @@
 import re
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic_compat import PYDANTIC2, BaseModel, Field, model_validator
 
-from app_model._pydantic_compat import PYDANTIC2, model_validator
 from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod

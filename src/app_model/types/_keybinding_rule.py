@@ -1,9 +1,8 @@
 from typing import Any, Callable, Optional, Type, TypedDict, TypeVar, Union
 
-from pydantic import Field
+from pydantic_compat import Field, model_validator
 
 from app_model import expressions
-from app_model._pydantic_compat import model_validator
 
 from ._base import _BaseModel
 from ._constants import OperatingSystem
@@ -68,7 +67,7 @@ class KeyBindingRule(_BaseModel):
         return super().validate(value)
 
     # for v2
-    @model_validator(mode="wrap")
+    @model_validator(mode="wrap")  # type: ignore
     @classmethod
     def _model_val(
         cls: Type[M], v: Any, handler: Callable[[Any], M]

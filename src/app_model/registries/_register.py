@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar, overload
 
-from app_model._pydantic_compat import asdict
 from app_model.types import Action, MenuItem
 
 if TYPE_CHECKING:
@@ -224,7 +223,7 @@ def _register_action_obj(
     # keybinding
     for keyb in action.keybindings or ():
         if action.enablement is not None:
-            kwargs = asdict(keyb)
+            kwargs = keyb.model_dump()
             kwargs["when"] = (
                 action.enablement
                 if keyb.when is None

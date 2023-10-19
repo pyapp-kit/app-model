@@ -35,7 +35,8 @@ repos:
       - id: mypy
         files: "^src/"
         additional_dependencies:
-          - pydantic
+          - pydantic >2
+          - pydantic-compat
           - in-n-out
 
   # manual hooks

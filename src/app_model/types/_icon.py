@@ -1,8 +1,6 @@
 from typing import Any, Callable, Generator, Optional, TypedDict, Union
 
-from pydantic import Field
-
-from app_model._pydantic_compat import model_validator
+from pydantic_compat import Field, model_validator
 
 from ._base import _BaseModel
 
