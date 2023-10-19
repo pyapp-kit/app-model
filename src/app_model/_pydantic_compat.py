@@ -4,7 +4,7 @@ from typing import Any, Callable, Literal, TypeVar
 
 from pydantic import BaseModel, __version__
 
-PYDANTIC2 = __version__.startswith("2")
+PYDANTIC2 = False
 M = TypeVar("M", bound=BaseModel)
 C = TypeVar("C", bound=Callable[..., Any])
 
@@ -31,7 +31,7 @@ if PYDANTIC2:
         return obj.model_dump_json(*args, **kwargs)
 
 else:
-    from pydantic import validator as validator
+    from pydantic.v1 import validator as validator
 
     def asdict(obj: BaseModel, *args: Any, **kwargs: Any) -> dict:
         return obj.dict(*args, **kwargs)
