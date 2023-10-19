@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Literal, TypeVar
 
-from pydantic import BaseModel, __version__
+from pydantic import BaseModel
 
 PYDANTIC2 = False
 M = TypeVar("M", bound=BaseModel)
