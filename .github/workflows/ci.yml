@@ -120,11 +120,10 @@ jobs:
 
   test_napari:
     name: napari (pyqt5)
-    runs-on: ubuntu-latest
     uses: czaki/napari/.github/workflows/test_external_package_workflow.yml@feature/test_against_napari
-    # with:
-    #   backend: "pyqt5"
-    #   pytest_path: "napari/_qt napari/_app_model"
+    with:
+      backend: "pyqt5"
+      pytest_path: "napari/_qt napari/_app_model"
 
   deploy:
     name: Deploy
