@@ -5,8 +5,6 @@ from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
 from app_model.types import Action, MenuItem, ToggleRule
 
 if TYPE_CHECKING:
-    pass
-
     from app_model import Application
     from conftest import FullApp
 
