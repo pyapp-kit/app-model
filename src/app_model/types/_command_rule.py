@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Union
 
-from pydantic import Field
+from pydantic_compat import Field
 
 from app_model import expressions
 

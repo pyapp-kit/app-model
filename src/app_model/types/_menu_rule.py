@@ -8,10 +8,9 @@ from typing import (
     Union,
 )
 
-from pydantic import Field
+from pydantic_compat import Field, field_validator
 
 from app_model import expressions
-from app_model._pydantic_compat import validator
 
 from ._base import _BaseModel
 from ._command_rule import CommandRule
@@ -84,7 +83,7 @@ class MenuItem(_MenuItemBase):
         "selected, (e.g. when the Alt-key is held when opening the menu)",
     )
 
-    @validator("command")
+    @field_validator("command")
     def _simplify_command_rule(cls, v: Any) -> CommandRule:
         if isinstance(v, CommandRule):
             return v._as_command_rule()
