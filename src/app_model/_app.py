@@ -63,7 +63,9 @@ class Application:
     - injection_store : in_n_out.Store
         The Injection Store for this application.
     - theme_mode : Literal["dark", "light"] | None
-        The theme mode for this application. Must be one of "dark", "light", or None.
+        Theme mode to use when picking the color of icons. Must be one of "dark",
+        "light", or None.  When `Application.theme_mode` is "dark", icons will be
+        generated using their "color_dark" color (which should be a light color).
         If not provided, backends may guess at the current theme.
     """
 

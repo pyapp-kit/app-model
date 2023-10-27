@@ -13,7 +13,7 @@ try:
 
     UNDO_ICON = FA6S.rotate_left
 except ImportError:
-    UNDO_ICON = "fa6s.undo"
+    UNDO_ICON = "fa6-solid:undo"
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
