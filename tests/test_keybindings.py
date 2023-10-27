@@ -2,9 +2,8 @@ import sys
 from typing import ClassVar
 
 import pytest
-from pydantic import BaseModel
+from pydantic_compat import PYDANTIC2, BaseModel
 
-from app_model._pydantic_compat import PYDANTIC2, asjson
 from app_model.types import (
     KeyBinding,
     KeyBindingRule,
@@ -111,7 +110,7 @@ def test_in_model():
 
     m = M(key="Shift+A B")
     # pydantic v1 and v2 have slightly different json outputs
-    assert asjson(m).replace('": "', '":"') == '{"key":"Shift+A B"}'
+    assert m.model_dump_json().replace('": "', '":"') == '{"key":"Shift+A B"}'
 
 
 def test_standard_keybindings():

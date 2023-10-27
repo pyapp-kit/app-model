@@ -331,6 +331,7 @@ class Expr(ast.AST, Generic[T]):
     def __get_pydantic_core_schema__(
         cls, source: type, handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
+        # this will only be called by pydantic v2
         from pydantic_core import core_schema
 
         return core_schema.no_info_plain_validator_function(cls._validate)

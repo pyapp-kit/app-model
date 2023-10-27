@@ -1,8 +1,6 @@
 from typing import Any, Callable, Generator, Optional, TypedDict, Union
 
-from pydantic import Field
-
-from app_model._pydantic_compat import model_validator
+from pydantic_compat import Field, model_validator
 
 from ._base import _BaseModel
 
@@ -62,9 +60,9 @@ class Icon(_BaseModel):
         return cls(**v)
 
     # for v2
-    @model_validator(mode="wrap")
+    @model_validator(mode="before")
     @classmethod
-    def _model_val(cls, v: Any, handler: Callable[[Any], "Icon"]) -> "Icon":
+    def _model_val(cls, v: dict) -> dict:
         if isinstance(v, str):
             v = {"dark": v, "light": v}
         if isinstance(v, dict):
@@ -72,7 +70,7 @@ class Icon(_BaseModel):
                 v.setdefault("light", v["dark"])
             elif "light" in v:
                 v.setdefault("dark", v["light"])
-        return handler(v)
+        return v
 
 
 class IconDict(TypedDict):
