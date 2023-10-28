@@ -4,9 +4,6 @@ from pydantic_compat import Field, model_validator
 
 from ._base import _BaseModel
 
-LIGHT_COLOR = "#BCB4B4"
-DARK_COLOR = "#6B6565"
-
 
 class Icon(_BaseModel):
     """Icons used to represent commands, or submenus.
@@ -18,26 +15,28 @@ class Icon(_BaseModel):
     dark: Optional[str] = Field(
         None,
         description="Icon path when a dark theme is used. These may be "
-        "[iconify keys](https://icon-sets.iconify.design), such as `mdi:content-copy`, "
-        "or [superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
+        "[iconify keys](https://icon-sets.iconify.design), such as "
+        "`fa6-solid:arrow-down`, or "
+        "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
     color_dark: Optional[str] = Field(
-        LIGHT_COLOR,  # use light icon for dark themes
-        description="Icon color to use for themes with dark backgrounds. If not "
-        "provided, a default is used.",
+        None,  # use light icon for dark themes
+        description="(Light) icon color to use for themes with dark backgrounds. "
+        "If not provided, a default is used.",
     )
     light: Optional[str] = Field(
         None,
         description="Icon path when a light theme is used. These may be "
-        "[iconify keys](https://icon-sets.iconify.design), such as `mdi:content-copy`, "
-        "or [superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
+        "[iconify keys](https://icon-sets.iconify.design), such as "
+        "`fa6-solid:arrow-down`, or "
+        "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
     color_light: Optional[str] = Field(
-        DARK_COLOR,  # use dark icon for light themes
-        description="Icon color to use for themes with light backgrounds. If not "
-        "provided, a default is used",
+        None,  # use dark icon for light themes
+        description="(Dark) icon color to use for themes with light backgrounds. "
+        "If not provided, a default is used",
     )
 
     @classmethod

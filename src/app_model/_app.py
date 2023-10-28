@@ -65,8 +65,8 @@ class Application:
     - theme_mode : Literal["dark", "light"] | None
         Theme mode to use when picking the color of icons. Must be one of "dark",
         "light", or None.  When `Application.theme_mode` is "dark", icons will be
-        generated using their "color_dark" color (which should be a light color).
-        If not provided, backends may guess at the current theme.
+        generated using their "color_dark" color (which should be a light color),
+        and vice versa. If not provided, backends may guess the current theme mode.
     """
 
     destroyed = Signal(str)
