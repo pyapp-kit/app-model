@@ -28,7 +28,7 @@ def background_luma(qobj: QObject | None = None) -> float:
         palette: QPalette = qobj.palette()  # type: ignore
     elif wdgts := QApplication.topLevelWidgets():
         palette = wdgts[0].palette()
-    else:
+    else:  # pragma: no cover
         palette = QApplication.palette()
     window_bgrd = palette.color(QPalette.ColorRole.Window)
     return luma(window_bgrd.redF(), window_bgrd.greenF(), window_bgrd.blueF())
@@ -51,10 +51,11 @@ def to_qicon(
         theme = "dark" if background_luma(parent) < 0.5 else "light"
     if color is None:
         # use DARK_COLOR icon for light themes and vice versa
-        if theme == "dark":
-            color = icon.color_dark or LIGHT_COLOR
-        else:
-            color = icon.color_light or DARK_COLOR
+        color = (
+            (icon.color_dark or LIGHT_COLOR)
+            if theme == "dark"
+            else (icon.color_light or DARK_COLOR)
+        )
 
     if icn := getattr(icon, theme, ""):
         if ":" in icn:
