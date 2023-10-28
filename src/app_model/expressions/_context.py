@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sys
 from contextlib import contextmanager
-from types import FrameType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ChainMap,
@@ -16,6 +16,9 @@ from typing import (
 from weakref import finalize
 
 from psygnal import Signal
+
+if TYPE_CHECKING:
+    from types import FrameType
 
 _null = object()
 
