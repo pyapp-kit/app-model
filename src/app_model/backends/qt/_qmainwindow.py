@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Collection, Mapping, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Collection, Mapping, Optional, Sequence, Union
 
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
 
 from app_model import Application
 
 from ._qmenu import QModelMenuBar, QModelToolBar
+
+if TYPE_CHECKING:
+    from qtpy.QtCore import Qt
 
 
 class QModelMainWindow(QMainWindow):
