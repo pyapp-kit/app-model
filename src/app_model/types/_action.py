@@ -1,10 +1,6 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
 
-from pydantic import Field
-
-from app_model._pydantic_compat import validator
+from pydantic_compat import Field, field_validator
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule
@@ -57,7 +53,7 @@ class Action(CommandRule, Generic[P, R]):
         "during registration.",
     )
 
-    @validator("callback")
+    @field_validator("callback")
     def _validate_callback(callback: object) -> Union[Callable, str]:
         """Assert that `callback` is a callable or valid fully qualified name."""
         if callable(callback):

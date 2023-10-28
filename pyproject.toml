@@ -29,6 +29,7 @@ dynamic = ["version"]
 dependencies = [
     "psygnal>=0.3.4",
     "pydantic>=1.8",
+    "pydantic-compat>=0.1.1",
     "in-n-out>=0.1.5",
     "typing_extensions",
 ]
@@ -96,6 +97,8 @@ select = [
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     "RUF",  # ruff-specific rules
+    "TID",  # tidy imports
+    "TCH",  # type checking
 ]
 ignore = [
     "D100", # Missing docstring in public module
@@ -118,15 +121,11 @@ keep-runtime-typing = true
 "src/app_model/_registries.py" = ["D10"]
 "src/app_model/context/_expressions.py" = ["D10"]
 "src/app_model/types/_keys/*" = ["E501"]
-"setup.py" = ["F821"]
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = [
-    "error",
-    "ignore:Enum value:DeprecationWarning:superqt",
-]
+filterwarnings = ["error", "ignore:Enum value:DeprecationWarning:superqt"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
@@ -175,3 +174,6 @@ ignore = [
     "CHANGELOG.md",
     ".ruff_cache/**/*",
 ]
+
+[tool.typos]
+default.extend-ignore-identifiers-re = ["to_string_ser_schema"]

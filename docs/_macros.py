@@ -2,7 +2,7 @@ import collections.abc
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
-from pydantic import BaseModel
+from pydantic_compat import BaseModel
 from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
