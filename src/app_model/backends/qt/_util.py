@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from qtpy.QtCore import QObject
 from qtpy.QtGui import QIcon, QPalette
 from qtpy.QtWidgets import QApplication
 
 if TYPE_CHECKING:
     from typing import Literal
+
+    from qtpy.QtCore import QObject
 
     from app_model.types import Icon
 
