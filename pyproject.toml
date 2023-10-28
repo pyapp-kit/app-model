@@ -174,3 +174,6 @@ ignore = [
     "CHANGELOG.md",
     ".ruff_cache/**/*",
 ]
+
+[tool.typos]
+default.extend-ignore-identifiers-re = ["to_string_ser_schema"]
