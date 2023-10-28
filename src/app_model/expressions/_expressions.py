@@ -66,7 +66,7 @@ def parse_expression(expr: Union[str, Expr]) -> Expr:
         tree = ast.parse(str(expr), mode="eval")
         if not isinstance(tree, ast.Expression):
             raise SyntaxError  # pragma: no cover
-        return ExprTranformer().visit(tree.body)
+        return ExprTransformer().visit(tree.body)
     except SyntaxError as e:
         raise SyntaxError(f"{expr!r} is not a valid expression: ({e}).") from None
 
@@ -467,13 +467,13 @@ class IfExp(Expr, ast.IfExp):
         )
 
 
-class ExprTranformer(ast.NodeTransformer):
+class ExprTransformer(ast.NodeTransformer):
     """Transformer that converts an ast.expr into an :class:`Expr`.
 
     Examples
     --------
     >>> tree = ast.parse('my_var > 11', mode='eval')
-    >>> tree = ExprTranformer().visit(tree)  # transformed
+    >>> tree = ExprTransformer().visit(tree)  # transformed
     """
 
     _SUPPORTED_NODES = frozenset(
@@ -505,7 +505,7 @@ class ExprTranformer(ast.NodeTransformer):
         # filter here for supported expression node types
         type_ = type(node).__name__
 
-        if type_ not in ExprTranformer._SUPPORTED_NODES:
+        if type_ not in ExprTransformer._SUPPORTED_NODES:
             raise SyntaxError(f"Type {type_!r} not supported")
 
         # providing fake lineno and col_offset here rather than using

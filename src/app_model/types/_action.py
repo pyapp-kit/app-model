@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
 
 from pydantic_compat import Field, field_validator

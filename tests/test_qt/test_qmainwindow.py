@@ -5,7 +5,7 @@ from qtpy.QtCore import Qt
 from app_model.backends.qt import QModelMainWindow
 
 if TYPE_CHECKING:
-    from ..conftest import FullApp
+    from ..conftest import FullApp  # noqa: TID252
 
 
 def test_qmodel_main_window(qtbot, full_app: "FullApp"):

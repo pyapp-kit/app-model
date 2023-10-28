@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -17,7 +18,9 @@ from typing import (
 from psygnal import Signal
 
 from app_model.types import MenuItem, MenuOrSubmenu
-from app_model.types._constants import DisposeCallable
+
+if TYPE_CHECKING:
+    from app_model.types._constants import DisposeCallable
 
 MenuId = str
 
