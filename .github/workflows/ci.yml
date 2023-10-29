@@ -120,9 +120,13 @@ jobs:
 
   test_napari:
     name: napari
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [pyqt5, pyside2, pyqt6]
     uses: czaki/napari/.github/workflows/test_external_package_workflow.yml@feature/test_against_napari
     with:
-      backend: "pyqt5,pyside2,pyqt6"
+      backend: ${{ matrix.backend }}
       pytest_path: "napari/_qt napari/_app_model"
 
   deploy:
