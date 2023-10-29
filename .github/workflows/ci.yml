@@ -123,7 +123,7 @@ jobs:
     uses: czaki/napari/.github/workflows/test_external_package_workflow.yml@feature/test_against_napari
     with:
       backend: "pyqt5,pyside2,pyqt6"
-      pytest_path: "napari/_qt napari/_app_model -W ignore"
+      pytest_path: "napari/_qt napari/_app_model"
 
   deploy:
     name: Deploy
