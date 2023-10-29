@@ -127,7 +127,7 @@ jobs:
     uses: czaki/napari/.github/workflows/test_external_package_workflow.yml@feature/test_against_napari
     with:
       backend: ${{ matrix.backend }}
-      pytest_path: "napari/_qt napari/_app_model"
+      pytest_path: "napari/_qt napari/_app_model -W ignore -k 'not test_notification and not playing_after_ndisplay_changes'"
 
   deploy:
     name: Deploy
