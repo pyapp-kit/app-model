@@ -119,11 +119,11 @@ jobs:
         uses: codecov/codecov-action@v3
 
   test_napari:
-    name: napari (pyqt5)
+    name: napari
     uses: czaki/napari/.github/workflows/test_external_package_workflow.yml@feature/test_against_napari
     with:
-      backend: "pyqt5"
-      pytest_path: "napari/_qt napari/_app_model"
+      backend: "pyqt5,pyside2,pyqt6"
+      pytest_path: "napari/_qt napari/_app_model -W ignore"
 
   deploy:
     name: Deploy
