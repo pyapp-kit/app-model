@@ -1,7 +1,5 @@
 from typing import List
 
-from fonticon_fa6 import FA6S
-
 from app_model.types import Action, KeyBindingRule, KeyCode, KeyMod, MenuRule
 
 from . import functions
@@ -11,7 +9,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.OPEN,
         title="Open",
-        icon=FA6S.folder_open,
+        icon="fa6-solid:folder-open",
         callback=functions.open_file,
         menus=[MenuRule(id=MenuId.FILE)],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyO)],
@@ -19,7 +17,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.CLOSE,
         title="Close",
-        icon=FA6S.window_close,
+        icon="fa6-solid:window-close",
         callback=functions.close,
         menus=[MenuRule(id=MenuId.FILE)],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyW)],
@@ -27,7 +25,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.UNDO,
         title="Undo",
-        icon=FA6S.undo,
+        icon="fa6-solid:undo",
         callback=functions.undo,
         menus=[MenuRule(id=MenuId.EDIT, group="1_undo_redo")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyZ)],
@@ -35,7 +33,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.REDO,
         title="Redo",
-        icon=FA6S.rotate_right,
+        icon="fa6-solid:rotate-right",
         callback=functions.redo,
         menus=[MenuRule(id=MenuId.EDIT, group="1_undo_redo")],
         keybindings=[
@@ -45,7 +43,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.CUT,
         title="Cut",
-        icon=FA6S.cut,
+        icon="fa6-solid:cut",
         callback=functions.cut,
         menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyX)],
@@ -53,7 +51,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.COPY,
         title="Copy",
-        icon=FA6S.copy,
+        icon="fa6-solid:copy",
         callback=functions.copy,
         menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyC)],
@@ -61,7 +59,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.PASTE,
         title="Paste",
-        icon=FA6S.paste,
+        icon="fa6-solid:paste",
         callback=functions.paste,
         menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyV)],

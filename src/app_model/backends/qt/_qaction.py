@@ -13,8 +13,6 @@ from typing import (
     cast,
 )
 
-from qtpy.QtWidgets import QAction
-
 from app_model import Application
 from app_model.expressions import Expr
 from app_model.types import ToggleRule
@@ -23,9 +21,12 @@ from ._qkeymap import QKeyBindingSequence
 from ._util import to_qicon
 
 if TYPE_CHECKING:
+    from PyQt6.QtGui import QAction
     from qtpy.QtCore import QObject
 
     from app_model.types import CommandRule, MenuItem
+else:
+    from qtpy.QtWidgets import QAction
 
 
 class QCommandAction(QAction):

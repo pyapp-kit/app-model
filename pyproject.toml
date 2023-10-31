@@ -39,7 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest>=6.0", "pytest-cov"]
 test-qt = ["pytest-qt", "fonticon-fontawesome6"]
-qt = ["qtpy", "superqt"]
+qt = ["qtpy", "superqt[iconify]"]
 dev = [
     "black",
     "ipython",

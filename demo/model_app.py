@@ -1,6 +1,5 @@
 from typing import List
 
-from fonticon_fa6 import FA6S
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
@@ -160,7 +159,7 @@ class CommandId:
 ACTIONS: List[types.Action] = [
     types.Action(
         id="new_file",
-        icon=FA6S.file_circle_plus,
+        icon="fa6-solid:file-circle-plus",
         title="New",
         keybindings=[types.StandardKeyBinding.New],
         status_tip="Create a new file",
@@ -169,7 +168,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="open_file",
-        icon=FA6S.folder_open,
+        icon="fa6-solid:folder-open",
         title="Open...",
         keybindings=[types.StandardKeyBinding.Open],
         status_tip="Open an existing file",
@@ -178,7 +177,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="save_file",
-        icon=FA6S.floppy_disk,
+        icon="fa6-solid:floppy-disk",
         title="Save",
         keybindings=[types.StandardKeyBinding.Save],
         status_tip="Save the document to disk",
@@ -203,7 +202,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="cut",
-        icon=FA6S.scissors,
+        icon="fa6-solid:scissors",
         title="Cut",
         keybindings=[types.StandardKeyBinding.Cut],
         enablement="copyAvailable",
@@ -213,7 +212,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="copy",
-        icon=FA6S.copy,
+        icon="fa6-solid:copy",
         title="Copy",
         keybindings=[types.StandardKeyBinding.Copy],
         enablement="copyAvailable",
@@ -223,7 +222,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="paste",
-        icon=FA6S.paste,
+        icon="fa6-solid:paste",
         title="Paste",
         keybindings=[types.StandardKeyBinding.Paste],
         status_tip="Paste the clipboard's contents into the current selection",

@@ -14,13 +14,19 @@ class Icon(_BaseModel):
 
     dark: Optional[str] = Field(
         None,
-        description="Icon path when a dark theme is used. These may be superqt "
-        "fonticon keys, such as `fa6s.arrow_down`",
+        description="Icon path when a dark theme is used. These may be "
+        "[iconify keys](https://icon-sets.iconify.design), such as "
+        "`fa6-solid:arrow-down`, or "
+        "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
+        " keys, such as `fa6s.arrow_down`",
     )
     light: Optional[str] = Field(
         None,
-        description="Icon path when a light theme is used. These may be superqt "
-        "fonticon keys, such as `fa6s.arrow_down`",
+        description="Icon path when a light theme is used. These may be "
+        "[iconify keys](https://icon-sets.iconify.design), such as "
+        "`fa6-solid:arrow-down`, or "
+        "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
+        " keys, such as `fa6s.arrow_down`",
     )
 
     @classmethod

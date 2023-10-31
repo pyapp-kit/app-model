@@ -13,7 +13,7 @@ try:
 
     UNDO_ICON = FA6S.rotate_left
 except ImportError:
-    UNDO_ICON = "fa6s.undo"
+    UNDO_ICON = "fa6-solid:undo"
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -113,7 +113,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         Action(
             id=Commands.COPY,
             title="Copy",
-            icon="fa6s.copy",
+            icon="fa6-solid:copy",  # iconify font style works too
             callback=app.mocks.copy,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
             keybindings=[{"primary": KeyMod.CtrlCmd | KeyCode.KeyC}],
@@ -131,7 +131,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
             id=Commands.REDO,
             title="Redo",
             tooltip="Redo it!",
-            icon="fa6s.rotate_right",
+            icon="fa6-solid:rotate-right",
             enablement="allow_undo_redo",
             callback="fake_module:run_me",  # this is a function in fixtures
             keybindings=[{"primary": "Ctrl+Shift+Z"}],
