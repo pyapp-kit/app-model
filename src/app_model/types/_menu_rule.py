@@ -8,7 +8,7 @@ from typing import (
     Union,
 )
 
-from pydantic_compat import Field, field_validator
+from pydantic_compat import Field, field_validator, model_validator
 
 from app_model import expressions
 
@@ -64,6 +64,11 @@ class MenuRule(_MenuItemBase):
     """
 
     id: str = Field(..., description="Menu in which to place this item.")
+
+    @model_validator(mode="before")
+    def _validate_model(cls, v: Any) -> Any:
+        """If a single string is provided, convert to a dict with `id` key."""
+        return {"id": v} if isinstance(v, str) else v
 
 
 class MenuItem(_MenuItemBase):
