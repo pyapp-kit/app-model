@@ -12,6 +12,9 @@ def test_commands_registry() -> None:
     reg.register_command("my.id", lambda: 42, "My Title")
     assert "(1 commands)" in repr(reg)
     assert "my.id" in str(reg)
+    assert "my.id" in reg
+    with pytest.raises(KeyError, match="my.id2"):
+        reg["my.id2"]
 
     with pytest.raises(ValueError, match="Command 'my.id' already registered"):
         reg.register_command("my.id", lambda: 42, "My Title")

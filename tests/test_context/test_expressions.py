@@ -142,6 +142,7 @@ def test_comparison():
 def test_iter_names():
     expr = "a if b in c else d > e"
     a = parse_expression(expr)
+    assert a is parse_expression(a)
     b = Expr.parse(expr)  # alias
     assert sorted(_iter_names(a)) == ["a", "b", "c", "d", "e"]
     assert sorted(_iter_names(b)) == ["a", "b", "c", "d", "e"]
@@ -225,6 +226,8 @@ def test_safe_eval():
     assert safe_eval(expr, {"x": 3}) is True
     assert safe_eval(expr, {"x": 10}) is False
     assert safe_eval(expr, {"x": 1}) == 3
+    assert safe_eval(True) is True
+    assert safe_eval(False) is False
 
     with pytest.raises(SyntaxError, match="Type 'Call' not supported"):
         safe_eval("func(x)")
