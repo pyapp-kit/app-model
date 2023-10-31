@@ -41,11 +41,6 @@ class Icon(_BaseModel):
             return v
         if isinstance(v, str):
             v = {"dark": v, "light": v}
-        if isinstance(v, dict):
-            if "dark" in v:
-                v.setdefault("light", v["dark"])
-            elif "light" in v:
-                v.setdefault("dark", v["light"])
         return cls(**v)
 
     # for v2
@@ -54,11 +49,6 @@ class Icon(_BaseModel):
     def _model_val(cls, v: dict) -> dict:
         if isinstance(v, str):
             v = {"dark": v, "light": v}
-        if isinstance(v, dict):
-            if "dark" in v:
-                v.setdefault("light", v["dark"])
-            elif "light" in v:
-                v.setdefault("dark", v["light"])
         return v
 
 
