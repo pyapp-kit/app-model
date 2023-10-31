@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
-from app_model.types import Action, MenuItem, ToggleRule
+from app_model.types import Action, CommandRule, MenuItem, ToggleRule
 
 if TYPE_CHECKING:
     from app_model import Application
@@ -58,3 +58,9 @@ def test_toggle_qaction(qapp, simple_app: "Application") -> None:
     a1._refresh()
     mock.assert_called_once()
     assert a1.isChecked()
+
+
+def test_icon_visible_in_menu(qapp, simple_app: "Application") -> None:
+    rule = CommandRule(id="test", title="Test", icon_visible_in_menu=False)
+    q_action = QCommandRuleAction(command_rule=rule, app=simple_app)
+    assert not q_action.isIconVisibleInMenu()
