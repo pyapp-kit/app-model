@@ -62,6 +62,11 @@ class Application:
         The KeyBindings Registry for this application.
     - injection_store : in_n_out.Store
         The Injection Store for this application.
+    - theme_mode : Literal["dark", "light"] | None
+        Theme mode to use when picking the color of icons. Must be one of "dark",
+        "light", or None.  When `Application.theme_mode` is "dark", icons will be
+        generated using their "color_dark" color (which should be a light color),
+        and vice versa. If not provided, backends may guess the current theme mode.
     """
 
     destroyed = Signal(str)
@@ -92,6 +97,7 @@ class Application:
         )
         self._menus = menus_reg_class()
         self._keybindings = keybindings_reg_class()
+        self._theme_mode: Literal["dark", "light"] | None = None
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
@@ -125,6 +131,24 @@ class Application:
     def injection_store(self) -> ino.Store:
         """Return the `in_n_out.Store` instance associated with this `Application`."""
         return self._injection_store
+
+    @property
+    def theme_mode(self) -> Literal["dark", "light"] | None:
+        """Return the theme mode for this `Application`."""
+        return self._theme_mode
+
+    @theme_mode.setter
+    def theme_mode(self, value: Literal["dark", "light"] | None) -> None:
+        """Set the theme mode for this `Application`.
+
+        Must be one of "dark", "light", or None.
+        If not provided, backends may guess at the current theme.
+        """
+        if value not in (None, "dark", "light"):
+            raise ValueError(
+                f"theme_mode must be one of 'dark', 'light', or None, not {value!r}"
+            )
+        self._theme_mode = value
 
     @classmethod
     def get_or_create(cls, name: str) -> Application:
