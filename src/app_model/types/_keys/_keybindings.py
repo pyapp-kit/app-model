@@ -157,9 +157,12 @@ class KeyBinding:
         return f"<{self.__class__.__name__} at {hex(id(self))}: {self}>"
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, KeyBinding):
-            return self.parts == other.parts
-        return NotImplemented
+        if not isinstance(other, KeyBinding):
+            try:
+                other = KeyBinding.validate(other)
+            except Exception:  # pragma: no cover
+                return NotImplemented
+        return bool(self.parts == other.parts)
 
     def __len__(self) -> int:
         return len(self.parts)
