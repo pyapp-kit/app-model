@@ -24,7 +24,7 @@ def test_menu(
 ) -> None:
     app = full_app
 
-    menu = MenuCls(app.Menus.EDIT, app)
+    menu = MenuCls(app.Menus.EDIT, app, title="just-for-coverage")
     qtbot.addWidget(menu)
 
     # The "" are separators, according to our group settings in full_app
@@ -81,6 +81,7 @@ def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
     submenu.setVisible(True)
     assert submenu.isVisible()
     assert submenu.isEnabled()
+    menu.aboutToShow.emit()  # for test coverage
 
     # "not something_open" is the when clause
     # "friday" is the enablement clause
