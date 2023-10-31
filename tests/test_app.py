@@ -37,12 +37,6 @@ def test_app(full_app: FullApp):
     app.commands.execute_command(app.Commands.PASTE)
     app.mocks.paste.assert_called_once()
 
-    assert app.theme_mode is None
-    with pytest.raises(ValueError, match="must be one of 'dark', 'light'"):
-        app.theme_mode = "foo"  # type: ignore
-    app.theme_mode = "dark"
-    assert app.theme_mode == "dark"
-
 
 def test_sorting(full_app: FullApp):
     groups = list(full_app.menus.iter_menu_groups(full_app.Menus.EDIT))

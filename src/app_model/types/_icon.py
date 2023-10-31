@@ -20,11 +20,6 @@ class Icon(_BaseModel):
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
-    color_dark: Optional[str] = Field(
-        None,  # use light icon for dark themes
-        description="(Light) icon color to use for themes with dark backgrounds. "
-        "If not provided, a default is used.",
-    )
     light: Optional[str] = Field(
         None,
         description="Icon path when a light theme is used. These may be "
@@ -32,11 +27,6 @@ class Icon(_BaseModel):
         "`fa6-solid:arrow-down`, or "
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
-    )
-    color_light: Optional[str] = Field(
-        None,  # use dark icon for light themes
-        description="(Dark) icon color to use for themes with light backgrounds. "
-        "If not provided, a default is used",
     )
 
     @classmethod
@@ -77,8 +67,6 @@ class IconDict(TypedDict):
 
     dark: Optional[str]
     light: Optional[str]
-    color_dark: Optional[str]
-    color_light: Optional[str]
 
 
 IconOrDict = Union[Icon, IconDict]

@@ -202,7 +202,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="cut",
-        icon={"light": "fa6-solid:scissors", "color_light": "red"},  # with color
+        icon="fa6-solid:scissors",
         title="Cut",
         keybindings=[types.StandardKeyBinding.Cut],
         enablement="copyAvailable",

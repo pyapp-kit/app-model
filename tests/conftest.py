@@ -121,7 +121,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         Action(
             id=Commands.PASTE,
             title="Paste",
-            icon={"light": "fa6s.paste", "color_light": "blue"},  # with color
+            icon="fa6s.paste",
             callback=app.mocks.paste,
             menus=[{"id": Menus.EDIT, "group": "2_copy_paste"}],
             keybindings=[{"primary": "Ctrl+V", "mac": "Cmd+V"}],
@@ -131,7 +131,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
             id=Commands.REDO,
             title="Redo",
             tooltip="Redo it!",
-            icon={"light": "fa6-solid:rotate-right", "color_light": "#00ff00"},
+            icon="fa6-solid:rotate-right",
             enablement="allow_undo_redo",
             callback="fake_module:run_me",  # this is a function in fixtures
             keybindings=[{"primary": "Ctrl+Shift+Z"}],
