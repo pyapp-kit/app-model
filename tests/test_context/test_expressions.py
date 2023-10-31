@@ -142,6 +142,7 @@ def test_comparison():
 def test_iter_names():
     expr = "a if b in c else d > e"
     a = parse_expression(expr)
+    assert a is parse_expression(a)
     b = Expr.parse(expr)  # alias
     assert sorted(_iter_names(a)) == ["a", "b", "c", "d", "e"]
     assert sorted(_iter_names(b)) == ["a", "b", "c", "d", "e"]

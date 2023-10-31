@@ -155,6 +155,7 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "@overload",
     "except ImportError",
+    "return NotImplemented",
     "pass",
 ]
 skip_covered = true
