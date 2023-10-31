@@ -7,7 +7,6 @@ from typing import (
     Dict,
     Iterable,
     List,
-    Literal,
     Optional,
     Tuple,
     Type,
