@@ -12,7 +12,7 @@ MENUID = "some.menu.id"
 KWARGS = [
     {},
     {"enablement": "x == 1"},
-    {"menus": [{"id": MENUID}]},
+    {"menus": [MENUID]},  # test that we can pass menus as a single string too
     {"enablement": "3 >= 1", "menus": [{"id": MENUID}]},
     {"keybindings": [{"primary": PRIMARY_KEY}]},
     {
@@ -71,8 +71,9 @@ def test_register_action_decorator(kwargs, simple_app: Application, mode):
     menus = kwargs.get("menus", [])
     if menus := kwargs.get("menus"):
         for entry in menus:
-            assert entry["id"] in app.menus
-            app.menus_changed.assert_any_call({entry["id"]})
+            id_ = entry if isinstance(entry, str) else entry["id"]
+            assert id_ in app.menus
+            app.menus_changed.assert_any_call({id_})
     else:
         menus = list(app.menus)
         if kwargs.get("palette") is not False:
