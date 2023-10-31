@@ -1,17 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import (
-    TYPE_CHECKING,
-    ClassVar,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Optional, Tuple, Type
 
 import in_n_out as ino
 from psygnal import Signal
