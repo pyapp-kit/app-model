@@ -48,7 +48,7 @@ class CommandRule(_BaseModel):
     status_tip: Optional[str] = Field(
         None,
         description="(Optional) Help message to show in the status bar when a "
-        "button representing this command is hovered (For backends that support it).",
+        "button representing this command is hovered (for backends that support it).",
     )
     icon: Optional[Icon] = Field(
         None,
@@ -57,6 +57,11 @@ class CommandRule(_BaseModel):
         "such as `fa6-solid:arrow-down`, or "
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
+    )
+    icon_visible_in_menu: bool = Field(
+        True,
+        description="Whether to show the icon in menus (for backends that support it). "
+        "If `False`, only the title will be shown. By default, `True`.",
     )
     enablement: Optional[expressions.Expr] = Field(
         None,
