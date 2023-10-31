@@ -226,6 +226,8 @@ def test_safe_eval():
     assert safe_eval(expr, {"x": 3}) is True
     assert safe_eval(expr, {"x": 10}) is False
     assert safe_eval(expr, {"x": 1}) == 3
+    assert safe_eval(True) is True
+    assert safe_eval(False) is False
 
     with pytest.raises(SyntaxError, match="Type 'Call' not supported"):
         safe_eval("func(x)")
