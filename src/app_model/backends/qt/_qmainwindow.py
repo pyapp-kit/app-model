@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Mapping, Optional, Sequence, Union
+from typing import Collection, Mapping, Optional, Sequence, Union
 
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
 
 from app_model import Application
 
 from ._qmenu import QModelMenuBar, QModelToolBar
-
-if TYPE_CHECKING:
-    from qtpy.QtCore import Qt
 
 
 class QModelMainWindow(QMainWindow):
@@ -41,10 +39,13 @@ class QModelMainWindow(QMainWindow):
         *,
         exclude: Optional[Collection[str]] = None,
         area: Optional[Qt.ToolBarArea] = None,
-    ) -> None:
+        toolbutton_style: Qt.ToolButtonStyle = Qt.ToolButtonStyle.ToolButtonIconOnly,
+    ) -> QModelToolBar:
         """Add a tool bar to the main window."""
-        menu_bar = QModelToolBar(menu_id, self._app, exclude=exclude, parent=self)
+        toolbar = QModelToolBar(menu_id, self._app, exclude=exclude, parent=self)
+        toolbar.setToolButtonStyle(toolbutton_style)
         if area is not None:
-            self.addToolBar(area, menu_bar)
+            self.addToolBar(area, toolbar)
         else:
-            self.addToolBar(menu_bar)
+            self.addToolBar(toolbar)
+        return toolbar

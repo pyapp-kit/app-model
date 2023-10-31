@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
 
-from app_model.backends.qt import QModelMainWindow
+from app_model.backends.qt import QModelMainWindow, QModelToolBar
 
 if TYPE_CHECKING:
     from ..conftest import FullApp  # noqa: TID252
@@ -21,5 +21,9 @@ def test_qmodel_main_window(qtbot, full_app: "FullApp"):
     )
     assert [a.text() for a in win.menuBar().actions()] == ["File", "Edit", "Help"]
 
-    win.addModelToolBar(full_app.Menus.FILE)
+    tb = win.addModelToolBar(
+        full_app.Menus.FILE,
+        toolbutton_style=Qt.ToolButtonStyle.ToolButtonTextBesideIcon,
+    )
+    assert isinstance(tb, QModelToolBar)
     win.addModelToolBar(full_app.Menus.EDIT, area=Qt.ToolBarArea.RightToolBarArea)
