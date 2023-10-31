@@ -21,6 +21,9 @@ def test_qmodel_main_window(qtbot, full_app: "FullApp"):
     )
     assert [a.text() for a in win.menuBar().actions()] == ["File", "Edit", "Help"]
 
-    tb = win.addModelToolBar(full_app.Menus.FILE)
+    tb = win.addModelToolBar(
+        full_app.Menus.FILE,
+        toolbutton_style=Qt.ToolButtonStyle.ToolButtonTextBesideIcon,
+    )
     assert isinstance(tb, QModelToolBar)
     win.addModelToolBar(full_app.Menus.EDIT, area=Qt.ToolBarArea.RightToolBarArea)
