@@ -96,7 +96,7 @@ class Application:
         )
         self._menus = menus_reg_class()
         self._keybindings = keybindings_reg_class()
-        self._theme_mode: Literal["dark", "light"] | None = None
+        self._theme_mode: Literal[dark, light] | None = None
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
@@ -132,12 +132,12 @@ class Application:
         return self._injection_store
 
     @property
-    def theme_mode(self) -> Literal["dark", "light"] | None:
+    def theme_mode(self) -> Literal[dark, light] | None:
         """Return the theme mode for this `Application`."""
         return self._theme_mode
 
     @theme_mode.setter
-    def theme_mode(self, value: Literal["dark", "light"] | None) -> None:
+    def theme_mode(self, value: Literal[dark, light] | None) -> None:
         """Set the theme mode for this `Application`.
 
         Must be one of "dark", "light", or None.
