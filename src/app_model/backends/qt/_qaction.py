@@ -126,7 +126,7 @@ class QCommandRuleAction(QCommandAction):
 class QMenuItemAction(QCommandRuleAction):
     """QAction for a MenuItem.
 
-    Mostly the same as a CommandRuleAction, but aware of the `menu_item.when` clause
+    Mostly the same as a `CommandRuleAction`, but aware of the `menu_item.when` clause
     to toggle visibility.
     """
 

@@ -4,12 +4,15 @@ from pathlib import Path
 
 import mkdocs_gen_files
 
+SRC = Path("src")
+PKG = SRC / "app_model"
+
 nav = mkdocs_gen_files.Nav()
 mod_symbol = '<code class="doc-symbol doc-symbol-nav doc-symbol-module"></code>'
 
-for path in sorted(Path("src").rglob("*.py")):
+for path in sorted(SRC.rglob("*.py")):
     module_path = path.relative_to("src").with_suffix("")
-    doc_path = path.relative_to("src/app_model").with_suffix(".md")
+    doc_path = path.relative_to(PKG).with_suffix(".md")
     full_doc_path = Path("reference", doc_path)
 
     parts = tuple(module_path.parts)
@@ -18,7 +21,7 @@ for path in sorted(Path("src").rglob("*.py")):
         parts = parts[:-1]
         doc_path = doc_path.with_name("index.md")
         full_doc_path = full_doc_path.with_name("index.md")
-    elif parts[-1].startswith("_"):
+    if parts[-1].startswith("_"):
         continue
 
     nav_parts = [f"{mod_symbol} {part}" for part in parts]

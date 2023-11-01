@@ -14,11 +14,7 @@ watch:
 
 nav:
   - index.md
-  - application.md
-  - expressions.md
-  - keybindings.md
   - types.md
-  - registries.md
 
   # defer to gen-files + literate-nav
   - API reference: reference/
@@ -42,12 +38,19 @@ plugins:
             - https://docs.python.org/3/objects.inv
           options:
             docstring_style: numpy
-            show_bases: false
-            merge_init_into_class: yes
-            show_source: no
-            show_root_full_path: no
-            show_root_heading: yes
+            docstring_options:
+              ignore_init_summary: true
             docstring_section_style: list
+            filters: ["!^_"]
+            heading_level: 1
+            inherited_members: true
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_bases: true
+            show_source: true
 
 markdown_extensions:
   - tables
@@ -69,7 +72,7 @@ theme:
     - search.suggest
 
 extra_css:
-- css/style.css
-- css/material.css
-- css/mkdocstrings.css
-- css/insiders.css
+  - css/style.css
+
+hooks:
+  - docs/my_hooks.py

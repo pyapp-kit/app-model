@@ -13,12 +13,7 @@
 {{ pydantic_table('app_model.types.KeyBindingRule') }}
 
 ::: app_model.types.Action
-    options:
-      show_bases: true
 {{ pydantic_table('app_model.types.Action') }}
 
 ::: app_model.types.Icon
-    options:
-      members:
-        -
 {{ pydantic_table('app_model.types.Icon') }}
