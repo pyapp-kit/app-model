@@ -107,7 +107,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install -e .[qt,test,test-qt]
+          python -m pip install -e .[test,test-qt]
           python -m pip install ${{ matrix.qt-backend }}
 
       - name: Test
