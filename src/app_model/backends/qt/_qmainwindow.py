@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, Mapping, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Collection, Mapping, Optional, Sequence, Union
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
@@ -8,6 +8,9 @@ from qtpy.QtWidgets import QMainWindow, QWidget
 from app_model import Application
 
 from ._qmenu import QModelMenuBar, QModelToolBar
+
+if TYPE_CHECKING:
+    from app_model.registries import MenusRegistry
 
 
 class QModelMainWindow(QMainWindow):
@@ -20,14 +23,17 @@ class QModelMainWindow(QMainWindow):
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
 
     def setModelMenuBar(
-        self, menu_ids: Mapping[str, str] | Sequence[str | tuple[str, str]]
+        self,
+        menu_ids: Mapping[str, str] | Sequence[str | tuple[str, str]] | MenusRegistry,
     ) -> QModelMenuBar:
         """Set the menu bar to a list of menu ids.
 
         Parameters
         ----------
-        menu_ids : Mapping[str, str] | Sequence[str | tuple[str, str]]
-            A mapping of menu ids to menu titles or a sequence of menu ids.
+        menu_ids : Mapping[str, str] | Sequence[str | tuple[str, str]] | MenusRegistry
+            A mapping of `{menu ids -> menu title}` or a sequence of menu ids. If a
+            `MenuRegistry` instance is passed, all menus in the registry will be added
+            to the menu bar.
         """
         menu_bar = QModelMenuBar(menu_ids, self._app, self)
         self.setMenuBar(menu_bar)

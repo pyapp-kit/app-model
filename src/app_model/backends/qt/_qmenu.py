@@ -15,6 +15,7 @@ from typing import (
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
 from app_model import Application
+from app_model.registries import MenusRegistry
 from app_model.types import SubmenuItem
 
 from ._qaction import QCommandRuleAction, QMenuItemAction
@@ -257,13 +258,24 @@ class QModelToolBar(QToolBar):
             self.rebuild()
 
 
+def _menu_sort(menu_name: str | tuple[str, str]) -> tuple:
+    if isinstance(menu_name, tuple):
+        menu_name = menu_name[0]
+    order = ["file", "edit", "format", "view", None, "window", "help"]
+    menu_name = menu_name.lower()
+    idx = order.index(menu_name if menu_name in order else None)
+    return (idx, menu_name)
+
+
 class QModelMenuBar(QMenuBar):
     """QMenuBar that is built from a list of model menu ids.
 
     Parameters
     ----------
     menus : Mapping[str, str] | Sequence[str | tuple[str, str]]
-        A mapping of menu ids to menu titles or a sequence of menu ids.
+        A mapping of `{menu ids -> menu title}` or a sequence of menu ids. If a
+        `MenuRegistry` instance is passed, all menus in the registry will be added
+        to the menu bar.
     app : Union[str, Application]
         Application instance or name of application instance.
     parent : Optional[QWidget]
@@ -272,13 +284,23 @@ class QModelMenuBar(QMenuBar):
 
     def __init__(
         self,
-        menus: Mapping[str, str] | Sequence[str | tuple[str, str]],
+        menus: Mapping[str, str] | Sequence[str | tuple[str, str]] | MenusRegistry,
         app: Union[str, Application],
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
 
-        menu_items = menus.items() if isinstance(menus, Mapping) else menus
+        menu_items: Iterable[str | tuple[str, str]]
+        if isinstance(menus, MenusRegistry):
+            menu_items = [m for m, *_ in menus if m != MenusRegistry.COMMAND_PALETTE_ID]
+            # sort menus so that they are in this order
+            # File Edit Format View <...> Window Help
+            menu_items.sort(key=_menu_sort)
+        elif isinstance(menus, Mapping):
+            menu_items = menus.items()
+        else:
+            menu_items = menus
+
         for item in menu_items:
             id_, title = item if isinstance(item, tuple) else (item, item.title())
             self.addMenu(QModelMenu(id_, app, title, self))
