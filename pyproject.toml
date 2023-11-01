@@ -38,7 +38,7 @@ dependencies = [
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 test = ["pytest>=6.0", "pytest-cov"]
-test-qt = ["pytest-qt", "fonticon-fontawesome6"]
+test-qt = ["pytest-qt", "fonticon-fontawesome6", "qtpy", "superqt[iconify]"]
 qt = ["qtpy", "superqt[iconify]"]
 dev = [
     "black",
