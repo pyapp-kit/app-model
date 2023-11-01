@@ -17,7 +17,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.CLOSE,
         title="Close",
-        icon="fa6-solid:window-close",
+        icon="fa-solid:window-close",
         callback=functions.close,
         menus=[MenuRule(id=MenuId.FILE)],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyW)],
@@ -25,7 +25,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.UNDO,
         title="Undo",
-        icon="fa6-solid:undo",
+        icon="fa-solid:undo",
         callback=functions.undo,
         menus=[MenuRule(id=MenuId.EDIT, group="1_undo_redo")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyZ)],
@@ -43,7 +43,7 @@ ACTIONS: List[Action] = [
     Action(
         id=CommandId.CUT,
         title="Cut",
-        icon="fa6-solid:cut",
+        icon="fa-solid:cut",
         callback=functions.cut,
         menus=[MenuRule(id=MenuId.EDIT, group="3_copypaste")],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyX)],
