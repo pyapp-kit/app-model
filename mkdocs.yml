@@ -2,17 +2,34 @@ site_name: App Model
 site_url: https://github.com/pyapp-kit/app-model
 site_author: Talley Lambert
 site_description: Generic application schema implemented in python.
+# strict: true
 
 repo_name: pyapp-kit/app-model
 repo_url: https://github.com/pyapp-kit/app-model
 
-copyright: Copyright &copy; 2021 - 2022 Talley Lambert
+copyright: Copyright &copy; 2021 - 2023 Talley Lambert
 
 watch:
   - src
 
+nav:
+  - index.md
+  - application.md
+  - expressions.md
+  - keybindings.md
+  - types.md
+  - registries.md
+
+  # defer to gen-files + literate-nav
+  - API reference: reference/
+
 plugins:
   - search
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_nav.py
+  - literate-nav:
+      nav_file: SUMMARY.txt
   - autorefs
   - minify:
       minify_html: true
@@ -32,7 +49,6 @@ plugins:
             show_root_heading: yes
             docstring_section_style: list
 
-
 markdown_extensions:
   - tables
   - pymdownx.inlinehilite
@@ -48,5 +64,12 @@ theme:
     logo: material/application-cog-outline
   features:
     - navigation.instant
+    - navigation.indexes
     - search.highlight
     - search.suggest
+
+extra_css:
+- css/style.css
+- css/material.css
+- css/mkdocstrings.css
+- css/insiders.css

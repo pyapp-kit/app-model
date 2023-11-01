@@ -6,7 +6,7 @@ from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
 from app_model.types._constants import OperatingSystem
-from app_model.types._keys import (
+from app_model.types import (
     KeyBinding,
     KeyCode,
     KeyCombo,

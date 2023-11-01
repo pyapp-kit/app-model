@@ -68,12 +68,14 @@ class QCommandRuleAction(QCommandAction):
 
     Parameters
     ----------
-    command_id : str
-        Command ID.
+    command_rule : CommandRule
+        `CommandRule` instance to create an action for.
     app : Union[str, Application]
         Application instance or name of application instance.
     parent : Optional[QWidget]
         Optional parent widget, by default None
+    use_short_title : bool
+        If True, use the `short_title` of the command rule, if it exists.
     """
 
     def __init__(
