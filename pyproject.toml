@@ -63,6 +63,7 @@ docs = [
     "typing_extensions>=4.0",
     "mkdocs-gen-files",
     "mkdocs-literate-nav",
+    "fieldz",
 ]
 
 [project.urls]
