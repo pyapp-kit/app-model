@@ -10,7 +10,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 
 from app_model import Application
@@ -144,7 +143,7 @@ class QMenuItemAction(QCommandRuleAction):
         if cache and key in cls._cache:
             return cls._cache[key]
 
-        self = cast(QMenuItemAction, super().__new__(cls))
+        self = super().__new__(cls)
         if cache:
             cls._cache[key] = self
         return self
