@@ -14,6 +14,7 @@ watch:
 
 nav:
   - index.md
+  - getting_started.md
   # defer to gen-files + literate-nav
   - API reference: reference/
 
@@ -69,6 +70,7 @@ theme:
     - navigation.indexes
     - search.highlight
     - search.suggest
+    - navigation.expand
 
 extra_css:
   - css/style.css

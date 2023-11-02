@@ -1,4 +1,4 @@
-"""Provides the  :class:`Expr` and its subclasses."""
+"""Provides `Expr` and its subclasses."""
 from __future__ import annotations
 
 import ast
@@ -39,12 +39,12 @@ if TYPE_CHECKING:
 
 
 def parse_expression(expr: Union[str, Expr]) -> Expr:
-    """Parse string expression into an :class:`Expr` instance.
+    """Parse string expression into an [`Expr`][app_model.expressions.Expr] instance.
 
     Parameters
     ----------
     expr : Union[str, Expr]
-        Expression to parse.  (If already an :class:`Expr`, it is returned)
+        Expression to parse.  (If already an `Expr`, it is returned)
 
     Returns
     -------

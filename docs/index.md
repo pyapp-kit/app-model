@@ -9,11 +9,17 @@ that make up their application.
 ## General architecture
 
 Typical usage will begin by creating a [`Application`][app_model.Application]
-object. [Commands][app_model.types.CommandRule], [menu items][app_model.types.MenuRule], and [keybindings][app_model.types.KeyBindingRule] will usually be declared by creating
-[`Action`][app_model.Action] objects, and registered with the application
-using the [`Application.register_action`][app_model.Application.register_action]
+object. [Commands][app_model.types.CommandRule], [menu
+items][app_model.types.MenuRule], and
+[keybindings][app_model.types.KeyBindingRule] will usually be declared by
+creating [`Action`][app_model.Action] objects, and registered with the
+application using the
+[`Application.register_action`][app_model.Application.register_action]
 
-An application maintains a [registry](registries) for all registered [commands][app_model.registries.CommandsRegistry], [menus][app_model.registries.MenusRegistry], and [keybindings][app_model.registries.KeyBindingsRegistry].
+An application maintains a registry for all registered
+[commands][app_model.registries.CommandsRegistry],
+[menus][app_model.registries.MenusRegistry], and
+[keybindings][app_model.registries.KeyBindingsRegistry].
 
 !!! Note
     Calling [`Application.register_action`][app_model.Application.register_action] with a single
@@ -72,7 +78,7 @@ qmenu = QModelMenu(menu_id='file', app=app)
 ```
 
 !!! Tip
-    Application [registries](registries) are backed by
+    Application [registries][app_model.registries] are backed by
     [psygnal](https://github.com/tlambert03/psygnal), and emit events when
     modified.  These events are connected to the Qt objects, so `QModel...`
     objects such as `QModelMenu` and `QCommandAction` will be updated when the
