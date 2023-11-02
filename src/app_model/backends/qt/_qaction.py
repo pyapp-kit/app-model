@@ -91,7 +91,9 @@ class QCommandRuleAction(QCommandAction):
         else:
             self.setText(command_rule.title)
         if command_rule.icon:
-            self.setIcon(to_qicon(command_rule.icon))
+            self.setIcon(
+                to_qicon(command_rule.icon, theme=self._app.theme_mode, parent=self)
+            )
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
         if command_rule.tooltip:
             self.setToolTip(command_rule.tooltip)

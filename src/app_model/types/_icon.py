@@ -20,6 +20,11 @@ class Icon(_BaseModel):
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
+    color_dark: Optional[str] = Field(
+        None,  # use light icon for dark themes
+        description="(Light) icon color to use for themes with dark backgrounds. "
+        "If not provided, a default is used.",
+    )
     light: Optional[str] = Field(
         None,
         description="Icon path when a light theme is used. These may be "
@@ -27,6 +32,11 @@ class Icon(_BaseModel):
         "`fa6-solid:arrow-down`, or "
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
+    )
+    color_light: Optional[str] = Field(
+        None,  # use dark icon for light themes
+        description="(Dark) icon color to use for themes with light backgrounds. "
+        "If not provided, a default is used",
     )
 
     @classmethod
@@ -41,6 +51,11 @@ class Icon(_BaseModel):
             return v
         if isinstance(v, str):
             v = {"dark": v, "light": v}
+        if isinstance(v, dict):
+            if "dark" in v:
+                v.setdefault("light", v["dark"])
+            elif "light" in v:
+                v.setdefault("dark", v["light"])
         return cls(**v)
 
     # for v2
@@ -49,6 +64,11 @@ class Icon(_BaseModel):
     def _model_val(cls, v: dict) -> dict:
         if isinstance(v, str):
             v = {"dark": v, "light": v}
+        if isinstance(v, dict):
+            if "dark" in v:
+                v.setdefault("light", v["dark"])
+            elif "light" in v:
+                v.setdefault("dark", v["light"])
         return v
 
 
@@ -57,6 +77,8 @@ class IconDict(TypedDict):
 
     dark: Optional[str]
     light: Optional[str]
+    color_dark: Optional[str]
+    color_light: Optional[str]
 
 
 IconOrDict = Union[Icon, IconDict]
