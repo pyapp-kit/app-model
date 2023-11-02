@@ -32,8 +32,9 @@ plugins:
   - macros:
       module_name: docs/_macros
   - mkdocstrings:
+      default_handler: app_model
       handlers:
-        python:
+        app_model:
           import:
             - https://docs.python.org/3/objects.inv
           options:

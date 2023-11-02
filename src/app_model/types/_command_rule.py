@@ -30,6 +30,13 @@ class CommandRule(_BaseModel):
     grouping. However, the Command Palette doesn't show icons nor disabled commands.
     Menus, on the other hand, shows disabled items as grayed out, but don't show the
     category label.
+
+    Parameters
+    ----------
+    id : str
+        A global identifier for the command.
+    title : str
+        Title by which the command is represented in the UI.
     """
 
     id: str = Field(..., description="A global identifier for the command.")
