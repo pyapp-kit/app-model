@@ -49,9 +49,9 @@ class DynamicDocstrings(Extension):
         params = [
             DocstringParameter(
                 name=field.name,
-                annotation=field.type_display(modern_union=True)
-                if field.type
-                else None,
+                annotation=(
+                    field.type_display(modern_union=True) if field.type else None
+                ),
                 description=field.description or "",
                 value=repr(field.default)
                 if field.default is not field.MISSING

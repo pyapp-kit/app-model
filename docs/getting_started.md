@@ -78,6 +78,15 @@ The application maintains three internal registries.
     an association between a [KeyBinding][app_model.types.KeyBinding] and a command
     id in the `CommandsRegistry`.
 
+!!! Note
+    Calling [`Application.register_action`][app_model.Application.register_action] with a single
+    [`Action`][app_model.Action] object is just a convenience around independently registering
+    objects with each of the registries using:
+
+    - [CommandsRegistry.register_command][app_model.registries.CommandsRegistry.register_command]
+    - [MenusRegistry.append_menu_items][app_model.registries.MenusRegistry.append_menu_items]
+    - [KeyBindingsRegistry.register_keybinding_rule][app_model.registries.KeyBindingsRegistry.register_keybinding_rule]
+
 ### Registry events
 
 Each of these registries has a signal that is emitted when a new item is added.
@@ -182,6 +191,8 @@ provides functions that map the `app-model` model onto various GUI framework mod
     ability to swap backends.  And we hope to add more backends if the demand is
     there.
 
+### Qt
+
 Currently, we don't have a generic abstraction for the application window, so
 users are encouraged to directly use the classes in the `app_model.backends.qt`
 module.  One of the main classes is the [`QModelMainWindow`][app_model.backends.qt.QModelMainWindow] object: a subclass of `QMainWindow` that knows how to map
@@ -214,3 +225,22 @@ the actions you registered with the application with icons, keybindings,
 and callbacks all connected.
 
 ![QMainWindow with menu bar and toolbar](../images/qmainwindow.jpeg)
+
+Once objects have been registered with the application, it becomes very easy to
+create Qt objects (such as
+[`QMainWindow`](https://doc.qt.io/qt-6/qmainwindow.html),
+[`QMenu`](https://doc.qt.io/qt-6/qmenu.html),
+[`QMenuBar`](https://doc.qt.io/qt-6/qmenubar.html),
+[`QAction`](https://doc.qt.io/qt-6/qaction.html),
+[`QToolBar`](https://doc.qt.io/qt-6/qtoolbar.html), etc...) with very minimal
+boilerplate and repetitive procedural code.
+
+See all objects in the [Qt backend API docs][app_model.backends.qt].
+
+!!! Tip
+
+    Application registries are backed by
+    [psygnal](https://github.com/pyapp-kit/psygnal), and emit events when modified.
+    These events are connected to the Qt objects, so `QModel...` objects such as
+    `QModelMenu` and `QCommandAction` will be updated when the application's
+    registry is updated.
