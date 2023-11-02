@@ -69,7 +69,7 @@ if QT6:
         else:
             combo = QKeyCombination(modifiers)
 
-        return combo.toCombined()
+        return combo.toCombined()  # type: ignore [no-any-return]
 
 else:
 
@@ -95,10 +95,10 @@ if QT6:
 else:
 
     def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
-        return Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)  # type: ignore [arg-type]
+        return Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)
 
     def _get_qkey(key: QKeyCombination) -> Qt.Key:
-        return Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)  # type: ignore [arg-type]
+        return Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)
 
 
 # maybe ~ 1.5x faster than:
@@ -309,7 +309,7 @@ def qkeycombo2modelkey(key: QKeyCombination) -> KeyCode | KeyCombo:
     """Return KeyCode or KeyCombo from QKeyCombination."""
     if key in KEY_FROM_QT:
         # type ignore because in qt5, key may actually just be int ... but it's fine.
-        return KEY_FROM_QT[key]  # type: ignore [index]
+        return KEY_FROM_QT[key]
     qmods = _get_qmods(key)
     qkey = _get_qkey(key)
     return qmods2modelmods(qmods) | qkey2modelkey(qkey)  # type: ignore [return-value]

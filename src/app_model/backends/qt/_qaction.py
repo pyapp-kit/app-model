@@ -146,7 +146,7 @@ class QMenuItemAction(QCommandRuleAction):
         self = super().__new__(cls)
         if cache:
             cls._cache[key] = self
-        return self
+        return self  # type: ignore [no-any-return]
 
     def __init__(
         self,

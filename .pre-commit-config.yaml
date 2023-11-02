@@ -36,6 +36,3 @@ repos:
           - pydantic >2
           - pydantic-compat
           - in-n-out
-          - PyQt6
-          - qtpy
-          - superqt
