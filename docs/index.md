@@ -23,7 +23,7 @@ conda install -c conda-forge app-model
 ## Usage
 
 See the [Getting Started](getting_started.md) guide for a quick introduction to
-`app-model`. See the [API Reference](reference/) for a complete
+`app-model`. See the [API Reference](reference/index.md) for a complete
 reference of the types and functions provided by `app-model`.
 
 ## Motivation

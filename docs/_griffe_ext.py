@@ -2,6 +2,7 @@ import ast
 import inspect
 
 import fieldz
+from fieldz._repr import display_as_type
 from griffe import Extension, Object, ObjectNode, dynamic_import, get_logger
 from griffe.dataclasses import Docstring
 from griffe.docstrings.dataclasses import DocstringParameter, DocstringSectionParameters
@@ -50,7 +51,9 @@ class DynamicDocstrings(Extension):
             DocstringParameter(
                 name=field.name,
                 annotation=(
-                    field.type_display(modern_union=True) if field.type else None
+                    display_as_type(field.type, modern_union=True)
+                    if field.type
+                    else None
                 ),
                 description=field.description or "",
                 value=repr(field.default)

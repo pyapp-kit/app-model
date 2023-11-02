@@ -224,7 +224,7 @@ You should now have a QMainWindow with a menu bar and toolbar populated with
 the actions you registered with the application with icons, keybindings,
 and callbacks all connected.
 
-![QMainWindow with menu bar and toolbar](../images/qmainwindow.jpeg)
+![QMainWindow with menu bar and toolbar](images/qmainwindow.jpeg)
 
 Once objects have been registered with the application, it becomes very easy to
 create Qt objects (such as
