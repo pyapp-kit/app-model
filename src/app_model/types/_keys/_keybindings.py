@@ -143,12 +143,17 @@ class KeyBinding:
 
     Chords (two separate keypress actions) are expressed as a string by separating
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
+
+    Parameters
+    ----------
+    parts : List[SimpleKeyBinding]
+        The parts of the keybinding.  There must be at least one part.
     """
+
+    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
     def __init__(self, *, parts: List[SimpleKeyBinding]):
         self.parts = parts
-
-    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
     def __str__(self) -> str:
         return " ".join(str(part) for part in self.parts)

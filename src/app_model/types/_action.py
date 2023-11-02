@@ -29,14 +29,6 @@ class Action(CommandRule, Generic[P, R]):
     actual callable object, as well as any additional menu and keybinding rules.
     Most commands and menu items will be represented by Actions, and registered using
     `register_action`.
-
-    Attributes
-    ----------
-    callback : Union[Callable[P, R], str]
-        A function to call when the associated command id is executed. If a string is
-        provided, it must be a fully qualified name to a callable python object. This
-        usually takes the form of `{obj.__module__}:{obj.__qualname__}` (e.g.
-        `my_package.a_module:some_function`)
     """
 
     callback: Union[Callable[P, R], str] = Field(

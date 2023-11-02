@@ -14,8 +14,6 @@ watch:
 
 nav:
   - index.md
-  - types.md
-
   # defer to gen-files + literate-nav
   - API reference: reference/
 
@@ -29,15 +27,15 @@ plugins:
   - autorefs
   - minify:
       minify_html: true
-  - macros:
-      module_name: docs/_macros
   - mkdocstrings:
-      default_handler: app_model
       handlers:
-        app_model:
+        python:
           import:
             - https://docs.python.org/3/objects.inv
           options:
+            extensions:
+              - pydantic: { schema: true }
+              - docs/_griffe_ext.py:DynamicDocstrings
             docstring_style: numpy
             docstring_options:
               ignore_init_summary: true

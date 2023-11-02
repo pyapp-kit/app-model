@@ -694,6 +694,13 @@ class KeyChord(int):
 
     It could be two [`KeyCombo`][app_model.types.KeyCombo]
     [`KeyCode`][app_model.types.KeyCode], or [int][].
+
+    Parameters
+    ----------
+    first_part : KeyCombo | int
+        The first part of the chord.
+    second_part : KeyCombo | int
+        The second part of the chord.
     """
 
     def __new__(cls: Type["KeyChord"], first_part: int, second_part: int) -> "KeyChord":
