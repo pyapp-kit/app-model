@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import List
+from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
 
 from app_model import Action, Application
 from app_model.types import KeyCode, KeyMod, SubmenuItem
+
+if TYPE_CHECKING:
+    from typing import Iterator, NoReturn
 
 try:
     from fonticon_fa6 import FA6S
@@ -40,7 +45,7 @@ class Commands:
     RAISES = "raises.error"
 
 
-def _raise_an_error():
+def _raise_an_error() -> NoReturn:
     raise ValueError("This is an error")
 
 
@@ -101,7 +106,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
         ]
     )
 
-    actions: List[Action] = [
+    actions: list[Action] = [
         Action(
             id=Commands.OPEN,
             title="Open...",
@@ -211,7 +216,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
 
 
 @pytest.fixture
-def full_app(monkeypatch) -> Application:
+def full_app(monkeypatch: pytest.MonkeyPatch) -> Iterator[Application]:
     """Premade application."""
     try:
         app = build_app("complete_test_app")
@@ -228,7 +233,7 @@ def full_app(monkeypatch) -> Application:
 
 
 @pytest.fixture
-def simple_app():
+def simple_app() -> Iterator[Application]:
     app = Application("test")
     app.commands_changed = Mock()
     app.commands.registered.connect(app.commands_changed)

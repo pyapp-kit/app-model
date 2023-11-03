@@ -1,17 +1,19 @@
 from __future__ import annotations
+import os
 
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 import pytest
 
 from app_model import Application
+from app_model.expressions import Context
 
 if TYPE_CHECKING:
     from conftest import FullApp
 
 
-def test_app_create():
+def test_app_create() -> None:
     assert Application.get_app("my_app") is None
     app = Application("my_app")
     assert Application.get_app("my_app") is app
@@ -27,7 +29,7 @@ def test_app_create():
     Application.destroy("my_app")
 
 
-def test_app(full_app: FullApp):
+def test_app(full_app: FullApp) -> None:
     app = full_app
 
     app.commands.execute_command(app.Commands.OPEN)
@@ -38,7 +40,7 @@ def test_app(full_app: FullApp):
     app.mocks.paste.assert_called_once()
 
 
-def test_sorting(full_app: FullApp):
+def test_sorting(full_app: FullApp) -> None:
     groups = list(full_app.menus.iter_menu_groups(full_app.Menus.EDIT))
     assert len(groups) == 3
     [g0, g1, g2] = groups
@@ -49,7 +51,7 @@ def test_sorting(full_app: FullApp):
     assert [i.command.title for i in g2] == ["Copy", "Paste"]
 
 
-def test_action_import_by_string(full_app: FullApp):
+def test_action_import_by_string(full_app: FullApp) -> None:
     """the REDO command is declared as a string in the conftest.py file
 
     This tests that it can be lazily imported at callback runtime and executed
@@ -77,7 +79,7 @@ def test_action_import_by_string(full_app: FullApp):
     full_app.commands.execute_command(full_app.Commands.NOT_CALLABLE)
 
 
-def test_action_raises_exception(full_app: FullApp):
+def test_action_raises_exception(full_app: FullApp) -> None:
     result = full_app.commands.execute_command(full_app.Commands.RAISES)
     with pytest.raises(ValueError):
         result.result()
@@ -91,3 +93,25 @@ def test_action_raises_exception(full_app: FullApp):
 
     with pytest.raises(ValueError):
         full_app.commands.execute_command(full_app.Commands.RAISES)
+
+
+def test_app_context() -> None:
+    app = Application("app1")
+    assert isinstance(app.context, Context)
+    Application.destroy("app1")
+    assert app.context["is_windows"] == (os.name == "nt")
+    assert 'is_mac' in app.context
+    assert 'is_linux' in app.context
+
+    app = Application("app2", context={"a": 1})
+    assert isinstance(app.context, Context)
+    assert app.context["a"] == 1
+    Application.destroy("app2")
+
+    app = Application("app3", context=Context({"a": 1}))
+    assert isinstance(app.context, Context)
+    assert app.context["a"] == 1
+    Application.destroy("app3")
+
+    with pytest.raises(TypeError, match="context must be a Context or MutableMapping"):
+        Application("app4", context=1)  # type: ignore[arg-type]
