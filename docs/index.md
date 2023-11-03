@@ -32,17 +32,24 @@ Why bother with a declarative application model?
 
 1. **It's easier to query the application's state**
 
-    If you want to ask "what commands are available in this application?", or "what items are currently in a given menu", you can directly query the application registries.  For example, you don't need to find a specific `QMenu` instance and iterate its `actions()` to know whether a given item is present.
+    If you want to ask "what commands are available in this application?", or
+    "what items are currently in a given menu", you can directly query the
+    application registries.  For example, you don't need to find a specific
+    `QMenu` instance and iterate its `actions()` to know whether a given item is
+    present.
 
 1. **It's easier to modify the application's state**
 
-    For applications that need to be dynamic (e.g. adding and removing menu items and actions as plugins are loaded and unloaded), it is convenient to have an application
-    model that emits events when modified, with the "view" (the actual GUI backend) responding to those events to update the actual presentation.
+    For applications that need to be dynamic (e.g. adding and removing menu
+    items and actions as plugins are loaded and unloaded), it is convenient to
+    have an application model that emits events when modified, with the "view"
+    (the actual GUI framework) responding to those events to update the actual
+    presentation.
 
-1. **It decouples the structure of the application from the underlying backend**
+1. **It decouples the structure of the application from the GUI framework**
 
-    This makes it easier to change the backend without having to change the
-   application. (Obviously, as an application grows with a particular backend,
+    This makes it easier to change the GUI framework without having to change the
+   application. (Obviously, as an application grows with a particular framework,
    it does become harder to extract, but having a loosely coupled model is a step
    in the right direction)
 
@@ -52,12 +59,14 @@ Why bother with a declarative application model?
     one-off procedurally created menus, we can test reusable *patterns* of
     command/menu/keybinding creation and registration.
 
-## Back Ends
+## GUI Frameworks
 
-`app-model` is backend-agnostic, and can be used with any GUI toolkit, but [Qt](https://www.qt.io) is
-currently the primary target, and a Qt-backend comes with this library.
+`app-model` is framework-agnostic, and can be used with any GUI toolkit, but
+[Qt](https://www.qt.io) is currently the primary target, and a
+[Qt adapter][app_model.backends.qt] comes with this library.
 
-See some details in the [qt section](getting_started.md#qt) of the getting started guide.
+See some details in the [qt section](getting_started.md#qt) of the getting
+started guide.
 
 ## Example Application
 
