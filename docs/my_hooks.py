@@ -1,5 +1,7 @@
-def on_page_markdown(md: str, page, config, files):
+from typing import Any
+
+
+def on_page_markdown(md: str, **kwargs: Any) -> str:
     T = "::: app_model.types"
     T2 = T + "\n\toptions:\n\t\tdocstring_section_style: table"
-    md = md.replace(T, T2)
-    return md
+    return md.replace(T, T2)

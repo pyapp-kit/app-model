@@ -1,4 +1,5 @@
 import ast
+import contextlib
 import inspect
 
 import fieldz
@@ -6,8 +7,8 @@ from fieldz._repr import display_as_type
 from griffe import Extension, Object, ObjectNode, dynamic_import, get_logger
 from griffe.dataclasses import Docstring
 from griffe.docstrings.dataclasses import DocstringParameter, DocstringSectionParameters
-
-from app_model.types._base import _BaseModel
+from griffe.docstrings.utils import parse_annotation
+from pydantic import BaseModel
 
 logger = get_logger(__name__)
 
@@ -34,12 +35,13 @@ class DynamicDocstrings(Extension):
             logger.debug(f"Object {obj.path} does not have a __doc__ attribute")
             return
 
-        if isinstance(runtime_obj, type) and issubclass(runtime_obj, _BaseModel):
+        with contextlib.suppress(TypeError):
+            fieldz.get_adapter(runtime_obj)
             docstring = inspect.cleandoc(docstring)
-            self._fix_pydantic(docstring, obj, runtime_obj)
+            self._inject_fields(docstring, obj, runtime_obj)
 
-    def _fix_pydantic(
-        self, docstring: str, obj: Object, runtime_obj: type[_BaseModel]
+    def _inject_fields(
+        self, docstring: str, obj: Object, runtime_obj: type[BaseModel]
     ) -> None:
         # update the object instance with the evaluated docstring
         if obj.docstring:
@@ -51,7 +53,9 @@ class DynamicDocstrings(Extension):
             DocstringParameter(
                 name=field.name,
                 annotation=(
-                    display_as_type(field.type, modern_union=True)
+                    parse_annotation(
+                        display_as_type(field.type, modern_union=True), obj.docstring
+                    )
                     if field.type
                     else None
                 ),
@@ -64,7 +68,7 @@ class DynamicDocstrings(Extension):
             if field.name in runtime_obj.__annotations__
         ]
         param_section = DocstringSectionParameters(params)
-
+        # TODO: merge rather than overwrite
         parsed = [
             x
             for x in obj.docstring.parsed

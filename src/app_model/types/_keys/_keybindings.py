@@ -22,11 +22,13 @@ _re_cmd = re.compile(r"cmd[\+|\-]")
 class SimpleKeyBinding(BaseModel):
     """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
 
-    ctrl: bool = False
-    shift: bool = False
-    alt: bool = False
-    meta: bool = False
-    key: Optional[KeyCode] = None
+    ctrl: bool = Field(False, description='Whether the "Ctrl" modifier is active.')
+    shift: bool = Field(False, description='Whether the "Shift" modifier is active.')
+    alt: bool = Field(False, description='Whether the "Alt" modifier is active.')
+    meta: bool = Field(False, description='Whether the "Meta" modifier is active.')
+    key: Optional[KeyCode] = Field(
+        None, description="The key that is pressed (e.g. `KeyCode.A`)"
+    )
 
     # def hash_code(self) -> str:
     # used by vscode for caching during keybinding resolution

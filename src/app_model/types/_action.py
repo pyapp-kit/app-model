@@ -23,7 +23,7 @@ R = TypeVar("R")
 
 
 class Action(CommandRule, Generic[P, R]):
-    """Callable object along with specific context, menu, keybindings logic.
+    """An Action is a callable object with menu placement, keybindings, and metadata.
 
     This is the "complete" representation of a command.  Including a pointer to the
     actual callable object, as well as any additional menu and keybinding rules.
@@ -41,7 +41,9 @@ class Action(CommandRule, Generic[P, R]):
     )
     menus: Optional[List[MenuRule]] = Field(
         None,
-        description="(Optional) Menus to which this action should be added.",
+        description="(Optional) Menus to which this action should be added.  Note that "
+        "menu items in the sequence may be supplied as a plain string, which will "
+        "be converted to a `MenuRule` with the string as the `id` field.",
     )
     keybindings: Optional[List[KeyBindingRule]] = Field(
         None,
