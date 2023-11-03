@@ -1,8 +1,8 @@
 from __future__ import annotations
-import os
 
+import os
 import sys
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -100,8 +100,8 @@ def test_app_context() -> None:
     assert isinstance(app.context, Context)
     Application.destroy("app1")
     assert app.context["is_windows"] == (os.name == "nt")
-    assert 'is_mac' in app.context
-    assert 'is_linux' in app.context
+    assert "is_mac" in app.context
+    assert "is_linux" in app.context
 
     app = Application("app2", context={"a": 1})
     assert isinstance(app.context, Context)
