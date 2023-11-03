@@ -8,7 +8,7 @@ from app_model.types._constants import OperatingSystem
 from ._key_codes import KeyChord, KeyCode, KeyMod
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler
+    from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
 _re_ctrl = re.compile(r"ctrl[\+|\-]")
