@@ -4,7 +4,7 @@ import pytest
 
 from app_model import Application
 from app_model.registries import register_action
-from app_model.types import Action
+from app_model.types import Action, KeyBinding
 
 PRIMARY_KEY = "ctrl+a"
 OS_KEY = "ctrl+b"
@@ -27,7 +27,9 @@ KWARGS = [
 
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(kwargs, simple_app: Application, mode):
+def test_register_action_decorator(
+    kwargs: dict, simple_app: Application, mode: str
+) -> None:
     # make sure mocks are working
     app = simple_app
     assert not list(app.commands)
@@ -86,6 +88,7 @@ def test_register_action_decorator(kwargs, simple_app: Application, mode):
     if keybindings := kwargs.get("keybindings"):
         for entry in keybindings:
             key = PRIMARY_KEY if len(entry) == 1 else OS_KEY  # see KWARGS[5]
+            key = KeyBinding.from_str(key)
             assert any(i.keybinding == key for i in app.keybindings)
             app.keybindings_changed.assert_called()  # type: ignore
     else:
