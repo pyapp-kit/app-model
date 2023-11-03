@@ -61,6 +61,9 @@ docs = [
     "mkdocstrings==0.23.0",
     "mkdocs-macros-plugin==1.0.5",
     "typing_extensions>=4.0",
+    "mkdocs-gen-files",
+    "mkdocs-literate-nav",
+    "fieldz",
 ]
 
 [project.urls]
@@ -138,7 +141,7 @@ pretty = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["tests.*"]
+module = ["tests.*", "docs.*"]
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]

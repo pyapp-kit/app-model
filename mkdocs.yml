@@ -14,8 +14,7 @@ watch:
 
 nav:
   - index.md
-  - types.md
-
+  - getting_started.md
   # defer to gen-files + literate-nav
   - API reference: reference/
 
@@ -29,14 +28,14 @@ plugins:
   - autorefs
   - minify:
       minify_html: true
-  - macros:
-      module_name: docs/_macros
   - mkdocstrings:
       handlers:
         python:
           import:
             - https://docs.python.org/3/objects.inv
           options:
+            extensions:
+              - docs/_griffe_ext.py:DynamicDocstrings
             docstring_style: numpy
             docstring_options:
               ignore_init_summary: true
@@ -59,6 +58,11 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.details
   - admonition
+  - toc:
+      permalink: "#"
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 theme:
   name: material
@@ -70,6 +74,7 @@ theme:
     - navigation.indexes
     - search.highlight
     - search.suggest
+    - navigation.expand
 
 extra_css:
   - css/style.css

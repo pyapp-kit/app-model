@@ -17,7 +17,7 @@ from ._command_rule import CommandRule
 from ._icon import Icon
 
 
-class _MenuItemBase(_BaseModel):
+class MenuItemBase(_BaseModel):
     """Data representing where and when a menu item should be shown."""
 
     when: Optional[expressions.Expr] = Field(
@@ -43,9 +43,9 @@ class _MenuItemBase(_BaseModel):
         yield cls._validate
 
     @classmethod
-    def _validate(cls: Type["_MenuItemBase"], v: Any) -> "_MenuItemBase":
+    def _validate(cls: Type["MenuItemBase"], v: Any) -> "MenuItemBase":
         """Validate icon."""
-        if isinstance(v, _MenuItemBase):
+        if isinstance(v, MenuItemBase):
             return v
         if isinstance(v, dict):
             if "command" in v:
@@ -57,7 +57,7 @@ class _MenuItemBase(_BaseModel):
         raise ValueError(f"Invalid menu item: {v!r}", cls)  # pragma: no cover
 
 
-class MenuRule(_MenuItemBase):
+class MenuRule(MenuItemBase):
     """A MenuRule defines a menu location and conditions for presentation.
 
     It does not define an actual command. That is done in either `MenuItem` or `Action`.
@@ -79,7 +79,7 @@ class MenuRule(_MenuItemBase):
         return {"id": v} if isinstance(v, str) else v
 
 
-class MenuItem(_MenuItemBase):
+class MenuItem(MenuItemBase):
     """Combination of a Command and conditions for menu presentation.
 
     This object is mostly constructed by `register_action` right before menu item
@@ -103,7 +103,7 @@ class MenuItem(_MenuItemBase):
         raise TypeError("command must be a CommandRule")  # pragma: no cover
 
 
-class SubmenuItem(_MenuItemBase):
+class SubmenuItem(MenuItemBase):
     """Point to another Menu that will be displayed as a submenu."""
 
     submenu: str = Field(..., description="Menu to insert as a submenu.")

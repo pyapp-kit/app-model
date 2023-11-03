@@ -23,20 +23,12 @@ R = TypeVar("R")
 
 
 class Action(CommandRule, Generic[P, R]):
-    """Callable object along with specific context, menu, keybindings logic.
+    """An Action is a callable object with menu placement, keybindings, and metadata.
 
     This is the "complete" representation of a command.  Including a pointer to the
     actual callable object, as well as any additional menu and keybinding rules.
     Most commands and menu items will be represented by Actions, and registered using
     `register_action`.
-
-    Attributes
-    ----------
-    callback : Union[Callable[P, R], str]
-        A function to call when the associated command id is executed. If a string is
-        provided, it must be a fully qualified name to a callable python object. This
-        usually takes the form of `{obj.__module__}:{obj.__qualname__}` (e.g.
-        `my_package.a_module:some_function`)
     """
 
     callback: Union[Callable[P, R], str] = Field(
@@ -49,7 +41,9 @@ class Action(CommandRule, Generic[P, R]):
     )
     menus: Optional[List[MenuRule]] = Field(
         None,
-        description="(Optional) Menus to which this action should be added.",
+        description="(Optional) Menus to which this action should be added.  Note that "
+        "menu items in the sequence may be supplied as a plain string, which will "
+        "be converted to a `MenuRule` with the string as the `id` field.",
     )
     keybindings: Optional[List[KeyBindingRule]] = Field(
         None,
