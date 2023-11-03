@@ -132,11 +132,14 @@ a dependency injection pattern, provided by the
 
 The application has a [`injection_store`][app_model.Application.injection_store]
 attribute that is an instance of an `in_n_out.Store`.  A `Store` is a collection
-of "providers" (functions that can be called to return an instance of a given
-type), and "processors" (functions that accept an instance of a given type and
-do something with it). The `Store` is used to provide the arguments to the
-command when it is executed, based on the type annotations in the command
-function definition.
+of:
+
+- **providers**: Functions that can be called to return an instance of a given
+  type. These may be used to provide arguments to commands, based on the type
+  annotations in the command function definition.
+- **processors**: Functions that accept an instance of a given type and do
+  something with it. These are used to process the return value of the command
+  function at execution time, based on command definition return type annotations.
 
 Here's an example.  Let's say an application has a `User` object with a `name()`
 method:
