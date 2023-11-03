@@ -44,13 +44,13 @@ class Application:
 
     Attributes
     ----------
-    - commands : CommandsRegistry
+    commands : CommandsRegistry
         The Commands Registry for this application.
-    - menus : MenusRegistry
+    menus : MenusRegistry
         The Menus Registry for this application.
-    - keybindings : KeyBindingsRegistry
+    keybindings : KeyBindingsRegistry
         The KeyBindings Registry for this application.
-    - injection_store : in_n_out.Store
+    injection_store : in_n_out.Store
         The Injection Store for this application.
     """
 

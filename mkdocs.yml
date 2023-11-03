@@ -2,36 +2,54 @@ site_name: App Model
 site_url: https://github.com/pyapp-kit/app-model
 site_author: Talley Lambert
 site_description: Generic application schema implemented in python.
+# strict: true
 
 repo_name: pyapp-kit/app-model
 repo_url: https://github.com/pyapp-kit/app-model
 
-copyright: Copyright &copy; 2021 - 2022 Talley Lambert
+copyright: Copyright &copy; 2021 - 2023 Talley Lambert
 
 watch:
   - src
 
+nav:
+  - index.md
+  - getting_started.md
+  # defer to gen-files + literate-nav
+  - API reference: reference/
+
 plugins:
   - search
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_nav.py
+  - literate-nav:
+      nav_file: SUMMARY.txt
   - autorefs
   - minify:
       minify_html: true
-  - macros:
-      module_name: docs/_macros
   - mkdocstrings:
       handlers:
         python:
           import:
             - https://docs.python.org/3/objects.inv
           options:
+            extensions:
+              - docs/_griffe_ext.py:DynamicDocstrings
             docstring_style: numpy
-            show_bases: false
-            merge_init_into_class: yes
-            show_source: no
-            show_root_full_path: no
-            show_root_heading: yes
+            docstring_options:
+              ignore_init_summary: true
             docstring_section_style: list
-
+            filters: ["!^_"]
+            heading_level: 1
+            inherited_members: true
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_bases: true
+            show_source: true
 
 markdown_extensions:
   - tables
@@ -40,6 +58,11 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.details
   - admonition
+  - toc:
+      permalink: "#"
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 theme:
   name: material
@@ -48,5 +71,13 @@ theme:
     logo: material/application-cog-outline
   features:
     - navigation.instant
+    - navigation.indexes
     - search.highlight
     - search.suggest
+    - navigation.expand
+
+extra_css:
+  - css/style.css
+
+hooks:
+  - docs/my_hooks.py

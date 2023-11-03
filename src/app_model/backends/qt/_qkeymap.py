@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING, Dict, Mapping, MutableMapping, Optional
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
-from app_model.types._constants import OperatingSystem
-from app_model.types._keys import (
+from app_model.types import (
     KeyBinding,
     KeyCode,
     KeyCombo,
     KeyMod,
     SimpleKeyBinding,
 )
+from app_model.types._constants import OperatingSystem
 
 if TYPE_CHECKING:
     from qtpy.QtCore import QKeyCombination
