@@ -1,6 +1,9 @@
+# mypy: disable-error-code="operator"
+from __future__ import annotations
+
 import operator
 from functools import reduce
-from typing import Dict, Optional, Union, cast
+from typing import TYPE_CHECKING, Dict, Mapping, MutableMapping, Optional
 
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
@@ -13,6 +16,9 @@ from app_model.types._keys import (
     KeyMod,
     SimpleKeyBinding,
 )
+
+if TYPE_CHECKING:
+    from qtpy.QtCore import QKeyCombination
 
 try:
     from qtpy import QT6
@@ -42,7 +48,9 @@ _SWAPPED_QMOD_LOOKUP = {
 
 def _mac_ctrl_meta_swapped() -> bool:
     """Return True if Qt is swapping Ctrl and Meta for keyboard interactions."""
-    return not QCoreApplication.testAttribute(Qt.AA_MacDontSwapCtrlAndMeta)
+    return not QCoreApplication.testAttribute(
+        Qt.ApplicationAttribute.AA_MacDontSwapCtrlAndMeta
+    )
 
 
 if QT6:
@@ -53,13 +61,12 @@ if QT6:
         lookup = (
             _SWAPPED_QMOD_LOOKUP if MAC and _mac_ctrl_meta_swapped() else _QMOD_LOOKUP
         )
-        key = modelkey2qkey(skb.key) if skb.key else 0
+        key = modelkey2qkey(skb.key) if skb.key else Qt.Key.Key_unknown
         mods = (v for k, v in lookup.items() if getattr(skb, k))
         combo = QKeyCombination(reduce(operator.or_, mods), key)
-        return cast(int, combo.toCombined())
+        return int(combo.toCombined())
 
 else:
-    QKeyCombination = int
 
     def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
         """Create Qt Key integer from a SimpleKeyBinding."""
@@ -226,14 +233,14 @@ KEYMOD_TO_QT = {
 MAC_KEYMOD_TO_QT = {**KEYMOD_TO_QT, KeyMod.WinCtrl: QCTRL, KeyMod.CtrlCmd: QMETA}
 
 
-KEY_FROM_QT: Dict[Qt.Key, KeyCode] = {
+KEY_FROM_QT: MutableMapping[Qt.Key, KeyCode | KeyCombo] = {
     v.toCombined() if hasattr(v, "toCombined") else int(v): k
     for k, v in KEY_TO_QT.items()
     if k
 }
 
 # Qt Keys which have no representation in the W3C spec
-_QTONLY_KEYS = {
+_QTONLY_KEYS: Mapping[Qt.Key, KeyCode | KeyCombo] = {
     Qt.Key.Key_Exclam: KeyMod.Shift | KeyCode.Digit1,
     Qt.Key.Key_At: KeyMod.Shift | KeyCode.Digit2,
     Qt.Key.Key_NumberSign: KeyMod.Shift | KeyCode.Digit3,
@@ -283,7 +290,7 @@ def modelkey2qkey(key: KeyCode) -> Qt.Key:
     return KEY_TO_QT.get(key, Qt.Key.Key_unknown)
 
 
-def qkey2modelkey(key: Qt.Key) -> KeyCode:
+def qkey2modelkey(key: Qt.Key) -> KeyCode | KeyCombo:
     """Return KeyCode from Qt.Key."""
     if MAC and _mac_ctrl_meta_swapped():
         if key == Qt.Key.Key_Control:
@@ -293,21 +300,21 @@ def qkey2modelkey(key: Qt.Key) -> KeyCode:
     return KEY_FROM_QT.get(key, KeyCode.UNKNOWN)
 
 
-def qkeycombo2modelkey(key: QKeyCombination) -> Union[KeyCode, KeyCombo]:
+def qkeycombo2modelkey(key: QKeyCombination) -> KeyCode | KeyCombo:
     """Return KeyCode or KeyCombo from QKeyCombination."""
     if key in KEY_FROM_QT:
+        # type ignore because in qt5, key may actually just be int ... but it's fine.
         return KEY_FROM_QT[key]
     qmods = _get_qmods(key)
     qkey = _get_qkey(key)
-    return qmods2modelmods(qmods) | qkey2modelkey(qkey)
+    return qmods2modelmods(qmods) | qkey2modelkey(qkey)  # type: ignore [return-value]
 
 
 def qkeysequence2modelkeybinding(key: QKeySequence) -> KeyBinding:
     """Return KeyBinding from QKeySequence."""
     # FIXME: this should return KeyChord instead of KeyBinding... but that only takes 2
-    return KeyBinding(
-        parts=[SimpleKeyBinding.from_int(qkeycombo2modelkey(x)) for x in key]
-    )
+    parts = [SimpleKeyBinding.from_int(qkeycombo2modelkey(x)) for x in iter(key)]
+    return KeyBinding(parts=parts)
 
 
 # ################# These are the Qkeys we currently aren't mapping ################ #
