@@ -61,15 +61,10 @@ if QT6:
         lookup = (
             _SWAPPED_QMOD_LOOKUP if MAC and _mac_ctrl_meta_swapped() else _QMOD_LOOKUP
         )
+        key = modelkey2qkey(skb.key) if skb.key else Qt.Key.Key_unknown
         mods = (v for k, v in lookup.items() if getattr(skb, k))
-        modifiers = reduce(operator.or_, mods)
-        if skb.key:
-            key = modelkey2qkey(skb.key)
-            combo = QKeyCombination(modifiers, key)
-        else:
-            combo = QKeyCombination(modifiers)
-
-        return combo.toCombined()  # type: ignore [no-any-return]
+        combo = QKeyCombination(reduce(operator.or_, mods), key)
+        return int(combo.toCombined())
 
 else:
 
