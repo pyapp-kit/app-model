@@ -35,7 +35,7 @@ plugins:
             - https://docs.python.org/3/objects.inv
           options:
             extensions:
-              - docs/_griffe_ext.py:DynamicDocstrings
+              - griffe_fieldz
             docstring_style: numpy
             docstring_options:
               ignore_init_summary: true

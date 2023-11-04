@@ -53,17 +53,17 @@ dev = [
     "rich",
 ]
 docs = [
+    "griffe-fieldz",
     "griffe==0.36.9",
+    "mkdocs-gen-files",
+    "mkdocs-literate-nav",
+    "mkdocs-macros-plugin==1.0.5",
     "mkdocs-material==9.4.1",
     "mkdocs-minify-plugin==0.7.1",
     "mkdocs==1.5.3",
     "mkdocstrings-python==1.7.3",
     "mkdocstrings==0.23.0",
-    "mkdocs-macros-plugin==1.0.5",
     "typing_extensions>=4.0",
-    "mkdocs-gen-files",
-    "mkdocs-literate-nav",
-    "fieldz",
 ]
 
 [project.urls]
