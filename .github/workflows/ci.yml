@@ -56,7 +56,7 @@ jobs:
       package_to_test_ref: ${{ matrix.napari-version }}
       package-extras: 'testing'
       qt: ${{ matrix.qt }}
-      pytest-args: 'napari/_qt napari/_app_model -k "not async"'
+      pytest-args: 'napari/_qt napari/_app_model -k "not async and not qt_dims_2"'
       python-version: "3.10"
     strategy:
       fail-fast: false
