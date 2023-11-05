@@ -2,33 +2,28 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*"
-  pull_request: {}
+    branches: [main]
+    tags: [v*]
+  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # weekly
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  check-manifest:
-    name: Check Manifest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: pipx run check-manifest
-
   test:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
-      pip-force-installs: ${{ matrix.pydantic }}
+      pip-post-installs: ${{ matrix.pydantic }}
       qt: ${{ matrix.qt }}
       extras: ${{ matrix.qt == '' && 'test' || 'test,test-qt' }}
+      pip-pre: ${{ github.event_name == 'schedule' }}
+      report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
@@ -93,6 +88,13 @@ jobs:
           working-directory: napari
           run: python -m pytest napari/_qt napari/_app_model --color=yes -x
 
+  check-manifest:
+    name: Check Manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pipx run check-manifest
+
   deploy:
     name: Deploy
     needs: [check-manifest, test, test_napari]
@@ -103,6 +105,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
