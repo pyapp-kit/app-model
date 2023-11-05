@@ -38,17 +38,17 @@ jobs:
         qt: ["", PyQt5, PyQt6, PySide2, PySide6]
         include:
           - python-version: "3.9"
-            platform: "ubuntu-latest"
+            os: "ubuntu-latest"
           - python-version: "3.11"
-            platform: "ubuntu-latest"
+            os: "ubuntu-latest"
           - python-version: "3.12"
-            platform: "ubuntu-latest"
+            os: "ubuntu-latest"
             pydantic: "'pydantic<2'"
           - python-version: "3.8"
-            platform: "ubuntu-latest"
+            os: "ubuntu-latest"
             pydantic: "'pydantic<2'"
           - python-version: "3.8"
-            platform: "ubuntu-latest"
+            os: "ubuntu-latest"
             qt-backend: "PyQt5==5.12"
         exclude:
           - qt: PySide2
