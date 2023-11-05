@@ -50,6 +50,9 @@ jobs:
           - python-version: "3.8"
             platform: "ubuntu-latest"
             qt-backend: "PyQt5==5.12"
+        exclude:
+          - qt: PySide2
+            python-version: "3.12"
 
   test_napari:
     name: napari (${{ matrix.napari-version }}, ${{ matrix.qt-backend }})
