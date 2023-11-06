@@ -1,24 +1,24 @@
 from __future__ import annotations
 
+import os
 import sys
 from contextlib import contextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ChainMap,
-    Dict,
-    Iterator,
-    MutableMapping,
-    Optional,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable, ChainMap, Iterator, MutableMapping
 from weakref import finalize
 
 from psygnal import Signal
 
 if TYPE_CHECKING:
     from types import FrameType
+    from typing import TypedDict
+
+    class AppModelContextDict(TypedDict):
+        """Global context keys offered by app-model."""
+
+        is_linux: bool
+        is_mac: bool
+        is_windows: bool
+
 
 _null = object()
 
@@ -52,7 +52,7 @@ class Context(ChainMap):
         if emit:
             self.changed.emit({k})
 
-    def new_child(self, m: Optional[MutableMapping] = None) -> Context:
+    def new_child(self, m: MutableMapping | None = None) -> Context:
         """Create a new child context from this one."""
         new = super().new_child(m=m)
         self.changed.connect(new.changed)
@@ -67,8 +67,8 @@ class Context(ChainMap):
 # as the same object in the WeakKeyDictionary later when queried with
 # `obj in _OBJ_TO_CONTEXT` ... so instead we use id(obj)
 # _OBJ_TO_CONTEXT: WeakKeyDictionary[object, Context] = WeakKeyDictionary()
-_OBJ_TO_CONTEXT: Dict[int, Context] = {}
-_ROOT_CONTEXT: Optional[Context] = None
+_OBJ_TO_CONTEXT: dict[int, Context] = {}
+_ROOT_CONTEXT: Context | None = None
 
 
 def _pydantic_abort(frame: FrameType) -> bool:
@@ -81,8 +81,8 @@ def create_context(
     obj: object,
     max_depth: int = 20,
     start: int = 2,
-    root: Optional[Context] = None,
-    root_class: Type[Context] = Context,
+    root: Context | None = None,
+    root_class: type[Context] = Context,
     frame_predicate: Callable[[FrameType], bool] = _pydantic_abort,
 ) -> Context:
     """Create context for any object.
@@ -98,7 +98,7 @@ def create_context(
         first frame to use in search, by default 2
     root : Optional[Context], optional
         Root context to use, by default None
-    root_class : Type[Context], optional
+    root_class : type[Context], optional
         Root class to use when creating a global root context, by default Context
         The global context is used when root is None.
     frame_predicate : Callable[[FrameType], bool], optional
@@ -123,7 +123,7 @@ def create_context(
 
     parent = root
     if hasattr(sys, "_getframe"):  # CPython implementation detail
-        frame: Optional[FrameType] = sys._getframe(start)
+        frame: FrameType | None = sys._getframe(start)
         i = -1
         # traverse call stack looking for another object that has a context
         # to scope this new context off of.
@@ -148,6 +148,15 @@ def create_context(
     return new_context
 
 
-def get_context(obj: object) -> Optional[Context]:
+def get_context(obj: object) -> Context | None:
     """Return context for any object, if found."""
     return _OBJ_TO_CONTEXT.get(id(obj))
+
+
+def app_model_context() -> AppModelContextDict:
+    """A set of useful global context keys to use."""
+    return {
+        "is_linux": sys.platform.startswith("linux"),
+        "is_mac": sys.platform == "darwin",
+        "is_windows": os.name == "nt",
+    }

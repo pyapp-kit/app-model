@@ -1,11 +1,24 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, ClassVar, Dict, Iterable, List, Optional, Tuple, Type
+import os
+import sys
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Dict,
+    Iterable,
+    List,
+    MutableMapping,
+    Optional,
+    Tuple,
+    Type,
+)
 
 import in_n_out as ino
 from psygnal import Signal
 
+from .expressions import Context, app_model_context
 from .registries import (
     CommandsRegistry,
     KeyBindingsRegistry,
@@ -41,6 +54,10 @@ class Application:
         (Optionally) override the class to use when creating the KeyBindingsRegistry
     injection_store_class : Type[ino.Store]
         (Optionally) override the class to use when creating the injection Store
+    context : Context | MutableMapping | None
+        (Optionally) provide a context to use for this application. If a
+        `MutableMapping` is provided, it will be used to create a `Context` instance.
+        If `None` (the default), a new `Context` instance will be created.
 
     Attributes
     ----------
@@ -52,6 +69,8 @@ class Application:
         The KeyBindings Registry for this application.
     injection_store : in_n_out.Store
         The Injection Store for this application.
+    context : Context
+        The Context for this application.
     """
 
     destroyed = Signal(str)
@@ -66,6 +85,7 @@ class Application:
         menus_reg_class: Type[MenusRegistry] = MenusRegistry,
         keybindings_reg_class: Type[KeyBindingsRegistry] = KeyBindingsRegistry,
         injection_store_class: Type[ino.Store] = ino.Store,
+        context: Context | MutableMapping | None = None,
     ) -> None:
         self._name = name
         if name in Application._instances:
@@ -74,6 +94,21 @@ class Application:
                 f"`Application.get_or_create({name!r})`."
             )
         Application._instances[name] = self
+
+        if context is None:
+            context = Context()
+        elif isinstance(context, MutableMapping):
+            context = Context(context)
+        if not isinstance(context, Context):
+            raise TypeError(
+                f"context must be a Context or MutableMapping, got {type(context)}"
+            )
+        self._context = context
+        self._context.update(app_model_context())
+
+        self._context["is_linux"] = sys.platform.startswith("linux")
+        self._context["is_mac"] = sys.platform == "darwin"
+        self._context["is_windows"] = os.name == "nt"
 
         self._injection_store = injection_store_class.create(name)
         self._commands = commands_reg_class(
@@ -108,13 +143,18 @@ class Application:
 
     @property
     def keybindings(self) -> KeyBindingsRegistry:
-        """Return the [`KeyBindingsRegistry`][app_model.registries.KeyBindingsRegistry]."""  # noqa
+        """Return the [`KeyBindingsRegistry`][app_model.registries.KeyBindingsRegistry]."""  # noqa E501
         return self._keybindings
 
     @property
     def injection_store(self) -> ino.Store:
         """Return the `in_n_out.Store` instance associated with this `Application`."""
         return self._injection_store
+
+    @property
+    def context(self) -> Context:
+        """Return the [`Context`][app_model.expressions.Context] for this application."""  # noqa E501
+        return self._context
 
     @classmethod
     def get_or_create(cls, name: str) -> Application:
