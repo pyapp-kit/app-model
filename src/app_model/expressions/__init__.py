@@ -1,5 +1,5 @@
 """Abstraction on expressions, and contexts in which to evaluate them."""
-from ._context import Context, create_context, get_context
+from ._context import Context, app_model_context, create_context, get_context
 from ._context_keys import ContextKey, ContextKeyInfo, ContextNamespace
 from ._expressions import (
     BinOp,
@@ -15,13 +15,11 @@ from ._expressions import (
 )
 
 __all__ = [
+    "app_model_context",
     "BinOp",
     "BoolOp",
     "Compare",
     "Constant",
-    "IfExp",
-    "Name",
-    "UnaryOp",
     "Context",
     "ContextKey",
     "ContextKeyInfo",
@@ -29,6 +27,9 @@ __all__ = [
     "create_context",
     "Expr",
     "get_context",
+    "IfExp",
+    "Name",
     "parse_expression",
     "safe_eval",
+    "UnaryOp",
 ]
