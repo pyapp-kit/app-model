@@ -15,14 +15,14 @@ concurrency:
 
 jobs:
   test:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       pip-post-installs: ${{ matrix.pydantic }}
       qt: ${{ matrix.qt }}
       extras: ${{ matrix.qt == '' && 'test' || 'test,test-qt' }}
-      pip-pre: ${{ github.event_name == 'schedule' }}
+      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
       report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       fail-fast: false
@@ -50,7 +50,7 @@ jobs:
             python-version: "3.12"
   
   test_napari:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
     with:
       package_to_test: napari/napari
       package_to_test_ref: ${{ matrix.napari-version }}
