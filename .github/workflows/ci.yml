@@ -2,171 +2,87 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*"
-  pull_request: {}
+    branches: [main]
+    tags: [v*]
+  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # run once a day
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  test:
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      pip-post-installs: ${{ matrix.pydantic }}
+      qt: ${{ matrix.qt }}
+      extras: ${{ matrix.qt == '' && 'test' || 'test,test-qt' }}
+      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
+      report-failures: ${{ github.event_name == 'schedule' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.10", "3.12"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        pydantic: [""]
+        qt: ["", PyQt5, PyQt6, PySide2, PySide6]
+        include:
+          - python-version: "3.9"
+            os: "ubuntu-latest"
+          - python-version: "3.11"
+            os: "ubuntu-latest"
+          - python-version: "3.12"
+            os: "ubuntu-latest"
+            pydantic: "'pydantic<2'"
+          - python-version: "3.8"
+            os: "ubuntu-latest"
+            pydantic: "'pydantic<2'"
+          - python-version: "3.8"
+            os: "ubuntu-latest"
+            qt-backend: "PyQt5==5.12"
+        exclude:
+          - qt: PySide2
+            python-version: "3.12"
+  
+  test_napari:
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    with:
+      dependency-repo: napari/napari
+      dependency-ref: ${{ matrix.napari-version }}
+      dependency-extras: 'testing'
+      qt: ${{ matrix.qt }}
+      pytest-args: 'napari/_qt napari/_app_model -k "not async and not qt_dims_2"'
+      python-version: "3.10"
+    strategy:
+      fail-fast: false
+      matrix:
+        napari-version: ["", "v0.4.18"]
+        qt: ["pyqt5", "pyside2"]
+
   check-manifest:
     name: Check Manifest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-      - run: pip install check-manifest && check-manifest
-
-  test:
-    name: ${{ matrix.platform }} (${{ matrix.python-version }})
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.10", "3.11"]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - python-version: "3.12"
-            platform: "ubuntu-latest"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[test]
-
-      - name: Test
-        run: pytest -s --color=yes
-
-  test-pydantic1:
-    name: pydantic1 (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.10", "3.11"]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[test]
-          pip install 'pydantic<2'
-
-      - name: Test
-        run: pytest --color=yes --cov=app_model --cov-report=xml
-
-      - name: Coverage
-        uses: codecov/codecov-action@v3
-
-  test-qt:
-    name: ${{ matrix.platform }} ${{ matrix.qt-backend }} (${{ matrix.python-version }})
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10"]
-        platform: [macos-latest, ubuntu-latest, windows-latest]
-        qt-backend: [PyQt5, PyQt6, PySide2, PySide6]
-        include:
-          - python-version: "3.8"
-            platform: "ubuntu-latest"
-            qt-backend: "PyQt5==5.12"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: tlambert03/setup-qt-libs@v1
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[test,test-qt]
-          python -m pip install ${{ matrix.qt-backend }}
-
-      - name: Test
-        uses: aganders3/headless-gui@v1
-        with:
-          run: python -m pytest -s --cov=app_model --cov-report=xml --cov-report=term-missing --color=yes
-
-      - name: Coverage
-        uses: codecov/codecov-action@v3
-
-  test_napari:
-    name: napari (${{ matrix.napari-version }}, ${{ matrix.qt-backend }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        napari-version: [""] # "" is HEAD
-        qt-backend: [pyqt5, pyside2]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: app-model
-
-      - uses: actions/checkout@v4
-        with:
-          repository: napari/napari
-          path: napari
-          fetch-depth: 0
-          ref: ${{ matrix.napari-version }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - uses: tlambert03/setup-qt-libs@v1
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e app-model
-          python -m pip install -e napari[testing,${{ matrix.qt-backend }}]
-
-      - name: Test
-        uses: aganders3/headless-gui@v1
-        with:
-          working-directory: napari
-          run: python -m pytest napari/_qt napari/_app_model --color=yes -x
+      - run: pipx run check-manifest
 
   deploy:
     name: Deploy
-    needs: [check-manifest, test, test-qt, test_napari]
-    if: "success() && startsWith(github.ref, 'refs/tags/')"
+    needs: [check-manifest, test, test_napari]
+    if: success() && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
