@@ -1,4 +1,4 @@
-"""Provides the  :class:`Expr` and its subclasses."""
+"""Provides `Expr` and its subclasses."""
 from __future__ import annotations
 
 import ast
@@ -32,19 +32,19 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler
+    from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
     from ._context_keys import ContextKey
 
 
 def parse_expression(expr: Union[str, Expr]) -> Expr:
-    """Parse string expression into an :class:`Expr` instance.
+    """Parse string expression into an [`Expr`][app_model.expressions.Expr] instance.
 
     Parameters
     ----------
     expr : Union[str, Expr]
-        Expression to parse.  (If already an :class:`Expr`, it is returned)
+        Expression to parse.  (If already an `Expr`, it is returned)
 
     Returns
     -------

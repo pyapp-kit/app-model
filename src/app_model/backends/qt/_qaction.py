@@ -10,7 +10,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 
 from app_model import Application
@@ -68,12 +67,14 @@ class QCommandRuleAction(QCommandAction):
 
     Parameters
     ----------
-    command_id : str
-        Command ID.
+    command_rule : CommandRule
+        `CommandRule` instance to create an action for.
     app : Union[str, Application]
         Application instance or name of application instance.
     parent : Optional[QWidget]
         Optional parent widget, by default None
+    use_short_title : bool
+        If True, use the `short_title` of the command rule, if it exists.
     """
 
     def __init__(
@@ -124,7 +125,7 @@ class QCommandRuleAction(QCommandAction):
 class QMenuItemAction(QCommandRuleAction):
     """QAction for a MenuItem.
 
-    Mostly the same as a CommandRuleAction, but aware of the `menu_item.when` clause
+    Mostly the same as a `CommandRuleAction`, but aware of the `menu_item.when` clause
     to toggle visibility.
     """
 
@@ -144,10 +145,10 @@ class QMenuItemAction(QCommandRuleAction):
         if cache and key in cls._cache:
             return cls._cache[key]
 
-        self = cast(QMenuItemAction, super().__new__(cls))
+        self = super().__new__(cls)
         if cache:
             cls._cache[key] = self
-        return self
+        return self  # type: ignore [no-any-return]
 
     def __init__(
         self,
@@ -169,13 +170,8 @@ class QMenuItemAction(QCommandRuleAction):
             self._app.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
             self._initialized = True
 
-        # by updating from an empty context, anything that declares a "constant"
-        # enablement expression (like `'False'`) will be evaluated, allowing any
-        # menus that are always on/off, to be shown/hidden as needed.
-        # Everything else will fail without a proper context.
-        # TODO: as we improve where the context comes from, this could be removed.
         with contextlib.suppress(NameError):
-            self.update_from_context({})
+            self.update_from_context(self._app.context)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""

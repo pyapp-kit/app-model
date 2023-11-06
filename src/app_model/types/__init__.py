@@ -14,6 +14,7 @@ from ._keys import (
 )
 from ._menu_rule import (
     MenuItem,
+    MenuItemBase,
     MenuOrSubmenu,
     MenuRule,
     MenuRuleDict,
@@ -35,6 +36,7 @@ __all__ = [
     "KeyCombo",
     "KeyMod",
     "MenuItem",
+    "MenuItemBase",
     "MenuOrSubmenu",
     "MenuRule",
     "MenuRuleDict",

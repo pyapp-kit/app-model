@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import (
     TYPE_CHECKING,
     Collection,
@@ -121,7 +122,10 @@ class QModelMenu(QMenu):
 
     def _on_registry_changed(self, changed_ids: Set[str]) -> None:
         if self._menu_id in changed_ids:
-            self.rebuild()
+            # if this (sub)menu has been removed from the registry,
+            # we may hit a RuntimeError when trying to rebuild it.
+            with contextlib.suppress(RuntimeError):
+                self.rebuild()
 
 
 class QModelSubmenu(QModelMenu):
