@@ -11,6 +11,7 @@ from typing import (
     Mapping,
     Sequence,
     SupportsIndex,
+    Type,
     TypeVar,
     Union,
     cast,
@@ -581,7 +582,7 @@ class _ExprSerializer(ast.NodeVisitor):
         self.write(node.body, " if ", node.test, " else ", node.orelse)
 
 
-OpType = Union[type[ast.operator], type[ast.cmpop], type[ast.boolop], type[ast.unaryop]]
+OpType = Union[Type[ast.operator], Type[ast.cmpop], Type[ast.boolop], Type[ast.unaryop]]
 _OPS: dict[OpType, str] = {
     # ast.boolop
     ast.Or: "or",
