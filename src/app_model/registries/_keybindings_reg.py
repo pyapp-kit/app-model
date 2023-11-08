@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, NamedTuple, Optional
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 from psygnal import Signal
 
-from app_model.types._keys import KeyBinding
+from app_model.types import KeyBinding
 
 if TYPE_CHECKING:
-    from typing import Iterator, List, TypeVar
+    from typing import Iterator, TypeVar
 
     from app_model import expressions
-    from app_model.types import KeyBindingRule
+    from app_model.types import DisposeCallable, KeyBindingRule
 
-    DisposeCallable = Callable[[], None]
     CommandDecorator = Callable[[Callable], Callable]
     CommandCallable = TypeVar("CommandCallable", bound=Callable)
 
@@ -23,7 +22,7 @@ class _RegisteredKeyBinding(NamedTuple):
     keybinding: KeyBinding  # the keycode to bind to
     command_id: str  # the command to run
     weight: int  # the weight of the binding, for prioritization
-    when: Optional[expressions.Expr] = None  # condition to enable keybinding
+    when: expressions.Expr | None = None  # condition to enable keybinding
 
 
 class KeyBindingsRegistry:
@@ -32,11 +31,11 @@ class KeyBindingsRegistry:
     registered = Signal()
 
     def __init__(self) -> None:
-        self._keybindings: List[_RegisteredKeyBinding] = []
+        self._keybindings: list[_RegisteredKeyBinding] = []
 
     def register_keybinding_rule(
         self, id: str, rule: KeyBindingRule
-    ) -> Optional[DisposeCallable]:
+    ) -> DisposeCallable | None:
         """Register a new keybinding rule.
 
         Parameters
@@ -75,7 +74,7 @@ class KeyBindingsRegistry:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._keybindings)} bindings)>"
 
-    def get_keybinding(self, key: str) -> Optional[_RegisteredKeyBinding]:
+    def get_keybinding(self, key: str) -> _RegisteredKeyBinding | None:
         """Return the first keybinding that matches the given command ID."""
         # TODO: improve me.
         return next(

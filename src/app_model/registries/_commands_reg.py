@@ -2,19 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from functools import cached_property
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Iterator,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, TypeVar, cast
 
 from in_n_out import Store
 from psygnal import Signal
@@ -22,6 +10,8 @@ from psygnal import Signal
 # maintain runtime compatibility with older typing_extensions
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec
+
+    from app_model.types import DisposeCallable
 
     P = ParamSpec("P")
 else:
@@ -32,8 +22,6 @@ else:
     except ImportError:
         P = TypeVar("P")
 
-
-DisposeCallable = Callable[[], None]
 
 R = TypeVar("R")
 
@@ -50,9 +38,9 @@ class _RegisteredCommand(Generic[P, R]):
     def __init__(
         self,
         id: str,
-        callback: Union[str, Callable[P, R]],
+        callback: Callable[P, R] | str,
         title: str,
-        store: Optional[Store] = None,
+        store: Store | None = None,
     ) -> None:
         self.id = id
         self.callback = callback
@@ -95,15 +83,15 @@ class CommandsRegistry:
 
     def __init__(
         self,
-        injection_store: Optional[Store] = None,
+        injection_store: Store | None = None,
         raise_synchronous_exceptions: bool = False,
     ) -> None:
-        self._commands: Dict[str, _RegisteredCommand] = {}
+        self._commands: dict[str, _RegisteredCommand] = {}
         self._injection_store = injection_store
         self._raise_synchronous_exceptions = raise_synchronous_exceptions
 
     def register_command(
-        self, id: str, callback: Union[str, Callable], title: str
+        self, id: str, callback: Callable[P, R] | str, title: str
     ) -> DisposeCallable:
         """Register a callable as the handler for command `id`.
 
@@ -133,7 +121,7 @@ class CommandsRegistry:
         self.registered.emit(id)
         return _dispose
 
-    def __iter__(self) -> Iterator[Tuple[str, _RegisteredCommand]]:
+    def __iter__(self) -> Iterator[tuple[str, _RegisteredCommand]]:
         yield from self._commands.items()
 
     def __len__(self) -> int:
