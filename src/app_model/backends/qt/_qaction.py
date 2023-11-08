@@ -1,16 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import (
-    TYPE_CHECKING,
-    ClassVar,
-    Dict,
-    Mapping,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, ClassVar, Mapping
 
 from app_model import Application
 from app_model.expressions import Expr
@@ -35,17 +26,17 @@ class QCommandAction(QAction):
     ----------
     command_id : str
         Command ID.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QObject | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         command_id: str,
-        app: Union[str, Application],
-        parent: Optional[QObject] = None,
+        app: Application | str,
+        parent: QObject | None = None,
     ):
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
@@ -69,9 +60,9 @@ class QCommandRuleAction(QCommandAction):
     ----------
     command_rule : CommandRule
         `CommandRule` instance to create an action for.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QObject | None
         Optional parent widget, by default None
     use_short_title : bool
         If True, use the `short_title` of the command rule, if it exists.
@@ -80,8 +71,8 @@ class QCommandRuleAction(QCommandAction):
     def __init__(
         self,
         command_rule: CommandRule,
-        app: Union[str, Application],
-        parent: Optional[QObject] = None,
+        app: Application | str,
+        parent: QObject | None = None,
         *,
         use_short_title: bool = False,
     ):
@@ -129,13 +120,13 @@ class QMenuItemAction(QCommandRuleAction):
     to toggle visibility.
     """
 
-    _cache: ClassVar[Dict[Tuple[int, int], QMenuItemAction]] = {}
+    _cache: ClassVar[dict[tuple[int, int], QMenuItemAction]] = {}
 
     def __new__(
-        cls: Type[QMenuItemAction],
+        cls: type[QMenuItemAction],
         menu_item: MenuItem,
-        app: Union[str, Application],
-        parent: Optional[QObject] = None,
+        app: Application | str,
+        parent: QObject | None = None,
         *,
         cache: bool = True,
     ) -> QMenuItemAction:
@@ -153,8 +144,8 @@ class QMenuItemAction(QCommandRuleAction):
     def __init__(
         self,
         menu_item: MenuItem,
-        app: Union[str, Application],
-        parent: Optional[QObject] = None,
+        app: Application | str,
+        parent: QObject | None = None,
         *,
         cache: bool = True,  # used in __new__
     ):

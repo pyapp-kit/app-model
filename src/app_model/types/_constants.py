@@ -1,9 +1,6 @@
 import os
 import sys
 from enum import Enum
-from typing import Callable
-
-DisposeCallable = Callable[[], None]
 
 
 class OperatingSystem(Enum):

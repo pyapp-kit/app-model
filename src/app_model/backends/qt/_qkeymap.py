@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, Dict, Mapping, MutableMapping, Optional
+from typing import TYPE_CHECKING, Mapping, MutableMapping
 
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
@@ -107,7 +107,7 @@ class QKeyBindingSequence(QKeySequence):
         super().__init__(*ints)
 
 
-KEY_TO_QT: Dict[Optional[KeyCode], Qt.Key] = {
+KEY_TO_QT: dict[KeyCode | None, Qt.Key] = {
     None: Qt.Key.Key_unknown,
     KeyCode.UNKNOWN: Qt.Key.Key_unknown,
     KeyCode.Backquote: Qt.Key.Key_QuoteLeft,

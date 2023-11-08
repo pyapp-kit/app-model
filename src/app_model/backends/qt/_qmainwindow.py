@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, Mapping, Optional, Sequence, Union
+from typing import Collection, Mapping, Sequence
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
@@ -13,9 +13,7 @@ from ._qmenu import QModelMenuBar, QModelToolBar
 class QModelMainWindow(QMainWindow):
     """QMainWindow with app-model support."""
 
-    def __init__(
-        self, app: Union[str, Application], parent: Optional[QWidget] = None
-    ) -> None:
+    def __init__(self, app: Application | str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
 
@@ -37,8 +35,8 @@ class QModelMainWindow(QMainWindow):
         self,
         menu_id: str,
         *,
-        exclude: Optional[Collection[str]] = None,
-        area: Optional[Qt.ToolBarArea] = None,
+        exclude: Collection[str] | None = None,
+        area: Qt.ToolBarArea | None = None,
         toolbutton_style: Qt.ToolButtonStyle = Qt.ToolButtonStyle.ToolButtonIconOnly,
     ) -> QModelToolBar:
         """Add a tool bar to the main window."""

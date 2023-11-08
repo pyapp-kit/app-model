@@ -1,17 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import (
-    TYPE_CHECKING,
-    Collection,
-    Iterable,
-    Mapping,
-    Optional,
-    Sequence,
-    Set,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Collection, Iterable, Mapping, Sequence, cast
 
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
@@ -37,20 +27,20 @@ class QModelMenu(QMenu):
     ----------
     menu_id : str
         Menu ID to look up in the registry.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    title : Optional[str]
+    title : str | None
         Optional title for the menu, by default None
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menu_id: str,
-        app: Union[str, Application],
-        title: Optional[str] = None,
-        parent: Optional[QWidget] = None,
+        app: Application | str,
+        title: str | None = None,
+        parent: QWidget | None = None,
     ):
         QMenu.__init__(self, parent)
 
@@ -69,7 +59,7 @@ class QModelMenu(QMenu):
             self.setTitle(title)
         self.aboutToShow.connect(self._on_about_to_show)
 
-    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+    def findAction(self, object_name: str) -> QAction | QModelMenu | None:
         """Find an action by its ObjectName.
 
         Parameters
@@ -100,7 +90,7 @@ class QModelMenu(QMenu):
         _update_from_context(self.actions(), ctx, _recurse=_recurse)
 
     def rebuild(
-        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+        self, include_submenus: bool = True, exclude: Collection[str] | None = None
     ) -> None:
         """Rebuild menu by looking up self._menu_id in menu_registry."""
         _rebuild(
@@ -119,7 +109,7 @@ class QModelMenu(QMenu):
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+    def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
             # if this (sub)menu has been removed from the registry,
             # we may hit a RuntimeError when trying to rebuild it.
@@ -134,17 +124,17 @@ class QModelSubmenu(QModelMenu):
     ----------
     submenu : SubmenuItem
         SubmenuItem for which to create a QMenu.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         submenu: SubmenuItem,
-        app: Union[str, Application],
-        parent: Optional[QWidget] = None,
+        app: Application | str,
+        parent: QWidget | None = None,
     ):
         assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
         self._submenu = submenu
@@ -172,24 +162,24 @@ class QModelToolBar(QToolBar):
     ----------
     menu_id : str
         Menu ID to look up in the registry.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    exclude : Optional[Collection[str]]
+    exclude : Collection[str] | None
         Optional list of menu ids to exclude from the toolbar, by default None
-    title : Optional[str]
+    title : str | None
         Optional title for the menu, by default None
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menu_id: str,
-        app: Union[str, Application],
+        app: Application | str,
         *,
-        exclude: Optional[Collection[str]] = None,
-        title: Optional[str] = None,
-        parent: Optional[QWidget] = None,
+        exclude: Collection[str] | None = None,
+        title: str | None = None,
+        parent: QWidget | None = None,
     ) -> None:
         self._exclude = exclude
         QToolBar.__init__(self, parent)
@@ -211,7 +201,7 @@ class QModelToolBar(QToolBar):
     def addMenu(self, menu: QMenu) -> None:
         """No-op for toolbar."""
 
-    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+    def findAction(self, object_name: str) -> QAction | QModelMenu | None:
         """Find an action by its ObjectName.
 
         Parameters
@@ -242,7 +232,7 @@ class QModelToolBar(QToolBar):
         _update_from_context(self.actions(), ctx, _recurse=_recurse)
 
     def rebuild(
-        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+        self, include_submenus: bool = True, exclude: Collection[str] | None = None
     ) -> None:
         """Rebuild toolbar by looking up self._menu_id in menu_registry."""
         _rebuild(
@@ -256,7 +246,7 @@ class QModelToolBar(QToolBar):
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+    def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
             self.rebuild()
 
@@ -268,17 +258,17 @@ class QModelMenuBar(QMenuBar):
     ----------
     menus : Mapping[str, str] | Sequence[str | tuple[str, str]]
         A mapping of menu ids to menu titles or a sequence of menu ids.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menus: Mapping[str, str] | Sequence[str | tuple[str, str]],
-        app: Union[str, Application],
-        parent: Optional[QWidget] = None,
+        app: Application | str,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
 
@@ -312,7 +302,7 @@ def _rebuild(
     app: Application,
     menu_id: str,
     include_submenus: bool = True,
-    exclude: Optional[Collection[str]] = None,
+    exclude: Collection[str] | None = None,
 ) -> None:
     """Rebuild menu by looking up `menu` in `Application`'s menu_registry."""
     menu.clear()
@@ -368,5 +358,5 @@ def _update_from_context(
                 parent.update_from_context(ctx, _recurse=False)
 
 
-def _find_action(actions: Iterable[QAction], object_name: str) -> Union[QAction, None]:
+def _find_action(actions: Iterable[QAction], object_name: str) -> QAction | None:
     return next((a for a in actions if a.objectName() == object_name), None)

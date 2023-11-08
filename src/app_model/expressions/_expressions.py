@@ -6,15 +6,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generic,
     Iterator,
-    List,
     Mapping,
-    Optional,
     Sequence,
     SupportsIndex,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -38,12 +34,12 @@ if TYPE_CHECKING:
     from ._context_keys import ContextKey
 
 
-def parse_expression(expr: Union[str, Expr]) -> Expr:
+def parse_expression(expr: Expr | str) -> Expr:
     """Parse string expression into an [`Expr`][app_model.expressions.Expr] instance.
 
     Parameters
     ----------
-    expr : Union[str, Expr]
+    expr : Expr | str
         Expression to parse.  (If already an `Expr`, it is returned)
 
     Returns
@@ -71,7 +67,7 @@ def parse_expression(expr: Union[str, Expr]) -> Expr:
         raise SyntaxError(f"{expr!r} is not a valid expression: ({e}).") from None
 
 
-def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -> Any:
+def safe_eval(expr: str | bool | Expr, context: Mapping | None = None) -> Any:
     """Safely evaluate `expr` string given `context` dict.
 
     This lets you evaluate a string expression with broader expression
@@ -81,10 +77,10 @@ def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -
 
     Parameters
     ----------
-    expr : Union[str, bool, Expr]
+    expr : str | bool | Expr
         Expression to evaluate. If `expr` is a string, it is parsed into an
         :class:`Expr` instance. If a `bool`, it is returned directly.
-    context : Optional[Mapping]
+    context : Mapping | None
         Context (mapping of names to objects) to evaluate the expression in.
     """
     if isinstance(expr, bool):
@@ -181,7 +177,7 @@ class Expr(ast.AST, Generic[T]):
         super().__init__(*args, **kwargs)
         ast.fix_missing_locations(self)
 
-    def eval(self, context: Optional[Mapping[str, object]] = None) -> T:
+    def eval(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
@@ -225,13 +221,11 @@ class Expr(ast.AST, Generic[T]):
     # if you want the binary operators, use Expr.bitand, and Expr.bitor
 
     def __and__(
-        self, other: Union[Expr[T2], Expr[T], ConstType, Compare]
-    ) -> BoolOp[Union[T, T2]]:
+        self, other: Expr[T2] | Expr[T] | ConstType | Compare
+    ) -> BoolOp[T | T2]:
         return BoolOp(ast.And(), [self, other])
 
-    def __or__(
-        self, other: Union[Expr[T2], Expr[T], ConstType, Compare]
-    ) -> BoolOp[Union[T, T2]]:
+    def __or__(self, other: Expr[T2] | Expr[T] | ConstType | Compare) -> BoolOp[T | T2]:
         return BoolOp(ast.Or(), [self, other])
 
     # comparisons
@@ -269,38 +263,38 @@ class Expr(ast.AST, Generic[T]):
     # binary operators
     # (note that __and__ and __or__ are reserved for boolean operators.)
 
-    def __add__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __add__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Add(), other)
 
-    def __sub__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __sub__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Sub(), other)
 
-    def __mul__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __mul__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Mult(), other)
 
-    def __truediv__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __truediv__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Div(), other)
 
-    def __floordiv__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __floordiv__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.FloorDiv(), other)
 
-    def __mod__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __mod__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Mod(), other)
 
-    def __matmul__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __matmul__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.MatMult(), other)  # pragma: no cover
 
-    def __pow__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __pow__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Pow(), other)
 
-    def __xor__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __xor__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.BitXor(), other)
 
-    def bitand(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def bitand(self, other: T | Expr[T]) -> BinOp[T]:
         """Return bitwise self & other."""
         return BinOp(self, ast.BitAnd(), other)
 
-    def bitor(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def bitor(self, other: T | Expr[T]) -> BinOp[T]:
         """Return bitwise self | other."""
         return BinOp(self, ast.BitOr(), other)
 
@@ -317,7 +311,7 @@ class Expr(ast.AST, Generic[T]):
         # note: we're using the invert operator `~` to mean "not ___"
         return UnaryOp(ast.Not(), self)
 
-    def __reduce_ex__(self, protocol: SupportsIndex) -> Tuple[Any, ...]:
+    def __reduce_ex__(self, protocol: SupportsIndex) -> tuple[Any, ...]:
         rv = list(super().__reduce_ex__(protocol))
         rv[1] = tuple(getattr(self, f) for f in self._fields)
         return tuple(rv)
@@ -364,7 +358,7 @@ class Name(Expr[T], ast.Name):
         kwargs["ctx"] = LOAD
         super().__init__(id, **kwargs)
 
-    def eval(self, context: Optional[Mapping] = None) -> T:
+    def eval(self, context: Mapping | None = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
@@ -380,7 +374,7 @@ class Constant(Expr[V], ast.Constant):
 
     value: V
 
-    def __init__(self, value: V, kind: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(self, value: V, kind: str | None = None, **kwargs: Any) -> None:
         _valid_type = (type(None), str, bytes, bool, int, float)
         if not isinstance(value, _valid_type):
             raise TypeError(f"Constants must be type: {_valid_type!r}")
@@ -418,9 +412,9 @@ class BinOp(Expr[T], ast.BinOp):
 
     def __init__(
         self,
-        left: Union[T, Expr[T]],
+        left: T | Expr[T],
         op: ast.operator,
-        right: Union[T, Expr[T]],
+        right: T | Expr[T],
         **k: Any,
     ) -> None:
         super().__init__(Expr._cast(left), op, Expr._cast(right), **k)
@@ -439,7 +433,7 @@ class BoolOp(Expr[T], ast.BoolOp):
     def __init__(
         self,
         op: ast.boolop,
-        values: Sequence[Union[ConstType, Expr]],
+        values: Sequence[ConstType | Expr],
         **kwargs: Any,
     ):
         super().__init__(op, [Expr._cast(v) for v in values], **kwargs)
@@ -487,7 +481,7 @@ class ExprTransformer(ast.NodeTransformer):
     def visit(self, node: PassedType) -> PassedType: ...
     # fmt: on
 
-    def visit(self, node: ast.AST) -> Optional[ast.AST]:
+    def visit(self, node: ast.AST) -> ast.AST | None:
         """Visit a node in the tree, transforming into Expr."""
         if isinstance(
             node,
@@ -510,7 +504,7 @@ class ExprTransformer(ast.NodeTransformer):
 
         # providing fake lineno and col_offset here rather than using
         # ast.fill_missing_locations for typing purposes
-        kwargs: Dict[str, Any] = {"lineno": 1, "col_offset": 0}
+        kwargs: dict[str, Any] = {"lineno": 1, "col_offset": 0}
 
         for name, field in ast.iter_fields(node):
             if isinstance(field, ast.expr):
@@ -540,10 +534,10 @@ class _ExprSerializer(ast.NodeVisitor):
     >>> out = "".join(serializer.result)
     """
 
-    def __init__(self, node: Optional[Expr] = None) -> None:
-        self._result: List[str] = []
+    def __init__(self, node: Expr | None = None) -> None:
+        self._result: list[str] = []
 
-        def write(*params: Union[ast.AST, str]) -> None:
+        def write(*params: ast.AST | str) -> None:
             for item in params:
                 if isinstance(item, ast.AST):
                     self.visit(item)
@@ -589,7 +583,7 @@ class _ExprSerializer(ast.NodeVisitor):
 
 
 OpType = Union[Type[ast.operator], Type[ast.cmpop], Type[ast.boolop], Type[ast.unaryop]]
-_OPS: Dict[OpType, str] = {
+_OPS: dict[OpType, str] = {
     # ast.boolop
     ast.Or: "or",
     ast.And: "and",

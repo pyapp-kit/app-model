@@ -27,8 +27,7 @@ from .registries import (
 )
 
 if TYPE_CHECKING:
-    from .types import Action
-    from .types._constants import DisposeCallable
+    from .types import Action, DisposeCallable
 
 
 class Application:

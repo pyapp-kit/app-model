@@ -3,23 +3,22 @@ from __future__ import annotations
 import contextlib
 from types import MappingProxyType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
-    Dict,
     Generic,
-    List,
     Literal,
     MutableMapping,
     NamedTuple,
-    Optional,
-    Type,
     TypeVar,
-    Union,
     overload,
 )
 
 from ._expressions import Name
+
+if TYPE_CHECKING:
+    import builtins
 
 T = TypeVar("T")
 A = TypeVar("A")
@@ -42,9 +41,9 @@ class ContextKeyInfo(NamedTuple):
     """
 
     key: str
-    type: Optional[Type]
-    description: Optional[str]
-    namespace: Optional[Type[ContextNamespace]]
+    type: type | None
+    description: str | None
+    namespace: builtins.type[ContextNamespace] | None
 
 
 class ContextKey(Name, Generic[A, T]):
@@ -87,14 +86,14 @@ class ContextKey(Name, Generic[A, T]):
     # This will catalog all ContextKeys that get instantiated, which provides
     # an easy way to organize documentation.
     # ContextKey.info() returns a list with info for all ContextKeys
-    _info: ClassVar[List[ContextKeyInfo]] = []
+    _info: ClassVar[list[ContextKeyInfo]] = []
     MISSING = MISSING
 
     def __init__(
         self,
-        default_value: Union[T, __missing] = MISSING,
-        description: Optional[str] = None,
-        getter: Optional[Callable[[A], T]] = None,
+        default_value: T | __missing = MISSING,
+        description: str | None = None,
+        getter: Callable[[A], T] | None = None,
         *,
         id: str = "",  # optional because of __set_name__
     ) -> None:
@@ -102,7 +101,7 @@ class ContextKey(Name, Generic[A, T]):
         self._default_value = default_value
         self._getter = getter
         self._description = description
-        self._owner: Optional[Type[ContextNamespace]] = None
+        self._owner: type[ContextNamespace] | None = None
         self._type = (
             type(default_value) if default_value not in (None, MISSING) else None
         )
@@ -113,7 +112,7 @@ class ContextKey(Name, Generic[A, T]):
         return self.id
 
     @classmethod
-    def info(cls) -> List[ContextKeyInfo]:
+    def info(cls) -> list[ContextKeyInfo]:
         """Return list of all stored context keys."""
         return list(cls._info)
 
@@ -122,7 +121,7 @@ class ContextKey(Name, Generic[A, T]):
             ContextKeyInfo(self.id, self._type, self._description, self._owner)
         )
 
-    def __set_name__(self, owner: Type[ContextNamespace[A]], name: str) -> None:
+    def __set_name__(self, owner: type[ContextNamespace[A]], name: str) -> None:
         """Set the name for this key.
 
         (this happens when you instantiate this class as a class attribute).
@@ -136,18 +135,18 @@ class ContextKey(Name, Generic[A, T]):
         self._store()
 
     @overload
-    def __get__(self, obj: Literal[None], objtype: Type) -> ContextKey[A, T]:
+    def __get__(self, obj: Literal[None], objtype: type) -> ContextKey[A, T]:
         # When we __get__ from the class, we return ourself
         ...
 
     @overload
-    def __get__(self, obj: ContextNamespace[A], objtype: Type) -> T:
+    def __get__(self, obj: ContextNamespace[A], objtype: type) -> T:
         # When we got from the object, we return the current value
         ...
 
     def __get__(
-        self, obj: Optional[ContextNamespace[A]], objtype: Type
-    ) -> Union[T, None, ContextKey[A, T]]:
+        self, obj: ContextNamespace[A] | None, objtype: type
+    ) -> T | ContextKey[A, T] | None:
         """Get current value of the key in the associated context."""
         return self if obj is None else obj._context.get(self.id, MISSING)
 
@@ -163,21 +162,21 @@ class ContextKey(Name, Generic[A, T]):
 class ContextNamespaceMeta(type):
     """Metaclass that finds all ContextNamespace members."""
 
-    def __new__(
-        cls: Type, clsname: str, bases: tuple, attrs: dict
-    ) -> Type[ContextNamespace]:
+    _members_map_: dict[str, ContextKey]
+
+    def __new__(cls, clsname: str, bases: tuple, attrs: dict) -> ContextNamespaceMeta:
         """Create a new ContextNamespace class."""
-        cls = super().__new__(cls, clsname, bases, attrs)
-        cls._members_map_ = {
+        new_cls = super().__new__(cls, clsname, bases, attrs)
+        new_cls._members_map_ = {
             k: v for k, v in attrs.items() if isinstance(v, ContextKey)
         }
-        return cls
+        return new_cls
 
     @property
     def __members__(self) -> MappingProxyType[str, ContextKey]:
         return MappingProxyType(self._members_map_)
 
-    def __dir__(self) -> List[str]:  # pragma: no cover
+    def __dir__(self) -> list[str]:  # pragma: no cover
         return [
             "__class__",
             "__doc__",
@@ -198,8 +197,8 @@ class ContextNamespace(Generic[A], metaclass=ContextNamespaceMeta):
 
         # on instantiation we create an index of defaults and value-getters
         # to speed up retrieval later
-        self._defaults: Dict[str, Any] = {}  # default values per key
-        self._getters: Dict[str, Callable[[A], Any]] = {}  # value getters
+        self._defaults: dict[str, Any] = {}  # default values per key
+        self._getters: dict[str, Callable[[A], Any]] = {}  # value getters
         for name, ctxkey in type(self).__members__.items():
             self._defaults[name] = ctxkey._default_value
             if ctxkey._default_value is not MISSING:

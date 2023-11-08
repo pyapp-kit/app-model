@@ -1,41 +1,42 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, overload
+from typing import TYPE_CHECKING, overload
 
 from app_model.types import Action, MenuItem
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, List, Literal, Optional, Union
+    from typing import Any, Callable, Literal, TypeVar
 
-    from app_model import expressions
-    from app_model._app import Application
-    from app_model.types import IconOrDict, KeyBindingRuleOrDict, MenuRuleOrDict
-    from app_model.types._constants import DisposeCallable
+    from app_model import Application, expressions
+    from app_model.types import (
+        DisposeCallable,
+        IconOrDict,
+        KeyBindingRuleOrDict,
+        MenuRuleOrDict,
+    )
 
     CommandCallable = TypeVar("CommandCallable", bound=Callable[..., Any])
     CommandDecorator = Callable[[Callable], Callable]
 
 
 @overload
-def register_action(
-    app: Union[Application, str], id_or_action: Action
-) -> DisposeCallable:
+def register_action(app: Application | str, id_or_action: Action) -> DisposeCallable:
     ...
 
 
 @overload
 def register_action(
-    app: Union[Application, str],
+    app: Application | str,
     id_or_action: str,
     title: str,
     *,
     callback: Literal[None] = ...,
-    category: Optional[str] = ...,
-    tooltip: Optional[str] = ...,
-    icon: Optional[IconOrDict] = ...,
-    enablement: Optional[expressions.Expr] = ...,
-    menus: Optional[List[MenuRuleOrDict]] = ...,
-    keybindings: Optional[List[KeyBindingRuleOrDict]] = ...,
+    category: str | None = ...,
+    tooltip: str | None = ...,
+    icon: IconOrDict | None = ...,
+    enablement: expressions.Expr | None = ...,
+    menus: list[MenuRuleOrDict] | None = ...,
+    keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
 ) -> CommandDecorator:
     ...
@@ -43,36 +44,36 @@ def register_action(
 
 @overload
 def register_action(
-    app: Union[Application, str],
+    app: Application | str,
     id_or_action: str,
     title: str,
     *,
     callback: CommandCallable,
-    category: Optional[str] = ...,
-    tooltip: Optional[str] = ...,
-    icon: Optional[IconOrDict] = ...,
-    enablement: Optional[expressions.Expr] = ...,
-    menus: Optional[List[MenuRuleOrDict]] = ...,
-    keybindings: Optional[List[KeyBindingRuleOrDict]] = ...,
+    category: str | None = ...,
+    tooltip: str | None = ...,
+    icon: IconOrDict | None = ...,
+    enablement: expressions.Expr | None = ...,
+    menus: list[MenuRuleOrDict] | None = ...,
+    keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
 ) -> DisposeCallable:
     ...
 
 
 def register_action(
-    app: Union[Application, str],
-    id_or_action: Union[str, Action],
-    title: Optional[str] = None,
+    app: Application | str,
+    id_or_action: str | Action,
+    title: str | None = None,
     *,
-    callback: Optional[CommandCallable] = None,
-    category: Optional[str] = None,
-    tooltip: Optional[str] = None,
-    icon: Optional[IconOrDict] = None,
-    enablement: Optional[expressions.Expr] = None,
-    menus: Optional[List[MenuRuleOrDict]] = None,
-    keybindings: Optional[List[KeyBindingRuleOrDict]] = None,
+    callback: CommandCallable | None = None,
+    category: str | None = None,
+    tooltip: str | None = None,
+    icon: IconOrDict | None = None,
+    enablement: expressions.Expr | None = None,
+    menus: list[MenuRuleOrDict] | None = None,
+    keybindings: list[KeyBindingRuleOrDict] | None = None,
     palette: bool = True,
-) -> Union[CommandDecorator, DisposeCallable]:
+) -> CommandDecorator | DisposeCallable:
     """Register an action.
 
     An Action is the "complete" representation of a command.  The command is the
@@ -99,22 +100,22 @@ def register_action(
 
     Parameters
     ----------
-    app: Union[Application, str]
+    app: Application | str
         The app in which to register the action. If a string, the app is retrieved
         or created as necessary using `Application.get_or_create(app)`.
     id_or_action : Union[CommandId, Action]
         Either a complete Action object or a string id of the command being registered.
         If an `Action` object is provided, then all other arguments are ignored.
-    title : Optional[str]
+    title : str | None
         Title by which the command is represented in the UI. Required when
         `id_or_action` is a string.
     callback : Optional[CommandHandler]
         Callable object that executes this command, by default None. If not provided,
         a decorator is returned that can be used to decorate a function that executes
         this action.
-    category : Optional[str]
+    category : str | None
         Category string by which the command may be grouped in the UI, by default None
-    tooltip : Optional[str]
+    tooltip : str | None
         Tooltip to show when hovered., by default None
     icon : Optional[Icon]
         :class:`~app_model._types.Icon` used to represent this command,
@@ -122,10 +123,10 @@ def register_action(
     enablement : Optional[context.Expr]
         Condition which must be true to enable the command in in the UI,
         by default None
-    menus : Optional[List[MenuRuleOrDict]]
+    menus : list[MenuRuleOrDict] | None
         :class:`~app_model._types.MenuRule` or `dicts` containing menu
         placements for this action, by default None
-    keybindings : Optional[List[KeyBindingRuleOrDict]]
+    keybindings : list[KeyBindingRuleOrDict] | None
         :class:`~app_model._types.KeyBindingRule` or `dicts` containing
         default keybindings for this action, by default None
     palette : bool
@@ -133,7 +134,7 @@ def register_action(
 
     Returns
     -------
-    Union[CommandDecorator, DisposeCallable]
+    -------Union | CommandDecorator, isposeCallable]
         If `run` is not provided, then a decorator is returned.
         If `run` is provided, or `id_or_action` is an `Action` object, then a function
         that may be used to unregister the action is returned.
@@ -167,9 +168,8 @@ def register_action(
 
 
 def _register_action_str(
-    app: Union[Application, str],
-    **kwargs: Any,
-) -> Union[CommandDecorator, DisposeCallable]:
+    app: Application | str, **kwargs: Any
+) -> CommandDecorator | DisposeCallable:
     """Create and register an Action with a string id and title.
 
     Helper for `register_action()`.
@@ -190,10 +190,7 @@ def _register_action_str(
     return decorator
 
 
-def _register_action_obj(
-    app: Union[Application, str],
-    action: Action,
-) -> DisposeCallable:
+def _register_action_obj(app: Application | str, action: Action) -> DisposeCallable:
     """Register an Action object. Return a function that unregisters the action.
 
     Helper for `register_action()`.
