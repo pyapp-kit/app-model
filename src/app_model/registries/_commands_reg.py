@@ -110,7 +110,9 @@ class CommandsRegistry:
             A function that can be called to unregister the command.
         """
         if id in self._commands:
-            raise ValueError(f"Command {id!r} already registered with callback {self._commands[id].callback!r} (new callback: {callback!r})")
+            raise ValueError(
+                f"Command {id!r} already registered with callback {self._commands[id].callback!r} (new callback: {callback!r})"
+            )
 
         cmd = _RegisteredCommand(id, callback, title, self._injection_store)
         self._commands[id] = cmd
