@@ -41,7 +41,7 @@ jobs:
           python -m pip install --pre ${{ matrix.qt-backend }}
 
       - name: Test
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           run: python -m pytest -s --color=yes
 
