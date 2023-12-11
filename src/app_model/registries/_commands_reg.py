@@ -111,7 +111,8 @@ class CommandsRegistry:
         """
         if id in self._commands:
             raise ValueError(
-                f"Command {id!r} already registered with callback {self._commands[id].callback!r} (new callback: {callback!r})"
+                f"Command {id!r} already registered with callback "
+                f"{self._commands[id].callback!r} (new callback: {callback!r})"
             )
 
         cmd = _RegisteredCommand(id, callback, title, self._injection_store)
