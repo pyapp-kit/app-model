@@ -134,7 +134,7 @@ def register_action(
 
     Returns
     -------
-    -------Union | CommandDecorator, isposeCallable]
+    Union[CommandDecorator, DisposeCallable]
         If `run` is not provided, then a decorator is returned.
         If `run` is provided, or `id_or_action` is an `Action` object, then a function
         that may be used to unregister the action is returned.
