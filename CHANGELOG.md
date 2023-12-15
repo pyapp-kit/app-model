@@ -1,5 +1,46 @@
 # Changelog
 
+## [v0.2.3](https://github.com/pyapp-kit/app-model/tree/v0.2.3) (2023-12-12)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.2...v0.2.3)
+
+**Implemented enhancements:**
+
+- feat: add top level Application.context [\#145](https://github.com/pyapp-kit/app-model/pull/145) ([tlambert03](https://github.com/tlambert03))
+- feat: add `CommandRule.icon_visible_in_menu` [\#135](https://github.com/pyapp-kit/app-model/pull/135) ([tlambert03](https://github.com/tlambert03))
+- feat: return QModelToolBar from call to QModelMainWindow.addModelToolBar [\#134](https://github.com/pyapp-kit/app-model/pull/134) ([tlambert03](https://github.com/tlambert03))
+- feat: accept single string id as menu key in Actions.menus [\#133](https://github.com/pyapp-kit/app-model/pull/133) ([tlambert03](https://github.com/tlambert03))
+- feat: support iconify icon keys [\#130](https://github.com/pyapp-kit/app-model/pull/130) ([tlambert03](https://github.com/tlambert03))
+- feat: Show shortcut in `KeyBinding.__repr__` [\#126](https://github.com/pyapp-kit/app-model/pull/126) ([Czaki](https://github.com/Czaki))
+- feat: support py312 [\#124](https://github.com/pyapp-kit/app-model/pull/124) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: catch runtime error on QModelSubmenu cleanup [\#151](https://github.com/pyapp-kit/app-model/pull/151) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- test: add test for mult\_file [\#140](https://github.com/pyapp-kit/app-model/pull/140) ([tlambert03](https://github.com/tlambert03))
+- test: enforce 100 percent test coverage on project [\#136](https://github.com/pyapp-kit/app-model/pull/136) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: remove minify plugin [\#154](https://github.com/pyapp-kit/app-model/pull/154) ([tlambert03](https://github.com/tlambert03))
+- docs: use griffe-fieldz instead of builtin-extension [\#149](https://github.com/pyapp-kit/app-model/pull/149) ([tlambert03](https://github.com/tlambert03))
+- docs: documentation overhaul [\#142](https://github.com/pyapp-kit/app-model/pull/142) ([tlambert03](https://github.com/tlambert03))
+- docs: Fix bullet points in `Exp` [\#125](https://github.com/pyapp-kit/app-model/pull/125) ([lucyleeow](https://github.com/lucyleeow))
+
+**Merged pull requests:**
+
+- chore: Provide information about callback registered [\#166](https://github.com/pyapp-kit/app-model/pull/166) ([Czaki](https://github.com/Czaki))
+- style: type cleanup/modernization [\#156](https://github.com/pyapp-kit/app-model/pull/156) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#152](https://github.com/pyapp-kit/app-model/pull/152) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: Update CI workflow to include reusable test [\#150](https://github.com/pyapp-kit/app-model/pull/150) ([tlambert03](https://github.com/tlambert03))
+- style: better qt typing [\#141](https://github.com/pyapp-kit/app-model/pull/141) ([tlambert03](https://github.com/tlambert03))
+- ci: Unpin pyside6 in tests [\#138](https://github.com/pyapp-kit/app-model/pull/138) ([tlambert03](https://github.com/tlambert03))
+- chore: remove setup.py, update ruff [\#131](https://github.com/pyapp-kit/app-model/pull/131) ([tlambert03](https://github.com/tlambert03))
+- refactor: use pydantic-compat [\#128](https://github.com/pyapp-kit/app-model/pull/128) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.2](https://github.com/pyapp-kit/app-model/tree/v0.2.2) (2023-09-25)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.1...v0.2.2)

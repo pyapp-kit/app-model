@@ -141,7 +141,10 @@ of:
   something with it. These are used to process the return value of the command
   function at execution time, based on command definition return type annotations.
 
-Here's an example.  Let's say an application has a `User` object with a `name()`
+See [`in-n-out` getting started](https://ino.readthedocs.io/en/latest/getting_started/)
+for more details on the use of providers/processos in the `Store`.
+
+Here's a simple example.  Let's say an application has a `User` object with a `name()`
 method:
 
 ```python
