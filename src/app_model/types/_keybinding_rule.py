@@ -66,7 +66,7 @@ class KeyBindingRule(_BaseModel):
     # so sticking with this one conditional method here...
     if PYDANTIC2:
         # for v2
-        @model_validator(mode="wrap")  # type: ignore
+        @model_validator(mode="wrap")
         @classmethod
         def _model_val(
             cls: Type[M], v: Any, handler: Callable[[Any], M]
