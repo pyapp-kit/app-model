@@ -60,10 +60,10 @@ def test_simple_keybinding_multi_mod():
     assert kb.is_modifier_key()
 
 
-def test_chord_keybinding():
+def test_chord_keybinding() -> None:
     kb = KeyBinding.from_str("Shift+A Cmd+9")
     assert len(kb) == 2
-    assert kb == "Shift+A Cmd+9"
+    assert kb != "Shift+A Cmd+9"  # comparison with string considered anti-pattern
     assert kb == KeyBinding.from_str("Shift+A Cmd+9")
     assert kb.part0 == SimpleKeyBinding(shift=True, key=KeyCode.KeyA)
     assert kb.part0 == "Shift+A"
