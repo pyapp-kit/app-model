@@ -31,6 +31,7 @@ plugins:
         python:
           import:
             - https://docs.python.org/3/objects.inv
+            - https://ino.readthedocs.io/en/latest/objects.inv
           options:
             extensions:
               - griffe_fieldz
