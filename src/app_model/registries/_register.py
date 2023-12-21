@@ -120,11 +120,11 @@ def register_action(
         Condition which must be true to enable the command in in the UI,
         by default None
     menus : list[MenuRuleOrDict] | None
-        [`MenuRule`][app_model.types.MenuRule] or `dicts` containing menu
+        List of [`MenuRule`][app_model.types.MenuRule] or kwarg `dicts` containing menu
         placements for this action, by default None
     keybindings : list[KeyBindingRuleOrDict] | None
-        [`KeyBindingRule`][app_model.types.KeyBindingRule] or `dicts` containing
-        default keybindings for this action, by default None
+        List of [`KeyBindingRule`][app_model.types.KeyBindingRule] or kwargs `dicts`
+        containing default keybindings for this action, by default None
     palette : bool
         Whether to adds this command to the Command Palette, by default True
 
@@ -246,10 +246,14 @@ def _register_action_str(
     corresponding registries. Otherwise a decorator returned that can be used
     to decorate the callable that executes the action.
     """
-    if callable(kwargs.get("callback")):
+    if kwargs.get("callback") is not None:
         return _register_action_obj(app, Action(**kwargs))
 
     def decorator(command: CommandCallable, **k: Any) -> CommandCallable:
+        if not callable(command):
+            raise TypeError(
+                "@register_action decorator must be passed a callable object"
+            )
         _register_action_obj(app, Action(**{**kwargs, **k, "callback": command}))
         return command
 
