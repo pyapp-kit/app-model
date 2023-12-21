@@ -1,5 +1,24 @@
 # Changelog
 
+## [v0.2.4](https://github.com/pyapp-kit/app-model/tree/v0.2.4) (2023-12-21)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.3...v0.2.4)
+
+**Implemented enhancements:**
+
+- feat: export register\_action function at top level [\#170](https://github.com/pyapp-kit/app-model/pull/170) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- Fix doc typo for `register_action` [\#168](https://github.com/pyapp-kit/app-model/pull/168) ([aganders3](https://github.com/aganders3))
+- docs: Add ref to in n out getting started [\#167](https://github.com/pyapp-kit/app-model/pull/167) ([lucyleeow](https://github.com/lucyleeow))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump aganders3/headless-gui from 1 to 2 [\#165](https://github.com/pyapp-kit/app-model/pull/165) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/setup-python from 4 to 5 [\#164](https://github.com/pyapp-kit/app-model/pull/164) ([dependabot[bot]](https://github.com/apps/dependabot))
+- refactor: remove comparison between Keybinding and string [\#146](https://github.com/pyapp-kit/app-model/pull/146) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.3](https://github.com/pyapp-kit/app-model/tree/v0.2.3) (2023-12-12)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.2...v0.2.3)
