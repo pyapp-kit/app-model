@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app_model import Application, expressions
     from app_model.types import (
         DisposeCallable,
+        Icon,  # noqa: F401 ... used in type hints for docs
         IconOrDict,
         KeyBindingRuleOrDict,
         MenuRuleOrDict,
@@ -76,40 +77,35 @@ def register_action(
 ) -> CommandDecorator | DisposeCallable:
     """Register an action.
 
-    An Action is the "complete" representation of a command.  The command is the
-    function itself, and an action also includes information about where and whether
-    it appears in menus and optional keybinding rules.
+    This is a functional form of the
+    [`Application.register_action()`][app_model.Application.register_action] method.
+    It accepts various overloads to allow for a more concise syntax.  See examples
+    below.
 
+    An `Action` is the "complete" representation of a command.  The command is the
+    function/callback itself, and an action also includes information about where and
+    whether it appears in menus and optional keybinding rules.  Since, most of the
+    arguments to this function are simply passed through to the `Action` constructor,
     see also docstrings for:
 
-    - :class:`~app_model._types.Action`
-    - :class:`~app_model._types.CommandRule`
-    - :class:`~app_model._types.MenuRule`
-    - :class:`~app_model._types.KeyBindingRule`
-
-    This function can be used directly or as a decorator:
-
-    - When the first `id_or_action` argument is an `Action`, then all other arguments
-      are ignored, the action object is registered directly, and a function that may be
-      used to unregister the action is returned.
-    - When the first `id_or_action` argument is a string, it is interpreted as the `id`
-      of the command being registered, and `title` must then also be provided. If `run`
-      is not provided, then a decorator is returned that can be used to decorate the
-      callable that executes the command; otherwise the command is registered directly
-      and a function that may be used to unregister the action is returned.
+    - [`Action`][app_model.types.Action]
+    - [`CommandRule`][app_model.types.CommandRule]
+    - [`MenuRule`][app_model.types.MenuRule]
+    - [`KeyBindingRule`][app_model.types.KeyBindingRule]
 
     Parameters
     ----------
     app: Application | str
         The app in which to register the action. If a string, the app is retrieved
-        or created as necessary using `Application.get_or_create(app)`.
-    id_or_action : Union[CommandId, Action]
+        or created as necessary using
+        [`Application.get_or_create(app)`][app_model.Application.get_or_create].
+    id_or_action : str | Action
         Either a complete Action object or a string id of the command being registered.
         If an `Action` object is provided, then all other arguments are ignored.
     title : str | None
         Title by which the command is represented in the UI. Required when
         `id_or_action` is a string.
-    callback : Optional[CommandHandler]
+    callback : CommandHandler | None
         Callable object that executes this command, by default None. If not provided,
         a decorator is returned that can be used to decorate a function that executes
         this action.
@@ -117,27 +113,29 @@ def register_action(
         Category string by which the command may be grouped in the UI, by default None
     tooltip : str | None
         Tooltip to show when hovered., by default None
-    icon : Optional[Icon]
-        :class:`~app_model._types.Icon` used to represent this command,
+    icon : Icon | None
+        [`Icon`][app_model.types.Icon] used to represent this command,
         e.g. on buttons or in menus. by default None
-    enablement : Optional[context.Expr]
+    enablement : expressions.Expr | None
         Condition which must be true to enable the command in in the UI,
         by default None
     menus : list[MenuRuleOrDict] | None
-        :class:`~app_model._types.MenuRule` or `dicts` containing menu
+        [`MenuRule`][app_model.types.MenuRule] or `dicts` containing menu
         placements for this action, by default None
     keybindings : list[KeyBindingRuleOrDict] | None
-        :class:`~app_model._types.KeyBindingRule` or `dicts` containing
+        [`KeyBindingRule`][app_model.types.KeyBindingRule] or `dicts` containing
         default keybindings for this action, by default None
     palette : bool
         Whether to adds this command to the Command Palette, by default True
 
     Returns
     -------
-    Union[CommandDecorator, DisposeCallable]
-        If `run` is not provided, then a decorator is returned.
-        If `run` is provided, or `id_or_action` is an `Action` object, then a function
-        that may be used to unregister the action is returned.
+    CommandDecorator
+        If `callback` is not provided, then a decorator is returned that can be used to
+        decorate a function as the executor of the command.
+    DisposeCallable
+        If `callback` is provided, or `id_or_action` is an `Action` object, then a
+        function is returned that may be used to unregister the action.
 
     Raises
     ------
@@ -145,6 +143,75 @@ def register_action(
         If `id_or_action` is a string and `title` is not provided.
     TypeError
         If `id_or_action` is not a string or an `Action` object.
+
+    Examples
+    --------
+    This function can be used directly or as a decorator, and accepts arguments in
+    various forms.
+
+    ## Passing an existing Action object
+
+    When the `id_or_action` argument is an instance of `app_model.Action`, then
+    all other arguments are ignored, the action object is registered directly, and the
+    return value is a function that may be used to unregister the action is returned.
+
+    ```python
+    from app_model import Application, Action, register_action
+
+    app = Application.get_or_create("myapp")
+    action = Action('my_action', title='My Action', callback=lambda: print("hi"))
+    register_action(app, action)
+
+    app.commands.execute_command('my_action')  # prints "hi"
+    ```
+
+    ## Creating a new Action
+
+    When the `id_or_action` argument is a string, it is interpreted as the `id`
+    of the command being registered, in which case `title` must then also be provided.
+    All other arguments are optional, but may be used to customize the action being
+    created (with keybindings, menus, icons, etc).
+
+    ```python
+    register_action(
+        app,
+        'my_action2',
+        title='My Action2',
+        callback=lambda: print("hello again!"),
+    )
+
+    app.commands.execute_command('my_action2')  # prints "hello again!"
+    ```
+
+    ## Usage as a decorator
+
+    If `callback` is not provided, then a decorator is returned that can be used
+    decorate a function as the executor of the command:
+
+    ```python
+    @register_action(app, 'my_action3', title='My Action3')
+    def my_action3():
+        print("hello again, again!")
+
+    app.commands.execute_command('my_action3')  # prints "hello again, again!"
+    ```
+
+    ## Passing app as a string
+
+    Note that in all of the above examples, the first `app` argument may be either an
+    instance of an [`Application`][app_model.Application] object, or a string name of
+    an application.  If a string is provided, then the application is retrieved or
+    created as necessary using
+    [`Application.get_or_create()`][app_model.Application.get_or_create].
+
+    ```python
+    register_action(
+        'myapp',  # app name instead of Application instance
+        'my_action4',
+        title='My Action4',
+        callback=lambda: print("hello again, again, again!"),
+    )
+    ```
     """
     if isinstance(id_or_action, Action):
         return _register_action_obj(app, id_or_action)
@@ -174,7 +241,7 @@ def _register_action_str(
 
     Helper for `register_action()`.
 
-    If `kwargs['run']` is a callable, a complete `Action` is created
+    If `kwargs['callback']` is a callable, a complete `Action` is created
     (thereby performing type validation and casting) and registered with the
     corresponding registries. Otherwise a decorator returned that can be used
     to decorate the callable that executes the action.
