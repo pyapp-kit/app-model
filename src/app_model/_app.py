@@ -9,10 +9,12 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     MutableMapping,
     Optional,
     Tuple,
     Type,
+    overload,
 )
 
 import in_n_out as ino
@@ -25,9 +27,19 @@ from .registries import (
     MenusRegistry,
     register_action,
 )
+from .types import (
+    Action,
+)
 
 if TYPE_CHECKING:
-    from .types import Action, DisposeCallable
+    from .expressions import Expr
+    from .registries._register import CommandCallable, CommandDecorator
+    from .types import (
+        DisposeCallable,
+        IconOrDict,
+        KeyBindingRuleOrDict,
+        MenuRuleOrDict,
+    )
 
 
 class Application:
@@ -197,16 +209,83 @@ class Application:
             with contextlib.suppress(Exception):
                 self._disposers.pop()[1]()
 
+    @overload
     def register_action(self, action: Action) -> DisposeCallable:
+        ...
+
+    @overload
+    def register_action(
+        self,
+        action: str,
+        title: str,
+        *,
+        callback: Literal[None] = ...,
+        category: str | None = ...,
+        tooltip: str | None = ...,
+        icon: IconOrDict | None = ...,
+        enablement: Expr | None = ...,
+        menus: list[MenuRuleOrDict] | None = ...,
+        keybindings: list[KeyBindingRuleOrDict] | None = ...,
+        palette: bool = True,
+    ) -> CommandDecorator:
+        ...
+
+    @overload
+    def register_action(
+        self,
+        action: str,
+        title: str,
+        *,
+        callback: CommandCallable,
+        category: str | None = ...,
+        tooltip: str | None = ...,
+        icon: IconOrDict | None = ...,
+        enablement: Expr | None = ...,
+        menus: list[MenuRuleOrDict] | None = ...,
+        keybindings: list[KeyBindingRuleOrDict] | None = ...,
+        palette: bool = True,
+    ) -> DisposeCallable:
+        ...
+
+    def register_action(
+        self,
+        action: str | Action,
+        title: str | None = None,
+        *,
+        callback: CommandCallable | None = None,
+        category: str | None = None,
+        tooltip: str | None = None,
+        icon: IconOrDict | None = None,
+        enablement: Expr | None = None,
+        menus: list[MenuRuleOrDict] | None = None,
+        keybindings: list[KeyBindingRuleOrDict] | None = None,
+        palette: bool = True,
+    ) -> CommandDecorator | DisposeCallable:
         """Register [`Action`][app_model.Action] instance with this application.
 
         An [`Action`][app_model.Action] is the complete representation of a command,
         including information about where and whether it appears in menus and optional
         keybinding rules.
 
-        This returns a function that may be called to undo the registration of `action`.
+        See [`register_action`][app_model.register_action] for complete
+        details on this function.
         """
-        return register_action(self, id_or_action=action)
+        if isinstance(action, Action):
+            return register_action(self, action)
+
+        return register_action(
+            self,
+            id_or_action=action,
+            title=title,  # type: ignore
+            callback=callback,  # type: ignore
+            category=category,
+            tooltip=tooltip,
+            icon=icon,
+            enablement=enablement,
+            menus=menus,
+            keybindings=keybindings,
+            palette=palette,
+        )
 
     def register_actions(self, actions: Iterable[Action]) -> DisposeCallable:
         """Register multiple [`Action`][app_model.Action] instances with this app.

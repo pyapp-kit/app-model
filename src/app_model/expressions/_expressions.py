@@ -79,7 +79,7 @@ def safe_eval(expr: str | bool | Expr, context: Mapping | None = None) -> Any:
     ----------
     expr : str | bool | Expr
         Expression to evaluate. If `expr` is a string, it is parsed into an
-        :class:`Expr` instance. If a `bool`, it is returned directly.
+        `Expr` instance. If a `bool`, it is returned directly.
     context : Mapping | None
         Context (mapping of names to objects) to evaluate the expression in.
     """
@@ -427,7 +427,7 @@ class BoolOp(Expr[T], ast.BoolOp):
     with the same operator, such as a or b or c, are collapsed into one node
     with several values.
 
-    This doesn't include `not`, which is a :class:`UnaryOp`.
+    This doesn't include `not`, which is a `UnaryOp`.
     """
 
     def __init__(
@@ -462,7 +462,7 @@ class IfExp(Expr, ast.IfExp):
 
 
 class ExprTransformer(ast.NodeTransformer):
-    """Transformer that converts an ast.expr into an :class:`Expr`.
+    """Transformer that converts an ast.expr into an `Expr`.
 
     Examples
     --------
@@ -519,7 +519,7 @@ class ExprTransformer(ast.NodeTransformer):
 
 
 class _ExprSerializer(ast.NodeVisitor):
-    """Serializes an :class:`Expr` into a string.
+    """Serializes an `Expr` into a string.
 
     Examples
     --------

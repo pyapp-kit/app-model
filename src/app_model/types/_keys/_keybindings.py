@@ -140,7 +140,8 @@ class KeyBinding:
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
-    in the downstream API, it should  be preferred to :class:`SimplyKeyBinding`, even
+    in the downstream API, it should be preferred to
+    [`SimpleKeyBinding`][app_model.types.SimpleKeyBinding], even
     when there is only a single part in the keybinding (i.e. when it is not a chord.)
 
     Chords (two separate keypress actions) are expressed as a string by separating
