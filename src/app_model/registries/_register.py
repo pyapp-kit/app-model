@@ -21,8 +21,9 @@ if TYPE_CHECKING:
 
 
 @overload
-def register_action(app: Application | str, id_or_action: Action) -> DisposeCallable:
-    ...
+def register_action(
+    app: Application | str, id_or_action: Action
+) -> DisposeCallable: ...
 
 
 @overload
@@ -39,8 +40,7 @@ def register_action(
     menus: list[MenuRuleOrDict] | None = ...,
     keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
-) -> CommandDecorator:
-    ...
+) -> CommandDecorator: ...
 
 
 @overload
@@ -57,8 +57,7 @@ def register_action(
     menus: list[MenuRuleOrDict] | None = ...,
     keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
-) -> DisposeCallable:
-    ...
+) -> DisposeCallable: ...
 
 
 def register_action(

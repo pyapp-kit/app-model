@@ -1,4 +1,5 @@
 """Qt objects for app_model."""
+
 from ._qaction import QCommandAction, QCommandRuleAction, QMenuItemAction
 from ._qkeybindingedit import QModelKeyBindingEdit
 from ._qkeymap import (
