@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-
 from typing import TYPE_CHECKING, Mapping, MutableMapping
 
 from qtpy import API, QT_VERSION
