@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
+
 from typing import TYPE_CHECKING, Mapping, MutableMapping
 
+from qtpy import API, QT_VERSION
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
@@ -79,7 +81,7 @@ else:
         return int(out)
 
 
-if QT6:
+if QT6 and not (API == "pyside6" and int(QT_VERSION[2]) < 4):
 
     def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
         return key.keyboardModifiers()
