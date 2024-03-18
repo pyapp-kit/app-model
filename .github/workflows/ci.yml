@@ -63,12 +63,6 @@ jobs:
             os: "ubuntu-latest"
             qt: "PySide2~=5.15.0"
 
-          - python-version: "3.9"
-            os: "ubuntu-latest"
-            qt: "PyQt6~=6.0.0"
-          - python-version: "3.9"
-            os: "ubuntu-latest"
-            qt: "PySide6~=6.1.0"
           - python-version: "3.10"
             os: "ubuntu-latest"
             qt: "PyQt6~=6.2.0"
