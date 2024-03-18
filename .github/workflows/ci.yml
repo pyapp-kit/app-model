@@ -20,8 +20,6 @@ jobs:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       pip-post-installs: ${{ matrix.pydantic }}
-      qt: ${{ matrix.qt }}
-      extras: ${{ matrix.qt == '' && 'test' || 'test,test-qt' }}
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
       report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
@@ -30,10 +28,9 @@ jobs:
         python-version: ["3.8", "3.10", "3.12"]
         os: [ubuntu-latest, macos-latest, windows-latest]
         pydantic: [""]
-        qt: ["", PyQt5, PyQt6, PySide2, PySide6]
         include:
           - python-version: "3.9"
-            os: "ubuntu-latest"
+            os: "macos-latest"
           - python-version: "3.11"
             os: "ubuntu-latest"
           - python-version: "3.12"
@@ -42,19 +39,58 @@ jobs:
           - python-version: "3.8"
             os: "ubuntu-latest"
             pydantic: "'pydantic<2'"
+
+  test-qt:
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      qt: ${{ matrix.qt }}
+      extras: test,test-qt
+      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
+      report-failures: ${{ github.event_name == 'schedule' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        include:
           - python-version: "3.8"
-            os: "ubuntu-latest"
-            qt-backend: "PyQt5==5.12"
-        exclude:
-          - qt: PySide2
-            python-version: "3.12"
-  
+            qt: "PyQt5==5.12"
+          - python-version: "3.10"
+            qt: "PyQt5~=5.15"
+          - python-version: "3.10"
+            qt: "PySide2~=5.15"
+
+          - python-version: "3.9"
+            qt: "PyQt6~=6.0"
+          - python-version: "3.9"
+            qt: "PySide6~=6.1"
+          - python-version: "3.10"
+            qt: "PyQt6~=6.2"
+          - python-version: "3.10"
+            qt: "PySide6~=6.3"
+          - python-version: "3.10"
+            qt: "PyQt6~=6.4"
+          - python-version: "3.11"
+            qt: "PySide6~=6.5"
+          - python-version: "3.11"
+            qt: "PySide6~=6.6"
+          - python-version: "3.11"
+            qt: "PyQt6~=6.6"
+
+          - python-version: "3.10"
+            os: "windows-latest"
+            qt: "PySide2"
+          - python-version: "3.9"
+            os: "macos-latest"
+            qt: "PySide2"
+
   test_napari:
     uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
     with:
       dependency-repo: napari/napari
       dependency-ref: ${{ matrix.napari-version }}
-      dependency-extras: 'testing'
+      dependency-extras: "testing"
       qt: ${{ matrix.qt }}
       pytest-args: 'napari/_qt napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
       python-version: "3.10"
