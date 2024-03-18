@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.2.5](https://github.com/pyapp-kit/app-model/tree/v0.2.5) (2024-03-18)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.4...v0.2.5)
+
+**Fixed bugs:**
+
+- fix: handle qmods like QT5 for pyside6 not 6.4 [\#179](https://github.com/pyapp-kit/app-model/pull/179) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
+
+**Merged pull requests:**
+
+- chore: add format to pre-commit [\#182](https://github.com/pyapp-kit/app-model/pull/182) ([tlambert03](https://github.com/tlambert03))
+- chore: use ruff format instead of black [\#181](https://github.com/pyapp-kit/app-model/pull/181) ([tlambert03](https://github.com/tlambert03))
+- ci: change test suite to cover more qt versions [\#180](https://github.com/pyapp-kit/app-model/pull/180) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump softprops/action-gh-release from 1 to 2 [\#178](https://github.com/pyapp-kit/app-model/pull/178) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: Add testing of napari/utils/\_tests/test\_key\_bindings.py [\#173](https://github.com/pyapp-kit/app-model/pull/173) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#172](https://github.com/pyapp-kit/app-model/pull/172) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.2.4](https://github.com/pyapp-kit/app-model/tree/v0.2.4) (2023-12-21)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.3...v0.2.4)
