@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator, Sequence
 
 from psygnal import Signal
@@ -10,6 +11,7 @@ if TYPE_CHECKING:
     from app_model.types import DisposeCallable, MenuOrSubmenu
 
 MenuId = str
+logger = getLogger(__name__)
 
 
 class MenusRegistry:
@@ -55,7 +57,10 @@ class MenusRegistry:
             for id_ in changed_ids:
                 if not self._menu_items.get(id_):
                     del self._menu_items[id_]
-            self.menus_changed.emit(changed_ids)
+            try:
+                self.menus_changed.emit(changed_ids)
+            except Exception as e:
+                logger.exception("Error during menu disposal: %s", e)
 
         if changed_ids:
             self.menus_changed.emit(changed_ids)

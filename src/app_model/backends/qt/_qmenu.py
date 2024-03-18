@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from typing import TYPE_CHECKING, Collection, Iterable, Mapping, Sequence, cast
 
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
@@ -52,7 +51,11 @@ class QModelMenu(QMenu):
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
-        self.destroyed.connect(self._disconnect)
+
+        @self.destroyed.connect  # type: ignore
+        def _disconnect() -> None:
+            self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+
         # ----------------------
 
         if title is not None:
@@ -106,15 +109,9 @@ class QModelMenu(QMenu):
             if isinstance(action, QCommandRuleAction):
                 action._refresh()
 
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
-
     def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
-            # if this (sub)menu has been removed from the registry,
-            # we may hit a RuntimeError when trying to rebuild it.
-            with contextlib.suppress(RuntimeError):
-                self.rebuild()
+            self.rebuild()
 
 
 class QModelSubmenu(QModelMenu):
@@ -192,7 +189,11 @@ class QModelToolBar(QToolBar):
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
-        self.destroyed.connect(self._disconnect)
+
+        @self.destroyed.connect  # type: ignore
+        def _disconnect() -> None:
+            self._app.menus.menus_changed.disconnect(self._on_registry_changed)
+
         # ----------------------
 
         if title is not None:
@@ -242,9 +243,6 @@ class QModelToolBar(QToolBar):
             include_submenus=include_submenus,
             exclude=self._exclude if exclude is None else exclude,
         )
-
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
     def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
