@@ -43,39 +43,49 @@ jobs:
   test-qt:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
     with:
+      qt: ${{ matrix.qt }}
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
-      qt: ${{ matrix.qt }}
       extras: test,test-qt
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
       report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         include:
           - python-version: "3.8"
+            os: "ubuntu-latest"
             qt: "PyQt5==5.12"
           - python-version: "3.10"
+            os: "ubuntu-latest"
             qt: "PyQt5~=5.15"
           - python-version: "3.10"
+            os: "ubuntu-latest"
             qt: "PySide2~=5.15"
 
           - python-version: "3.9"
+            os: "ubuntu-latest"
             qt: "PyQt6~=6.0"
           - python-version: "3.9"
+            os: "ubuntu-latest"
             qt: "PySide6~=6.1"
           - python-version: "3.10"
+            os: "ubuntu-latest"
             qt: "PyQt6~=6.2"
           - python-version: "3.10"
+            os: "ubuntu-latest"
             qt: "PySide6~=6.3"
           - python-version: "3.10"
+            os: "ubuntu-latest"
             qt: "PyQt6~=6.4"
           - python-version: "3.11"
+            os: "ubuntu-latest"
             qt: "PySide6~=6.5"
           - python-version: "3.11"
+            os: "ubuntu-latest"
             qt: "PySide6~=6.6"
           - python-version: "3.11"
+            os: "ubuntu-latest"
             qt: "PyQt6~=6.6"
 
           - python-version: "3.10"
