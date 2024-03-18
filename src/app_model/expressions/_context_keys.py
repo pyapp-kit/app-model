@@ -73,14 +73,14 @@ class ContextKey(Name, Generic[A, T]):
     Examples
     --------
     >>> class MyNames(ContextNamespace):
-    ...     some_key = ContextKey(0, 'some description', lambda x: sum(x))
+    ...     some_key = ContextKey(0, "some description", lambda x: sum(x))
 
     >>> expr = MyNames.some_key > 5  # create an expression using this key
 
     these expressions can be later evaluated with some concrete context.
 
-    >>> expr.eval({'some_key': 3})  # False
-    >>> expr.eval({'some_key': 6})  # True
+    >>> expr.eval({"some_key": 3})  # False
+    >>> expr.eval({"some_key": 6})  # True
     """
 
     # This will catalog all ContextKeys that get instantiated, which provides

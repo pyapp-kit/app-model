@@ -210,8 +210,7 @@ class Application:
                 self._disposers.pop()[1]()
 
     @overload
-    def register_action(self, action: Action) -> DisposeCallable:
-        ...
+    def register_action(self, action: Action) -> DisposeCallable: ...
 
     @overload
     def register_action(
@@ -227,8 +226,7 @@ class Application:
         menus: list[MenuRuleOrDict] | None = ...,
         keybindings: list[KeyBindingRuleOrDict] | None = ...,
         palette: bool = True,
-    ) -> CommandDecorator:
-        ...
+    ) -> CommandDecorator: ...
 
     @overload
     def register_action(
@@ -244,8 +242,7 @@ class Application:
         menus: list[MenuRuleOrDict] | None = ...,
         keybindings: list[KeyBindingRuleOrDict] | None = ...,
         palette: bool = True,
-    ) -> DisposeCallable:
-        ...
+    ) -> DisposeCallable: ...
 
     def register_action(
         self,

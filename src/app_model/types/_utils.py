@@ -33,7 +33,7 @@ def import_python_name(python_name: str) -> Any:
     --------
     >>> import_python_name("my_package.a_module:some_function")
     <function some_function at 0x...>
-    >>> import_python_name('pydantic:BaseModel')
+    >>> import_python_name("pydantic:BaseModel")
     <class 'pydantic.main.BaseModel'>
     """
     _validate_python_name(python_name)  # shows the best error message
