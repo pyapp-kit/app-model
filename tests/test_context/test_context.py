@@ -10,8 +10,7 @@ from app_model.expressions._context import _OBJ_TO_CONTEXT
 def test_create_context():
     """You can create a context for any object"""
 
-    class T:
-        ...
+    class T: ...
 
     t = T()
     tid = id(t)

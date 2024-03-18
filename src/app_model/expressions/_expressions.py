@@ -1,4 +1,5 @@
 """Provides `Expr` and its subclasses."""
+
 from __future__ import annotations
 
 import ast
@@ -128,10 +129,10 @@ class Expr(ast.AST, Generic[T]):
 
     Examples
     --------
-    >>> expr = parse_expression('myvar > 5')
+    >>> expr = parse_expression("myvar > 5")
 
     combine expressions with operators
-    >>> new_expr = expr & parse_expression('v2')
+    >>> new_expr = expr & parse_expression("v2")
 
     nice `repr`
     >>> new_expr
@@ -147,7 +148,7 @@ class Expr(ast.AST, Generic[T]):
             Name(id='v2', ctx=Load())])
 
     evaluate in some context
-    >>> new_expr.eval(dict(v2='hello!', myvar=8))
+    >>> new_expr.eval(dict(v2="hello!", myvar=8))
     'hello!'
 
     serialize
@@ -158,13 +159,13 @@ class Expr(ast.AST, Generic[T]):
     that can be evaluated repeatedly as some underlying context changes.
 
     ```python
-    light_is_green = Name[bool]('light_is_green')
-    count = Name[int]('count')
+    light_is_green = Name[bool]("light_is_green")
+    count = Name[int]("count")
     is_ready = light_is_green & count > 5
 
-    assert is_ready.eval({'count': 4, 'light_is_green': True}) == False
-    assert is_ready.eval({'count': 7, 'light_is_green': False}) == False
-    assert is_ready.eval({'count': 7, 'light_is_green': True}) == True
+    assert is_ready.eval({"count": 4, "light_is_green": True}) == False
+    assert is_ready.eval({"count": 7, "light_is_green": False}) == False
+    assert is_ready.eval({"count": 7, "light_is_green": True}) == True
     ```
 
     this will also preserve type information:
@@ -466,7 +467,7 @@ class ExprTransformer(ast.NodeTransformer):
 
     Examples
     --------
-    >>> tree = ast.parse('my_var > 11', mode='eval')
+    >>> tree = ast.parse("my_var > 11", mode="eval")
     >>> tree = ExprTransformer().visit(tree)  # transformed
     """
 
@@ -480,7 +481,6 @@ class ExprTransformer(ast.NodeTransformer):
     @overload
     def visit(self, node: PassedType) -> PassedType: ...
     # fmt: on
-
     def visit(self, node: ast.AST) -> ast.AST | None:
         """Visit a node in the tree, transforming into Expr."""
         if isinstance(
@@ -523,7 +523,7 @@ class _ExprSerializer(ast.NodeVisitor):
 
     Examples
     --------
-    >>> expr = Expr.parse('a + b == c')
+    >>> expr = Expr.parse("a + b == c")
     >>> print(expr)
     'a + b == c'
 

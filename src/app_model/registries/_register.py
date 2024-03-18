@@ -21,8 +21,9 @@ if TYPE_CHECKING:
 
 
 @overload
-def register_action(app: Application | str, id_or_action: Action) -> DisposeCallable:
-    ...
+def register_action(
+    app: Application | str, id_or_action: Action
+) -> DisposeCallable: ...
 
 
 @overload
@@ -39,8 +40,7 @@ def register_action(
     menus: list[MenuRuleOrDict] | None = ...,
     keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
-) -> CommandDecorator:
-    ...
+) -> CommandDecorator: ...
 
 
 @overload
@@ -57,8 +57,7 @@ def register_action(
     menus: list[MenuRuleOrDict] | None = ...,
     keybindings: list[KeyBindingRuleOrDict] | None = ...,
     palette: bool = True,
-) -> DisposeCallable:
-    ...
+) -> DisposeCallable: ...
 
 
 def register_action(
@@ -159,10 +158,10 @@ def register_action(
     from app_model import Application, Action, register_action
 
     app = Application.get_or_create("myapp")
-    action = Action('my_action', title='My Action', callback=lambda: print("hi"))
+    action = Action("my_action", title="My Action", callback=lambda: print("hi"))
     register_action(app, action)
 
-    app.commands.execute_command('my_action')  # prints "hi"
+    app.commands.execute_command("my_action")  # prints "hi"
     ```
 
     ## Creating a new Action
@@ -175,12 +174,12 @@ def register_action(
     ```python
     register_action(
         app,
-        'my_action2',
-        title='My Action2',
+        "my_action2",
+        title="My Action2",
         callback=lambda: print("hello again!"),
     )
 
-    app.commands.execute_command('my_action2')  # prints "hello again!"
+    app.commands.execute_command("my_action2")  # prints "hello again!"
     ```
 
     ## Usage as a decorator
@@ -189,11 +188,12 @@ def register_action(
     decorate a function as the executor of the command:
 
     ```python
-    @register_action(app, 'my_action3', title='My Action3')
+    @register_action(app, "my_action3", title="My Action3")
     def my_action3():
         print("hello again, again!")
 
-    app.commands.execute_command('my_action3')  # prints "hello again, again!"
+
+    app.commands.execute_command("my_action3")  # prints "hello again, again!"
     ```
 
     ## Passing app as a string
@@ -206,9 +206,9 @@ def register_action(
 
     ```python
     register_action(
-        'myapp',  # app name instead of Application instance
-        'my_action4',
-        title='My Action4',
+        "myapp",  # app name instead of Application instance
+        "my_action4",
+        title="My Action4",
         callback=lambda: print("hello again, again, again!"),
     )
     ```

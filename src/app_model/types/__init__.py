@@ -1,4 +1,5 @@
 """App-model types."""
+
 from typing import TYPE_CHECKING
 
 from ._action import Action

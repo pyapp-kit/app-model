@@ -655,16 +655,13 @@ class KeyMod(IntFlag):
     WinCtrl = 1 << 8  # meta key on windows, ctrl key on mac
 
     @overload  # type: ignore
-    def __or__(self, other: "KeyMod") -> "KeyMod":
-        ...
+    def __or__(self, other: "KeyMod") -> "KeyMod": ...
 
     @overload
-    def __or__(self, other: KeyCode) -> "KeyCombo":
-        ...
+    def __or__(self, other: KeyCode) -> "KeyCombo": ...
 
     @overload
-    def __or__(self, other: int) -> int:
-        ...
+    def __or__(self, other: int) -> int: ...
 
     def __or__(
         self, other: Union["KeyMod", KeyCode, int]
