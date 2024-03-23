@@ -157,12 +157,16 @@ class QMenuItemAction(QCommandRuleAction):
             super().__init__(menu_item.command, app, parent)
             self._menu_item = menu_item
             key = (id(self._app), hash(menu_item))
-            self.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
-            self._app.destroyed.connect(lambda: QMenuItemAction._cache.pop(key, None))
+            self.destroyed.connect(self._remove_from_cache)
+            self._app.destroyed.connect(self._remove_from_cache)
             self._initialized = True
 
         with contextlib.suppress(NameError):
             self.update_from_context(self._app.context)
+
+    def _remove_from_cache(self) -> None:
+        key = (id(self._app), hash(self._menu_item))
+        QMenuItemAction._cache.pop(key, None)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""
