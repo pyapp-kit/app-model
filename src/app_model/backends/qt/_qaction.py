@@ -156,7 +156,7 @@ class QMenuItemAction(QCommandRuleAction):
         if not initialized:
             super().__init__(menu_item.command, app, parent)
             self._menu_item = menu_item
-            key = (id(self._app), hash(menu_item))
+            (id(self._app), hash(menu_item))
             self.destroyed.connect(self._remove_from_cache)
             self._app.destroyed.connect(self._remove_from_cache)
             self._initialized = True
