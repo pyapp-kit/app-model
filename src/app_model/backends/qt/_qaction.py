@@ -150,9 +150,6 @@ class QMenuItemAction(QCommandRuleAction):
     def _cache_key(app: Application, menu_item: MenuItem) -> tuple[int, int]:
         return (id(app), hash(menu_item))
 
-    def _remove_from_cache(self) -> None:
-        cache_key = QMenuItemAction._cache_key(self._app, self._menu_item)
-        QMenuItemAction._cache.pop(cache_key, None)
 
     @classmethod
     def create(
@@ -180,8 +177,6 @@ class QMenuItemAction(QCommandRuleAction):
             return res
 
         cls._cache[cache_key] = obj = cls(menu_item, app, parent)
-        obj.destroyed.connect(obj._remove_from_cache)
-        app.destroyed.connect(obj._remove_from_cache)
         return obj
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
