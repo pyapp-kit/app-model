@@ -131,7 +131,9 @@ class QMenuItemAction(QCommandRuleAction):
         Optional parent widget, by default None
     """
 
-    _cache: ClassVar[dict[tuple[int, int], QMenuItemAction]] = WeakValueDictionary()
+    _cache: ClassVar[WeakValueDictionary[tuple[int, int], QMenuItemAction]] = (
+        WeakValueDictionary()
+    )
 
     def __init__(
         self,
