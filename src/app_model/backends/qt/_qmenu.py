@@ -317,7 +317,7 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction.create(item, app=app)
+                action = QMenuItemAction.create(item, app=app, parent=menu)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()
