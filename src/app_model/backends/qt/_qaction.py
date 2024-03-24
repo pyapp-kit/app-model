@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 from typing import TYPE_CHECKING, ClassVar, Mapping
+from weakref import WeakValueDictionary
 
 from app_model import Application
 from app_model.expressions import Expr
@@ -130,7 +131,7 @@ class QMenuItemAction(QCommandRuleAction):
         Optional parent widget, by default None
     """
 
-    _cache: ClassVar[dict[tuple[int, int], QMenuItemAction]] = {}
+    _cache: ClassVar[dict[tuple[int, int], QMenuItemAction]] = WeakValueDictionary()
 
     def __init__(
         self,
