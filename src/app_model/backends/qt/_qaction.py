@@ -173,7 +173,9 @@ class QMenuItemAction(QCommandRuleAction):
         app = Application.get_or_create(app) if isinstance(app, str) else app
         cache_key = QMenuItemAction._cache_key(app, menu_item)
         if cache_key in cls._cache:
-            return cls._cache[cache_key]
+            res = cls._cache[cache_key]
+            res.setParent(parent)
+            return res
 
         cls._cache[cache_key] = obj = cls(menu_item, app, parent)
         obj.destroyed.connect(obj._remove_from_cache)
