@@ -13,6 +13,7 @@ from ._util import to_qicon
 if TYPE_CHECKING:
     from PyQt6.QtGui import QAction
     from qtpy.QtCore import QObject
+    from typing_extensions import Self
 
     from app_model.types import CommandRule, MenuItem
 else:
@@ -118,55 +119,65 @@ class QMenuItemAction(QCommandRuleAction):
 
     Mostly the same as a `CommandRuleAction`, but aware of the `menu_item.when` clause
     to toggle visibility.
+
+    Parameters
+    ----------
+    menu_item : MenuItem
+        `MenuItem` instance to create an action for.
+    app : Application | str
+        Application instance or name of application instance.
+    parent : QObject | None
+        Optional parent widget, by default None
     """
 
     _cache: ClassVar[dict[tuple[int, int], QMenuItemAction]] = {}
-
-    def __new__(
-        cls: type[QMenuItemAction],
-        menu_item: MenuItem,
-        app: Application | str,
-        parent: QObject | None = None,
-        *,
-        cache: bool = True,
-    ) -> QMenuItemAction:
-        """Create and cache a QMenuItemAction for the given menu item."""
-        app = Application.get_or_create(app) if isinstance(app, str) else app
-        key = (id(app), hash(menu_item))
-        if cache and key in cls._cache:
-            return cls._cache[key]
-
-        self = super().__new__(cls)
-        if cache:
-            cls._cache[key] = self
-        return self  # type: ignore [no-any-return]
 
     def __init__(
         self,
         menu_item: MenuItem,
         app: Application | str,
         parent: QObject | None = None,
-        *,
-        cache: bool = True,  # used in __new__
     ):
-        initialized = False
-        with contextlib.suppress(RuntimeError):
-            initialized = getattr(self, "_initialized", False)
-
-        if not initialized:
-            super().__init__(menu_item.command, app, parent)
-            self._menu_item = menu_item
-            (id(self._app), hash(menu_item))
-            self.destroyed.connect(self._remove_from_cache)
-            self._app.destroyed.connect(self._remove_from_cache)
-            self._initialized = True
-
+        super().__init__(menu_item.command, app, parent)
+        self._menu_item = menu_item
         with contextlib.suppress(NameError):
             self.update_from_context(self._app.context)
 
+    @staticmethod
+    def _cache_key(app: Application, menu_item: MenuItem) -> tuple[int, int]:
+        return (id(app), hash(menu_item))
+
     def _remove_from_cache(self) -> None:
-        key = (id(self._app), hash(self._menu_item))
-        QMenuItemAction._cache.pop(key, None)
+        cache_key = QMenuItemAction._cache_key(self._app, self._menu_item)
+        QMenuItemAction._cache.pop(cache_key, None)
+
+    @classmethod
+    def create(
+        cls,
+        menu_item: MenuItem,
+        app: Application | str,
+        parent: QObject | None = None,
+    ) -> Self:
+        """Create a new QMenuItemAction for the given menu item.
+
+        Prefer this method over `__init__` to ensure that the cache is used,
+        so that:
+
+        ```python
+        a1 = QMenuItemAction.create(action, full_app)
+        a2 = QMenuItemAction.create(action, full_app)
+        a1 is a2  # True
+        ```
+        """
+        app = Application.get_or_create(app) if isinstance(app, str) else app
+        cache_key = QMenuItemAction._cache_key(app, menu_item)
+        if cache_key in cls._cache:
+            return cls._cache[cache_key]
+
+        cls._cache[cache_key] = obj = cls(menu_item, app, parent)
+        obj.destroyed.connect(obj._remove_from_cache)
+        app.destroyed.connect(obj._remove_from_cache)
+        return obj
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of this menu item from `ctx`."""

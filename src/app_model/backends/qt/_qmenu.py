@@ -242,6 +242,7 @@ class QModelToolBar(QToolBar):
             include_submenus=include_submenus,
             exclude=self._exclude if exclude is None else exclude,
         )
+        self.rebuilt.emit()
 
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
@@ -317,7 +318,7 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction(item, app=app, parent=menu)
+                action = QMenuItemAction.create(item, app=app)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()
