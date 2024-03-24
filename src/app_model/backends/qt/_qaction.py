@@ -150,7 +150,6 @@ class QMenuItemAction(QCommandRuleAction):
     def _cache_key(app: Application, menu_item: MenuItem) -> tuple[int, int]:
         return (id(app), hash(menu_item))
 
-
     @classmethod
     def create(
         cls,
