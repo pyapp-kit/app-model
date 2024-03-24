@@ -242,7 +242,6 @@ class QModelToolBar(QToolBar):
             include_submenus=include_submenus,
             exclude=self._exclude if exclude is None else exclude,
         )
-        self.rebuilt.emit()
 
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
