@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.2.6](https://github.com/pyapp-kit/app-model/tree/v0.2.6) (2024-03-25)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.5...v0.2.6)
+
+**Merged pull requests:**
+
+- fix: Do not use lambda in QMenuItemAction.destroyed callback [\#183](https://github.com/pyapp-kit/app-model/pull/183) ([Czaki](https://github.com/Czaki))
+
 ## [v0.2.5](https://github.com/pyapp-kit/app-model/tree/v0.2.5) (2024-03-18)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.4...v0.2.5)
