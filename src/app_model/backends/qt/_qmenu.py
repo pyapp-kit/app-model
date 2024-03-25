@@ -305,7 +305,10 @@ def _rebuild(
     exclude: Collection[str] | None = None,
 ) -> None:
     """Rebuild menu by looking up `menu` in `Application`'s menu_registry."""
-    menu.clear()
+    actions = menu.actions()
+    for action in actions:
+        menu.removeAction(action)
+
     _exclude = exclude or set()
 
     groups = list(app.menus.iter_menu_groups(menu_id))
@@ -317,7 +320,7 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction(item, app=app, parent=menu)
+                action = QMenuItemAction.create(item, app=app, parent=menu)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()

@@ -13,8 +13,8 @@ def test_cache_qaction(qapp, full_app: "FullApp") -> None:
     action = next(
         i for k, items in full_app.menus for i in items if isinstance(i, MenuItem)
     )
-    a1 = QMenuItemAction(action, full_app)
-    a2 = QMenuItemAction(action, full_app)
+    a1 = QMenuItemAction.create(action, full_app)
+    a2 = QMenuItemAction.create(action, full_app)
     assert a1 is a2
     assert repr(a1).startswith("QMenuItemAction")
 
