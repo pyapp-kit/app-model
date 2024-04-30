@@ -16,13 +16,13 @@ concurrency:
 jobs:
   test:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    secrets: inherit
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       pip-post-installs: ${{ matrix.pydantic }}
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
       report-failures: ${{ github.event_name == 'schedule' }}
-    secrets: inherit
     strategy:
       fail-fast: false
       matrix:
@@ -43,6 +43,7 @@ jobs:
 
   test-qt:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    secrets: inherit
     with:
       qt: ${{ matrix.qt }}
       os: ${{ matrix.os }}
