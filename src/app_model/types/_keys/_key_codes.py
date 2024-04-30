@@ -239,7 +239,7 @@ class ScanCode(IntEnum):
     Digit9 = auto()			#	9( on a US keyboard.
     Equal = auto()			#	=+ on a US keyboard.
     IntlBackslash = auto()	#	Located between the left Shift and Z keys. Labelled \| on a UK keyboard.
-    IntlTo = auto()			#	Located between the / and right Shift keys. Labelled \ろ (to) on a Japanese keyboard.
+    IntlRo = auto()			#	Located between the / and right Shift keys. Labelled \ろ (ro) on a Japanese keyboard.
     IntlYen = auto()		#	Located between the = and Backspace keys. Labelled ¥ (yen) on a Japanese keyboard. \/ on a Russian keyboard.
     KeyA = auto()			#	a on a US keyboard. Labelled q on an AZERTY (e.g., French) keyboard.
     KeyB = auto()			#	b on a US keyboard.
@@ -542,7 +542,7 @@ def _build_maps() -> Tuple[
         _KM(ScanCode.ContextMenu, 'ContextMenu', KeyCode.ContextMenu, 'ContextMenu', 93, _),
         _KM(ScanCode.NumpadEqual, 'NumpadEqual', KeyCode.UNKNOWN, _, 0, _),
         _KM(ScanCode.Help, 'Help', KeyCode.UNKNOWN, _, 0, _),
-        _KM(ScanCode.IntlTo, 'IntlTo', KeyCode.UNKNOWN, _, 193, 'VK_ABNT_C1'),
+        _KM(ScanCode.IntlRo, 'IntlRo', KeyCode.UNKNOWN, _, 193, 'VK_ABNT_C1'),
         _KM(ScanCode.KanaMode, 'KanaMode', KeyCode.UNKNOWN, _, 0, _),
         _KM(ScanCode.IntlYen, 'IntlYen', KeyCode.UNKNOWN, _, 0, _),
         _KM(ScanCode.Convert, 'Convert', KeyCode.UNKNOWN, _, 0, _),
