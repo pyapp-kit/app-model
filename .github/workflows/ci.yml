@@ -29,9 +29,14 @@ jobs:
         python-version: ["3.8", "3.10", "3.12"]
         os: [ubuntu-latest, macos-latest, windows-latest]
         pydantic: [""]
-        include:
-          - python-version: "3.9"
+        exclude:
+          - python-version: "3.8"
             os: "macos-latest"
+        include:
+          - python-version: "3.8"
+            os: "macos-13"
+          - python-version: "3.9"
+            os: "macos-13"
           - python-version: "3.11"
             os: "ubuntu-latest"
           - python-version: "3.12"
@@ -80,15 +85,16 @@ jobs:
           - python-version: "3.11"
             os: "ubuntu-latest"
             qt: "PySide6~=6.6.0"
-          - python-version: "3.11"
-            os: "ubuntu-latest"
-            qt: "PyQt6~=6.6.0"
+          # not working until pyqt6-qt is fixed
+          # - python-version: "3.11"
+          #   os: "ubuntu-latest"
+          #   qt: "PyQt6~=6.6.0"
 
           - python-version: "3.10"
             os: "windows-latest"
             qt: "PySide2"
           - python-version: "3.9"
-            os: "macos-latest"
+            os: "macos-13"
             qt: "PySide2"
 
   test_napari:
@@ -98,12 +104,13 @@ jobs:
       dependency-ref: ${{ matrix.napari-version }}
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
-      pytest-args: 'napari/_qt napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
+      pytest-args: 'napari/_qt/_qapp_model napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
       python-version: "3.10"
+      post-install-cmd: "pip install lxml_html_clean"  # fix for napari v0.4.19
     strategy:
       fail-fast: false
       matrix:
-        napari-version: ["", "v0.4.18"]
+        napari-version: ["", "v0.4.19.post1"]
         qt: ["pyqt5", "pyside2"]
 
   check-manifest:
