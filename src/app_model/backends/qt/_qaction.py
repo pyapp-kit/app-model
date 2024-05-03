@@ -4,6 +4,8 @@ import contextlib
 from typing import TYPE_CHECKING, ClassVar, Mapping
 from weakref import WeakValueDictionary
 
+from in_n_out._type_resolution import _resolve_sig_or_inform
+
 from app_model import Application
 from app_model.expressions import Expr
 from app_model.types import ToggleRule
@@ -145,6 +147,24 @@ class QMenuItemAction(QCommandRuleAction):
         self._menu_item = menu_item
         with contextlib.suppress(NameError):
             self.update_from_context(self._app.context)
+
+    def _on_triggered(self, checked: bool) -> None:
+        # Pass bound `QModelMenu` objects when callback parameter annotation matches
+        callback = self._app.commands[self._command_id].resolved_callback
+        sig = _resolve_sig_or_inform(
+            callback,
+            localns=self._app._injection_store.namespace,
+            raise_unresolved_optional_args=False,
+            raise_unresolved_required_args=False,
+            guess_self=False,
+        )
+        kwargs = {}
+        if parent := self.parentWidget() and (bound_params := parent._bound_params):
+            for param in sig.parameters.values():
+                if param.annotation in bound_params:
+                    kwargs[param.name] = bound_params[param.annotation]
+
+        self._app.commands.execute_command(self._command_id, **kwargs).result()
 
     @staticmethod
     def _cache_key(app: Application, menu_item: MenuItem) -> tuple[int, int]:

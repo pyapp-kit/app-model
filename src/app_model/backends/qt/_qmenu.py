@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Collection, Iterable, Mapping, Sequence, cast
+from typing import TYPE_CHECKING, Any, Collection, Iterable, Mapping, Sequence, cast
 
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 
@@ -33,6 +33,9 @@ class QModelMenu(QMenu):
         Optional title for the menu, by default None
     parent : QWidget | None
         Optional parent widget, by default None
+    bound_params : Collection[Any] | None
+        Objects to be passed to `Action` callbacks with matching parameter annotation.
+        By default None.
     """
 
     def __init__(
@@ -41,6 +44,7 @@ class QModelMenu(QMenu):
         app: Application | str,
         title: str | None = None,
         parent: QWidget | None = None,
+        bound_params: Collection[Any] | None = None,
     ):
         QMenu.__init__(self, parent)
 
@@ -54,6 +58,12 @@ class QModelMenu(QMenu):
         self._app.menus.menus_changed.connect(self._on_registry_changed)
         self.destroyed.connect(self._disconnect)
         # ----------------------
+
+        _bound_params: dict[type, Any] = dict()
+        if bound_params:
+            for obj in bound_params:
+                _bound_params[type(obj)] = obj
+        self._bound_params = _bound_params
 
         if title is not None:
             self.setTitle(title)
