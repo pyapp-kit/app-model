@@ -59,7 +59,7 @@ class QModelMenu(QMenu):
         self.destroyed.connect(self._disconnect)
         # ----------------------
 
-        _bound_params: dict[type, Any] = dict()
+        _bound_params: dict[type, Any] = {}
         if bound_params:
             for obj in bound_params:
                 _bound_params[type(obj)] = obj
