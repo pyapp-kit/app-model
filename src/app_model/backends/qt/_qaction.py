@@ -154,15 +154,20 @@ class QMenuItemAction(QCommandRuleAction):
         sig = _resolve_sig_or_inform(
             callback,
             localns=self._app._injection_store.namespace,
-            raise_unresolved_optional_args=False,
-            raise_unresolved_required_args=False,
+            on_unresolved_required_args=False,
+            on_unannotated_required_args=False,
             guess_self=False,
         )
+        if sig is None:
+            self._app.commands.execute_command(self._command_id).result()
+            return None
+
         kwargs = {}
-        if parent := self.parentWidget() and (bound_params := parent._bound_params):
-            for param in sig.parameters.values():
-                if param.annotation in bound_params:
-                    kwargs[param.name] = bound_params[param.annotation]
+        if parent := self.parentWidget():
+            if bound_params := parent._bound_params:
+                for param in sig.parameters.values():
+                    if param.annotation in bound_params:
+                        kwargs[param.name] = bound_params[param.annotation]
 
         self._app.commands.execute_command(self._command_id, **kwargs).result()
 
