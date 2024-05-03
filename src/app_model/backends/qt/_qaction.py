@@ -154,8 +154,8 @@ class QMenuItemAction(QCommandRuleAction):
         sig = _resolve_sig_or_inform(
             callback,
             localns=self._app._injection_store.namespace,
-            on_unresolved_required_args=False,
-            on_unannotated_required_args=False,
+            on_unresolved_required_args="ignore",
+            on_unannotated_required_args="ignore",
             guess_self=False,
         )
         if sig is None:
