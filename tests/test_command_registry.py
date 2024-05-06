@@ -1,6 +1,6 @@
 import pytest
 
-from app_model.registries import CommandsRegistry
+from app_model.registries import CommandsRegistry, RegisteredCommand
 
 
 def raise_exc() -> None:
@@ -39,3 +39,12 @@ def test_commands_raises() -> None:
 
     with pytest.raises(RuntimeError, match="boom"):
         reg.execute_command("my.id")
+
+    cmd = reg["my.id"]
+    assert isinstance(cmd, RegisteredCommand)
+    assert cmd.title == "My Title"
+
+    with pytest.raises(AttributeError, match="immutable"):
+        cmd.title = "New Title"
+
+    assert cmd.title == "My Title"

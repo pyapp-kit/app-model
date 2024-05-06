@@ -63,9 +63,7 @@ class RegisteredCommand(Generic[P, R]):
     def __setattr__(self, name: str, value: Any) -> None:
         """Object is immutable after initialization."""
         if getattr(self, "_initialized", False):
-            raise AttributeError(
-                f"Cannot set attribute {name!r} on {self.__class__.__name__} instance"
-            )
+            raise AttributeError("RegisteredCommand object is immutable.")
         super().__setattr__(name, value)
 
     @property
