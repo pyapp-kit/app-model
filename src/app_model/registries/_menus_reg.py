@@ -52,7 +52,7 @@ class MenusRegistry:
             disp = self.append_menu_items([(self.COMMAND_PALETTE_ID, menu_item)])
             disposers.append(disp)
 
-        if not disposers:
+        if not disposers:  # pragma: no cover
             return None
 
         def _dispose() -> None:

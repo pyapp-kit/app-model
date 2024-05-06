@@ -65,7 +65,7 @@ class KeyBindingsRegistry:
             if d := self.register_keybinding_rule(action.id, _keyb):
                 disposers.append(d)
 
-        if not disposers:
+        if not disposers:  # pragma: no cover
             return None
 
         def _dispose() -> None:

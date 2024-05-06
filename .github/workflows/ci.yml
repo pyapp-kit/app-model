@@ -15,14 +15,14 @@ concurrency:
 
 jobs:
   test:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     secrets: inherit
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       pip-post-installs: ${{ matrix.pydantic }}
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      report-failures: ${{ github.event_name == 'schedule' }}
+      coverage-upload: artifact
     strategy:
       fail-fast: false
       matrix:
@@ -47,7 +47,7 @@ jobs:
             pydantic: "'pydantic<2'"
 
   test-qt:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     secrets: inherit
     with:
       qt: ${{ matrix.qt }}
@@ -55,7 +55,7 @@ jobs:
       python-version: ${{ matrix.python-version }}
       extras: test-qt
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      report-failures: ${{ github.event_name == 'schedule' }}
+      coverage-upload: artifact
     strategy:
       fail-fast: false
       matrix:
@@ -69,7 +69,6 @@ jobs:
           - python-version: "3.10"
             os: "ubuntu-latest"
             qt: "PySide2~=5.15.0"
-
           - python-version: "3.10"
             os: "ubuntu-latest"
             qt: "PyQt6~=6.2.0"
@@ -85,11 +84,9 @@ jobs:
           - python-version: "3.11"
             os: "ubuntu-latest"
             qt: "PySide6~=6.6.0"
-          # not working until pyqt6-qt is fixed
-          # - python-version: "3.11"
-          #   os: "ubuntu-latest"
-          #   qt: "PyQt6~=6.6.0"
-
+          - python-version: "3.11"
+            os: "ubuntu-latest"
+            qt: pyqt6
           - python-version: "3.10"
             os: "windows-latest"
             qt: "PySide2"
@@ -97,8 +94,14 @@ jobs:
             os: "macos-13"
             qt: "PySide2"
 
+  upload_coverage:
+    if: always()
+    needs: [test, test-qt]
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
+    secrets: inherit
+
   test_napari:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       dependency-repo: napari/napari
       dependency-ref: ${{ matrix.napari-version }}
@@ -106,7 +109,7 @@ jobs:
       qt: ${{ matrix.qt }}
       pytest-args: 'napari/_qt/_qapp_model napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
       python-version: "3.10"
-      post-install-cmd: "pip install lxml_html_clean"  # fix for napari v0.4.19
+      post-install-cmd: "pip install lxml_html_clean" # fix for napari v0.4.19
     strategy:
       fail-fast: false
       matrix:
