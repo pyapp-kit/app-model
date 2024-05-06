@@ -35,9 +35,6 @@ class MenusRegistry:
             A function that can be called to unregister the menu items. If no
             menu items were registered, returns `None`.
         """
-        if not (menu_rules := action.menus):
-            return None
-
         disposers: list[Callable[[], None]] = []
         disp1 = self.append_menu_items(
             (
@@ -46,7 +43,7 @@ class MenusRegistry:
                     command=action, when=rule.when, group=rule.group, order=rule.order
                 ),
             )
-            for rule in menu_rules
+            for rule in action.menus or ()
         )
         disposers.append(disp1)
 
