@@ -270,38 +270,14 @@ def _register_action_obj(app: Application | str, action: Action) -> DisposeCalla
 
     app = app if isinstance(app, Application) else Application.get_or_create(app)
 
-    # command
-    disp_cmd = app.commands.register_command(action.id, action.callback, action.title)
-    disposers = [disp_cmd]
-
-    # menu
-    items = []
-    for rule in action.menus or ():
-        menu_item = MenuItem(
-            command=action, when=rule.when, group=rule.group, order=rule.order
-        )
-        items.append((rule.id, menu_item))
-    disposers.append(app.menus.append_menu_items(items))
-
-    if action.palette:
-        menu_item = MenuItem(command=action, when=action.enablement)
-        disp = app.menus.append_menu_items([(app.menus.COMMAND_PALETTE_ID, menu_item)])
-        disposers.append(disp)
-
-    # keybinding
-    for keyb in action.keybindings or ():
-        if action.enablement is not None:
-            kwargs = keyb.model_dump()
-            kwargs["when"] = (
-                action.enablement
-                if keyb.when is None
-                else action.enablement | keyb.when
-            )
-            _keyb = type(keyb)(**kwargs)
-        else:
-            _keyb = keyb
-        if _d := app.keybindings.register_keybinding_rule(action.id, _keyb):
-            disposers.append(_d)
+    # commands
+    disposers = [app.commands.register_action(action)]
+    # menus
+    if dm := app.menus.append_action_menus(action):
+        disposers.append(dm)
+    # keybindings
+    if dk := app.keybindings.register_action_keybindings(action):
+        disposers.append(dk)
 
     def _dispose() -> None:
         for d in disposers:

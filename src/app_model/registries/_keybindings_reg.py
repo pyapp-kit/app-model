@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from typing import Iterator, TypeVar
 
     from app_model import expressions
-    from app_model.types import DisposeCallable, KeyBindingRule
+    from app_model.types import Action, DisposeCallable, KeyBindingRule
 
     CommandDecorator = Callable[[Callable], Callable]
     CommandCallable = TypeVar("CommandCallable", bound=Callable)
@@ -32,6 +32,47 @@ class KeyBindingsRegistry:
 
     def __init__(self) -> None:
         self._keybindings: list[_RegisteredKeyBinding] = []
+
+    def register_action_keybindings(self, action: Action) -> DisposeCallable | None:
+        """Register all keybindings declared in `action.keybindings`.
+
+        Parameters
+        ----------
+        action : Action
+            The action to register keybindings for.
+
+        Returns
+        -------
+        DisposeCallable | None
+            A function that can be called to unregister the keybindings.  If no
+            keybindings were registered, returns None.
+        """
+        if not (keybindings := action.keybindings):
+            return None
+
+        disposers: list[Callable[[], None]] = []
+        for keyb in keybindings:
+            if action.enablement is not None:
+                kwargs = keyb.model_dump()
+                kwargs["when"] = (
+                    action.enablement
+                    if keyb.when is None
+                    else action.enablement | keyb.when
+                )
+                _keyb = type(keyb)(**kwargs)
+            else:
+                _keyb = keyb
+            if d := self.register_keybinding_rule(action.id, _keyb):
+                disposers.append(d)
+
+        if not disposers:
+            return None
+
+        def _dispose() -> None:
+            for disposer in disposers:
+                disposer()
+
+        return _dispose
 
     def register_keybinding_rule(
         self, id: str, rule: KeyBindingRule
