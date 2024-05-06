@@ -31,8 +31,8 @@ class RegisteredCommand(Generic[P, R]):
     Used internally by the CommandsRegistry.
 
     This helper class allows us to cache the dependency-injected variant of the
-    command. As usual with `cached_property`, the cache can be cleard by deleting
-    the attribute: `del cmd.run_injected`
+    command, so that type resolution and dependency injection is performed only
+    once.
     """
 
     __slots__ = (
