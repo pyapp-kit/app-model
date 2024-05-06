@@ -11,7 +11,7 @@ from psygnal import Signal
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec
 
-    from app_model.types import DisposeCallable, Action
+    from app_model.types import Action, DisposeCallable
 
     P = ParamSpec("P")
 else:
@@ -90,9 +90,7 @@ class CommandsRegistry:
         self._injection_store = injection_store
         self._raise_synchronous_exceptions = raise_synchronous_exceptions
 
-    def register_action(
-        self, action: Action
-    ) -> DisposeCallable:
+    def register_action(self, action: Action) -> DisposeCallable:
         """Register an Action object.
 
         This is a convenience method that registers the action's callback

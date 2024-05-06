@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, overload
 
-from app_model.types import Action, MenuItem
+from app_model.types import Action
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal, TypeVar
