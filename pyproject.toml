@@ -27,7 +27,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "psygnal>=0.3.4",
+    "psygnal>=0.9.5",
     "pydantic>=1.8",
     "pydantic-compat>=0.1.1",
     "in-n-out>=0.1.5",

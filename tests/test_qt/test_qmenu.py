@@ -64,8 +64,6 @@ def test_menu(
     with pytest.raises(NameError, match="Names required to eval this expression"):
         menu.update_from_context({})
 
-    menu._disconnect()
-
 
 def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
     app = full_app
