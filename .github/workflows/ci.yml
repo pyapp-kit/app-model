@@ -16,7 +16,6 @@ concurrency:
 jobs:
   test:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    secrets: inherit
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -48,7 +47,6 @@ jobs:
 
   test-qt:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    secrets: inherit
     with:
       qt: ${{ matrix.qt }}
       os: ${{ matrix.os }}
