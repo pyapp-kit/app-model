@@ -1,10 +1,18 @@
 # Changelog
 
+## [v0.2.7](https://github.com/pyapp-kit/app-model/tree/v0.2.7) (2024-05-08)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.6...v0.2.7)
+
+**Implemented enhancements:**
+
+- feat: give registries more control over registration of actions [\#194](https://github.com/pyapp-kit/app-model/pull/194) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.6](https://github.com/pyapp-kit/app-model/tree/v0.2.6) (2024-03-25)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.5...v0.2.6)
 
-**Merged pull requests:**
+**Fixed bugs:**
 
 - fix: Do not use lambda in QMenuItemAction.destroyed callback [\#183](https://github.com/pyapp-kit/app-model/pull/183) ([Czaki](https://github.com/Czaki))
 
