@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
-from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, TypeVar, cast
 
 from in_n_out import Store
@@ -11,7 +10,7 @@ from psygnal import Signal
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec
 
-    from app_model.types import DisposeCallable
+    from app_model.types import Action, DisposeCallable
 
     P = ParamSpec("P")
 else:
@@ -26,14 +25,25 @@ else:
 R = TypeVar("R")
 
 
-class _RegisteredCommand(Generic[P, R]):
+class RegisteredCommand(Generic[P, R]):
     """Small object to represent a command in the CommandsRegistry.
 
-    Only used internally by the CommandsRegistry.
+    Used internally by the CommandsRegistry.
+
     This helper class allows us to cache the dependency-injected variant of the
-    command. As usual with `cached_property`, the cache can be cleard by deleting
-    the attribute: `del cmd.run_injected`
+    command, so that type resolution and dependency injection is performed only
+    once.
     """
+
+    __slots__ = (
+        "id",
+        "callback",
+        "title",
+        "_resolved_callback",
+        "_injection_store",
+        "_injected_callback",
+        "_initialized",
+    )
 
     def __init__(
         self,
@@ -45,35 +55,55 @@ class _RegisteredCommand(Generic[P, R]):
         self.id = id
         self.callback = callback
         self.title = title
-        self._resolved_callback = callback if callable(callback) else None
         self._injection_store: Store = store or Store.get_store()
+        self._resolved_callback = callback if callable(callback) else None
+        self._injected_callback: Callable[P, R] | None = None
+        self._initialized = True
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Object is immutable after initialization."""
+        if getattr(self, "_initialized", False):
+            raise AttributeError("RegisteredCommand object is immutable.")
+        super().__setattr__(name, value)
 
     @property
     def resolved_callback(self) -> Callable[P, R]:
+        """Return the resolved command callback.
+
+        This property is cached, so the callback types are only resolved once.
+        """
         if self._resolved_callback is None:
             from app_model.types._utils import import_python_name
 
             try:
-                self._resolved_callback = import_python_name(str(self.callback))
+                cb = import_python_name(str(self.callback))
             except ImportError as e:
-                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
+                object.__setattr__(self, "_resolved_callback", lambda *a, **k: None)
                 raise type(e)(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} was not importable: {e}"
                 ) from e
 
-            if not callable(self._resolved_callback):
+            if not callable(cb):
                 # don't try to import again, just create a no-op
-                self._resolved_callback = cast(Callable[P, R], lambda *a, **k: None)
+                object.__setattr__(self, "_resolved_callback", lambda *a, **k: None)
                 raise TypeError(
                     f"Command pointer {self.callback!r} registered for Command "
                     f"{self.id!r} did not resolve to a callble object."
                 )
-        return self._resolved_callback
+            object.__setattr__(self, "_resolved_callback", cb)
+        return cast("Callable[P, R]", self._resolved_callback)
 
-    @cached_property
+    @property
     def run_injected(self) -> Callable[P, R]:
-        return self._injection_store.inject(self.resolved_callback, processors=True)
+        """Return the command callback with dependencies injected.
+
+        This property is cached, so the injected version is only created once.
+        """
+        if self._injected_callback is None:
+            cb = self._injection_store.inject(self.resolved_callback, processors=True)
+            object.__setattr__(self, "_injected_callback", cb)
+        return cast("Callable[P, R]", self._injected_callback)
 
 
 class CommandsRegistry:
@@ -86,9 +116,27 @@ class CommandsRegistry:
         injection_store: Store | None = None,
         raise_synchronous_exceptions: bool = False,
     ) -> None:
-        self._commands: dict[str, _RegisteredCommand] = {}
+        self._commands: dict[str, RegisteredCommand] = {}
         self._injection_store = injection_store
         self._raise_synchronous_exceptions = raise_synchronous_exceptions
+
+    def register_action(self, action: Action) -> DisposeCallable:
+        """Register an Action object.
+
+        This is a convenience method that registers the action's callback
+        with the action's ID and title using `register_command`.
+
+        Parameters
+        ----------
+        action: Action
+            Action to register
+
+        Returns
+        -------
+        DisposeCallable
+            A function that can be called to unregister the action.
+        """
+        return self.register_command(action.id, action.callback, action.title)
 
     def register_command(
         self, id: str, callback: Callable[P, R] | str, title: str
@@ -115,7 +163,7 @@ class CommandsRegistry:
                 f"{self._commands[id].callback!r} (new callback: {callback!r})"
             )
 
-        cmd = _RegisteredCommand(id, callback, title, self._injection_store)
+        cmd = RegisteredCommand(id, callback, title, self._injection_store)
         self._commands[id] = cmd
 
         def _dispose() -> None:
@@ -124,7 +172,7 @@ class CommandsRegistry:
         self.registered.emit(id)
         return _dispose
 
-    def __iter__(self) -> Iterator[tuple[str, _RegisteredCommand]]:
+    def __iter__(self) -> Iterator[tuple[str, RegisteredCommand]]:
         yield from self._commands.items()
 
     def __len__(self) -> int:
@@ -137,7 +185,7 @@ class CommandsRegistry:
         name = self.__class__.__name__
         return f"<{name} at {hex(id(self))} ({len(self._commands)} commands)>"
 
-    def __getitem__(self, id: str) -> _RegisteredCommand:
+    def __getitem__(self, id: str) -> RegisteredCommand:
         """Retrieve commands registered under a given ID."""
         if id not in self._commands:
             raise KeyError(f"Command {id!r} not registered")

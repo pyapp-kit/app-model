@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator
 
 from psygnal import Signal
 
 from app_model.types import MenuItem
 
 if TYPE_CHECKING:
-    from app_model.types import DisposeCallable, MenuOrSubmenu
+    from app_model.types import Action, DisposeCallable, MenuOrSubmenu
 
 MenuId = str
 
@@ -21,14 +21,54 @@ class MenusRegistry:
     def __init__(self) -> None:
         self._menu_items: dict[MenuId, dict[MenuOrSubmenu, None]] = {}
 
+    def append_action_menus(self, action: Action) -> DisposeCallable | None:
+        """Append all MenuRule items declared in `action.menus`.
+
+        Parameters
+        ----------
+        action : Action
+            The action containing menus to append.
+
+        Returns
+        -------
+        DisposeCallable | None
+            A function that can be called to unregister the menu items. If no
+            menu items were registered, returns `None`.
+        """
+        disposers: list[Callable[[], None]] = []
+        disp1 = self.append_menu_items(
+            (
+                rule.id,
+                MenuItem(
+                    command=action, when=rule.when, group=rule.group, order=rule.order
+                ),
+            )
+            for rule in action.menus or ()
+        )
+        disposers.append(disp1)
+
+        if action.palette:
+            menu_item = MenuItem(command=action, when=action.enablement)
+            disp = self.append_menu_items([(self.COMMAND_PALETTE_ID, menu_item)])
+            disposers.append(disp)
+
+        if not disposers:  # pragma: no cover
+            return None
+
+        def _dispose() -> None:
+            for disposer in disposers:
+                disposer()
+
+        return _dispose
+
     def append_menu_items(
-        self, items: Sequence[tuple[MenuId, MenuOrSubmenu]]
+        self, items: Iterable[tuple[MenuId, MenuOrSubmenu]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
         Parameters
         ----------
-        items : Sequence[Tuple[str, MenuOrSubmenu]]
+        items : Iterable[Tuple[str, MenuOrSubmenu]]
             Items to append.
 
         Returns
