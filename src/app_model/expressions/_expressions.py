@@ -151,6 +151,9 @@ class Expr(ast.AST, Generic[T]):
     >>> new_expr.eval(dict(v2="hello!", myvar=8))
     'hello!'
 
+    you can also use keyword arguments.  This is *slightly* slower
+    >>> new_expr.eval(v2="hello!", myvar=4)
+
     serialize
     >>> str(new_expr)
     'myvar > 5 and v2'

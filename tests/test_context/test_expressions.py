@@ -172,7 +172,7 @@ GOOD_EXPRESSIONS = [
 for k, v in _OPS.items():
     if issubclass(k, ast.unaryop):
         GOOD_EXPRESSIONS.append(f"{v} 1" if v == "not" else f"{v}1")
-    else:
+    elif v not in {"is", "is not"}:
         GOOD_EXPRESSIONS.append(f"1 {v} 2")
 
 # these are not supported
