@@ -177,6 +177,7 @@ class Expr(ast.AST, Generic[T]):
             raise RuntimeError("Don't instantiate Expr. Use `Expr.parse`")
         super().__init__(*args, **kwargs)
         ast.fix_missing_locations(self)
+        self._names = set(_iter_names(self))
 
     def eval(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`."""
@@ -186,10 +187,22 @@ class Expr(ast.AST, Generic[T]):
         try:
             return cast(T, eval(code, {}, context))
         except NameError as e:
-            miss = {k for k in _iter_names(self) if k not in context}
+            miss = {k for k in self._names if k not in context}
             raise NameError(
                 f"Names required to eval this expression are missing: {miss}"
             ) from e
+
+    def eval_callable_context(self, context: Mapping[str, object] | None = None) -> T:
+        """Evaluate this expression with names in `context`."""
+        if context is None:
+            return self.eval()
+
+        context = dict(context)
+        for name in self._names:
+            if callable(val := context.get(name)):
+                context[name] = val()
+
+        return self.eval(context)
 
     @classmethod
     def parse(cls, expr: str) -> Expr:
