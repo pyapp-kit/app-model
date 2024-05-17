@@ -239,6 +239,7 @@ def test_safe_eval():
 def test_eval_kwargs():
     expr = parse_expression("a + b")
     assert expr.eval(a=1, b=2) == 3
+    assert expr.eval({"a": 2}, b=2) == 4
 
 
 @pytest.mark.parametrize("expr", GOOD_EXPRESSIONS)
