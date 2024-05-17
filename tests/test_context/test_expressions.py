@@ -172,7 +172,7 @@ GOOD_EXPRESSIONS = [
 for k, v in _OPS.items():
     if issubclass(k, ast.unaryop):
         GOOD_EXPRESSIONS.append(f"{v} 1" if v == "not" else f"{v}1")
-    else:
+    elif v not in {"is", "is not"}:
         GOOD_EXPRESSIONS.append(f"1 {v} 2")
 
 # these are not supported
@@ -234,6 +234,12 @@ def test_safe_eval():
 
     with pytest.raises(SyntaxError, match="Type 'Set' not supported"):
         safe_eval("{1,2,3}")
+
+
+def test_eval_kwargs():
+    expr = parse_expression("a + b")
+    assert expr.eval(a=1, b=2) == 3
+    assert expr.eval({"a": 2}, b=2) == 4
 
 
 @pytest.mark.parametrize("expr", GOOD_EXPRESSIONS)
