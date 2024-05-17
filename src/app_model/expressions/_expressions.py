@@ -86,7 +86,7 @@ def safe_eval(expr: str | bool | Expr, context: Mapping | None = None) -> Any:
     """
     if isinstance(expr, bool):
         return expr
-    return parse_expression(expr).eval(context or {})
+    return parse_expression(expr).eval(context)
 
 
 class Expr(ast.AST, Generic[T]):
@@ -151,6 +151,9 @@ class Expr(ast.AST, Generic[T]):
     >>> new_expr.eval(dict(v2="hello!", myvar=8))
     'hello!'
 
+    you can also use keyword arguments.  This is *slightly* slower
+    >>> new_expr.eval(v2="hello!", myvar=4)
+
     serialize
     >>> str(new_expr)
     'myvar > 5 and v2'
@@ -177,26 +180,48 @@ class Expr(ast.AST, Generic[T]):
             raise RuntimeError("Don't instantiate Expr. Use `Expr.parse`")
         super().__init__(*args, **kwargs)
         ast.fix_missing_locations(self)
+        self._code = compile(ast.Expression(body=self), "<Expr>", "eval")
         self._names = set(_iter_names(self))
-        self.eval = self.eval_with_callables
+        self.eval = self.eval_with_callables  # type: ignore
 
-    def eval_no_callables(self, context: Mapping[str, object] | None = None) -> T:
+    def eval(
+        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
+    ) -> T:
+        """Evaluate this expression with names in `context`."""
+        # will have been replaced in __init__
+        raise NotImplementedError("This method should have been replaced.")
+
+    def eval_no_callables(
+        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
+    ) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
-            context = {}
-        code = compile(ast.Expression(body=self), "<Expr>", "eval")
+            context = ctx_kwargs
+        elif ctx_kwargs:
+            context = {**context, **ctx_kwargs}
+        return self._eval(context)
+
+    def _eval(self, context: Mapping[str, object]) -> T:
+        """Evaluate this expression using `context`, providing useful error."""
         try:
-            return cast(T, eval(code, {}, context))
+            return eval(self._code, {}, context)  # type: ignore
         except NameError as e:
             miss = {k for k in self._names if k not in context}
             raise NameError(
                 f"Names required to eval this expression are missing: {miss}"
             ) from e
 
-    def eval_with_callables(self, context: Mapping[str, object] | None = None) -> T:
-        """Evaluate this expression with names in `context`."""
+    def eval_with_callables(
+        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
+    ) -> T:
+        """Evaluate this expression with names in `context`, allowing callables."""
         if context is None:
-            return self.eval_no_callables(context)
+            context = ctx_kwargs
+        elif ctx_kwargs:
+            context = {**context, **ctx_kwargs}
+        if context is None:
+            return self._eval(context)
+
         ctx = {}
         for name in self._names:
             if name in context:
@@ -375,12 +400,6 @@ class Name(Expr[T], ast.Name):
     def __init__(self, id: str, ctx: ast.expr_context = LOAD, **kwargs: Any) -> None:
         kwargs["ctx"] = LOAD
         super().__init__(id, **kwargs)
-
-    def eval(self, context: Mapping | None = None) -> T:
-        """Evaluate this expression with names in `context`."""
-        if context is None:
-            context = {}
-        return super().eval(context=context)
 
 
 class Constant(Expr[V], ast.Constant):
