@@ -196,33 +196,32 @@ class Expr(ast.AST, Generic[T]):
         """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
-        return self._eval(context)
+        try:
+            return eval(self._code, {}, context)  # type: ignore[no-any-return]
+        except NameError as e:
+            raise self._missing_names_error(context) from e
 
     def eval_with_callables(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`, allowing callables."""
         if context is None:
-            return self._eval({})
+            return self.eval_no_callables({})
 
+        # build a new context, evaluating any callables
+        # we only want to evaluate the callables if they are needed, so we
+        # build a new context with only the names in this expression.
         ctx = {}
         for name in self._names:
             if name in context:
                 ctx[name] = val() if callable(val := context[name]) else val
             else:
-                miss = {k for k in self._names if k not in context}
-                raise NameError(
-                    f"Names required to eval this expression are missing: {miss}"
-                )
+                # early exit if we're missing names
+                raise self._missing_names_error(context)
         return self.eval_no_callables(ctx)
 
-    def _eval(self, context: Mapping[str, object]) -> T:
-        """Evaluate this expression using `context`, providing useful error."""
-        try:
-            return eval(self._code, {}, context)  # type: ignore
-        except NameError as e:
-            miss = {k for k in self._names if k not in context}
-            raise NameError(
-                f"Names required to eval this expression are missing: {miss}"
-            ) from e
+    def _missing_names_error(self, context: Mapping[str, object]) -> NameError:
+        """More informative error message when names are missing."""
+        miss = {k for k in self._names if k not in context}
+        return NameError(f"Names required to eval this expression are missing: {miss}")
 
     @classmethod
     def parse(cls, expr: str) -> Expr:
