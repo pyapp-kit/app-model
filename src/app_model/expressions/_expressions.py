@@ -201,16 +201,6 @@ class Expr(ast.AST, Generic[T]):
             context = {**context, **ctx_kwargs}
         return self._eval(context)
 
-    def _eval(self, context: Mapping[str, object]) -> T:
-        """Evaluate this expression using `context`, providing useful error."""
-        try:
-            return eval(self._code, {}, context)  # type: ignore
-        except NameError as e:
-            miss = {k for k in self._names if k not in context}
-            raise NameError(
-                f"Names required to eval this expression are missing: {miss}"
-            ) from e
-
     def eval_with_callables(
         self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
     ) -> T:
@@ -232,6 +222,16 @@ class Expr(ast.AST, Generic[T]):
                     f"Names required to eval this expression are missing: {miss}"
                 )
         return self.eval_no_callables(ctx)
+
+    def _eval(self, context: Mapping[str, object]) -> T:
+        """Evaluate this expression using `context`, providing useful error."""
+        try:
+            return eval(self._code, {}, context)  # type: ignore
+        except NameError as e:
+            miss = {k for k in self._names if k not in context}
+            raise NameError(
+                f"Names required to eval this expression are missing: {miss}"
+            ) from e
 
     @classmethod
     def parse(cls, expr: str) -> Expr:
