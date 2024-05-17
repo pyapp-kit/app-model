@@ -178,8 +178,9 @@ class Expr(ast.AST, Generic[T]):
         super().__init__(*args, **kwargs)
         ast.fix_missing_locations(self)
         self._names = set(_iter_names(self))
+        self.eval = self.eval_with_callables
 
-    def eval(self, context: Mapping[str, object] | None = None) -> T:
+    def eval_no_callables(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
             context = {}
@@ -192,17 +193,15 @@ class Expr(ast.AST, Generic[T]):
                 f"Names required to eval this expression are missing: {miss}"
             ) from e
 
-    def eval_callable_context(self, context: Mapping[str, object] | None = None) -> T:
+    def eval_with_callables(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
-            return self.eval()
-
-        context = dict(context)
+            return self.eval_no_callables(context)
+        ctx = {}
         for name in self._names:
-            if callable(val := context.get(name)):
-                context[name] = val()
-
-        return self.eval(context)
+            if name in context:
+                ctx[name] = val() if callable(val := context[name]) else val
+        return self.eval_no_callables(ctx)
 
     @classmethod
     def parse(cls, expr: str) -> Expr:
