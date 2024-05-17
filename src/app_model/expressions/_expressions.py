@@ -86,7 +86,7 @@ def safe_eval(expr: str | bool | Expr, context: Mapping | None = None) -> Any:
     """
     if isinstance(expr, bool):
         return expr
-    return parse_expression(expr).eval(context or {})
+    return parse_expression(expr).eval(context)
 
 
 class Expr(ast.AST, Generic[T]):
