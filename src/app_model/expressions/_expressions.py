@@ -151,9 +151,6 @@ class Expr(ast.AST, Generic[T]):
     >>> new_expr.eval(dict(v2="hello!", myvar=8))
     'hello!'
 
-    you can also use keyword arguments.  This is *slightly* slower
-    >>> new_expr.eval(v2="hello!", myvar=4)
-
     serialize
     >>> str(new_expr)
     'myvar > 5 and v2'
@@ -184,33 +181,27 @@ class Expr(ast.AST, Generic[T]):
         self._names = set(_iter_names(self))
         self.eval = self.eval_with_callables  # type: ignore
 
-    def eval(
-        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
-    ) -> T:
-        """Evaluate this expression with names in `context`."""
+    def eval(self, context: Mapping[str, object] | None = None) -> T:
+        """Evaluate this expression with names in `context`.
+
+        Parameters
+        ----------
+        context : Mapping[str, object] | None
+            Mapping of names to objects to evaluate the expression with.
+        """
         # will have been replaced in __init__
         raise NotImplementedError("This method should have been replaced.")
 
-    def eval_no_callables(
-        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
-    ) -> T:
+    def eval_no_callables(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
-            context = ctx_kwargs
-        elif ctx_kwargs:
-            context = {**context, **ctx_kwargs}
+            context = {}
         return self._eval(context)
 
-    def eval_with_callables(
-        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
-    ) -> T:
+    def eval_with_callables(self, context: Mapping[str, object] | None = None) -> T:
         """Evaluate this expression with names in `context`, allowing callables."""
         if context is None:
-            context = ctx_kwargs
-        elif ctx_kwargs:
-            context = {**context, **ctx_kwargs}
-        if context is None:
-            return self._eval(context)
+            return self._eval({})
 
         ctx = {}
         for name in self._names:
