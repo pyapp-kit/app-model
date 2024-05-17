@@ -201,6 +201,11 @@ class Expr(ast.AST, Generic[T]):
         for name in self._names:
             if name in context:
                 ctx[name] = val() if callable(val := context[name]) else val
+            else:
+                miss = {k for k in self._names if k not in context}
+                raise NameError(
+                    f"Names required to eval this expression are missing: {miss}"
+                )
         return self.eval_no_callables(ctx)
 
     @classmethod
