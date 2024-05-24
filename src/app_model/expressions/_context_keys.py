@@ -132,6 +132,8 @@ class ContextKey(Name, Generic[A, T]):
             )
         self._owner = owner
         self.id = name
+        # recompile the code with the new name
+        self._recompile()
         self._store()
 
     @overload
