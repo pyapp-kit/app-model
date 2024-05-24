@@ -29,6 +29,8 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
+    from types import CodeType
+
     from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
@@ -175,13 +177,19 @@ class Expr(ast.AST, Generic[T]):
     >>> reveal_type(is_ready())  # revealed type is `bool`
     """
 
+    _names: set[str]
+    _code: CodeType
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if type(self).__name__ == "Expr":
             raise RuntimeError("Don't instantiate Expr. Use `Expr.parse`")
         super().__init__(*args, **kwargs)
+        self._recompile()
+
+    def _recompile(self) -> None:
         ast.fix_missing_locations(self)
         self._code = compile(ast.Expression(body=self), "<Expr>", "eval")
-        self._names = set(_iter_names(self))
+        self._names = set(self._iter_names())
 
     def eval(
         self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
@@ -352,6 +360,9 @@ class Expr(ast.AST, Generic[T]):
                 field = tuple(field)
             _hash += hash(field)
         return _hash
+
+    def _iter_names(self) -> Iterator[str]:
+        yield from _iter_names(self)
 
 
 LOAD = ast.Load()
