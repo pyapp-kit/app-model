@@ -181,6 +181,7 @@ class Expr(ast.AST, Generic[T]):
         if type(self).__name__ == "Expr":
             raise RuntimeError("Don't instantiate Expr. Use `Expr.parse`")
         super().__init__(*args, **kwargs)
+        self.eval = self.eval_with_callables  # type: ignore[method-assign]
         self._recompile()
 
     def _recompile(self) -> None:
