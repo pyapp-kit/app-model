@@ -61,7 +61,9 @@ def test_menu(
     assert redo_action.isEnabled()
 
     # useful error when we forget a required name
-    with pytest.raises(NameError, match="Names required to eval this expression"):
+    with pytest.raises(
+        NameError, match="Names required to eval expression 'allow_undo_redo'"
+    ):
         menu.update_from_context({})
 
     menu._disconnect()

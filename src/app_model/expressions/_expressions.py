@@ -229,7 +229,11 @@ class Expr(ast.AST, Generic[T]):
     def _missing_names_error(self, context: Mapping[str, object]) -> NameError:
         """More informative error message when names are missing."""
         miss = {k for k in self._names if k not in context}
-        return NameError(f"Names required to eval this expression are missing: {miss}")
+        num_keys = len(context)
+        return NameError(
+            f"Names required to eval expression '{self}' are missing: {miss}. "
+            f"Context has {num_keys} keys."
+        )
 
     @classmethod
     def parse(cls, expr: str) -> Expr:
