@@ -475,6 +475,45 @@ class IfExp(Expr, ast.IfExp):
         )
 
 
+class Tuple(Expr, ast.Tuple):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(
+        self, elts: Sequence[Expr], ctx: ast.expr_context = LOAD, **kwargs: Any
+    ) -> None:
+        kwargs["ctx"] = ctx
+        super().__init__(elts=[Expr._cast(e) for e in elts], **kwargs)
+
+
+class List(Expr, ast.List):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(
+        self, elts: Sequence[Expr], ctx: ast.expr_context = LOAD, **kwargs: Any
+    ) -> None:
+        kwargs["ctx"] = ctx
+        super().__init__(elts=[Expr._cast(e) for e in elts], **kwargs)
+
+
+class Set(Expr, ast.Set):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(
+        self, elts: Sequence[Expr], ctx: ast.expr_context = LOAD, **kwargs: Any
+    ) -> None:
+        kwargs["ctx"] = ctx
+        super().__init__(elts=[Expr._cast(e) for e in elts], **kwargs)
+
+
 class ExprTransformer(ast.NodeTransformer):
     """Transformer that converts an ast.expr into an `Expr`.
 
@@ -567,6 +606,15 @@ class _ExprSerializer(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name) -> None:
         self.write(node.id)
+
+    def visit_Tuple(self, node: ast.Tuple) -> None:
+        self.write(f'({", ".join(map(str, node.elts))})')
+
+    def visit_Set(self, node: ast.Set) -> None:
+        self.write("{" + ", ".join(map(str, node.elts)) + "}")
+
+    def visit_List(self, node: ast.List) -> None:
+        self.write(f'[{", ".join(map(str, node.elts))}]')
 
     def visit_ContextKey(self, node: ContextKey) -> None:
         return self.visit_Name(node)
