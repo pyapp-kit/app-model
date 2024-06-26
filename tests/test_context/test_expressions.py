@@ -162,6 +162,9 @@ GOOD_EXPRESSIONS = [
     "1",
     "3.14",
     "True",
+    "1 in {1, 2, 3}",
+    "1 in [1, 2, 3]",
+    "1 in (1, 2, 3)",
     "False",
     "None",
     "hieee",
@@ -183,10 +186,7 @@ BAD_EXPRESSIONS = [
     "my.attribute",  # Attribute
     "__import__(something)",  # Call
     'print("hi")',
-    "(1,)",  # tuples not yet supported
     '{"key": "val"}',  # dicts not yet supported
-    '{"hi"}',  # set constant
-    "[]",  # lists constant
     "mylist[0]",  # Index
     "mylist[0:1]",  # Slice
     'f"a"',  # JoinedStr
@@ -228,12 +228,12 @@ def test_safe_eval():
     assert safe_eval(expr, {"x": 1}) == 3
     assert safe_eval(True) is True
     assert safe_eval(False) is False
+    assert safe_eval("[1,2,3]") == [1, 2, 3]
+    assert safe_eval("(1,2,3)") == (1, 2, 3)
+    assert safe_eval("{1,2,3}") == {1, 2, 3}
 
     with pytest.raises(SyntaxError, match="Type 'Call' not supported"):
         safe_eval("func(x)")
-
-    with pytest.raises(SyntaxError, match="Type 'Set' not supported"):
-        safe_eval("{1,2,3}")
 
 
 def test_eval_kwargs():
