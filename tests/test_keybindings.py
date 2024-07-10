@@ -21,10 +21,10 @@ MAC = sys.platform == "darwin"
 @pytest.mark.parametrize(
     ("os", "expected_use_symbols", "expected_non_use_symbols"),
     [
-     (OperatingSystem.WINDOWS, "⊞+A", "Win+A"),
-     (OperatingSystem.LINUX, "Super+A", "Super+A"),
-     (OperatingSystem.MACOS, "⌘A", "CmdA"),
-     ]
+        (OperatingSystem.WINDOWS, "⊞+A", "Win+A"),
+        (OperatingSystem.LINUX, "Super+A", "Super+A"),
+        (OperatingSystem.MACOS, "⌘A", "CmdA"),
+    ],
 )
 def test_simple_keybinding_to_text(
     use_symbols, os, expected_use_symbols, expected_non_use_symbols
@@ -40,10 +40,10 @@ def test_simple_keybinding_to_text(
 @pytest.mark.parametrize(
     ("os", "expected_use_symbols", "expected_non_use_symbols"),
     [
-     (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ ⊞+9", "Ctrl+A Shift+[ Win+9"),
-     (OperatingSystem.LINUX, "Ctrl+A ⇧+[ Super+9", "Ctrl+A Shift+[ Super+9"),
-     (OperatingSystem.MACOS, "⌃A ⇧[ ⌘9", "ControlA Shift[ Cmd9"),
-     ]
+        (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ ⊞+9", "Ctrl+A Shift+[ Win+9"),
+        (OperatingSystem.LINUX, "Ctrl+A ⇧+[ Super+9", "Ctrl+A Shift+[ Super+9"),
+        (OperatingSystem.MACOS, "⌃A ⇧[ ⌘9", "ControlA Shift[ Cmd9"),
+    ],
 )
 def test_keybinding_to_text(
     use_symbols, os, expected_use_symbols, expected_non_use_symbols
