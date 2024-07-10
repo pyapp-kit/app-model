@@ -21,7 +21,7 @@ _re_cmd = re.compile(r"cmd[\+|\-]")
 
 def get_keys_user_facing_representation(
     os: Optional[OperatingSystem] = None,
-) -> tuple[str, dict, dict]:
+) -> Tuple[str, Dict[str, str], Dict[str, str]]:
     """Get user-facing strings representation of keys following current or given OS."""
     os = OperatingSystem.current() if os is None else os
     joinchar = "+"
