@@ -43,9 +43,13 @@ def test_simple_keybinding_to_text(
 @pytest.mark.parametrize(
     ("os", "expected_use_symbols", "expected_non_use_symbols"),
     [
-        (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ ⊞+9", "Ctrl+A Shift+[ Win+9"),
-        (OperatingSystem.LINUX, "Ctrl+A ⇧+[ Super+9", "Ctrl+A Shift+[ Super+9"),
-        (OperatingSystem.MACOS, "⌃A ⇧[ ⌘9", "ControlA Shift[ Cmd9"),
+        (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ Alt+/ ⊞+9", "Ctrl+A Shift+[ Alt+/ Win+9"),
+        (
+            OperatingSystem.LINUX,
+            "Ctrl+A ⇧+[ Alt+/ Super+9",
+            "Ctrl+A Shift+[ Alt+/ Super+9",
+        ),
+        (OperatingSystem.MACOS, "⌃A ⇧[ ⌥/ ⌘9", "ControlA Shift[ Option/ Cmd9"),
     ],
 )
 def test_keybinding_to_text(
@@ -54,7 +58,7 @@ def test_keybinding_to_text(
     expected_use_symbols: str,
     expected_non_use_symbols: str,
 ) -> None:
-    kb = KeyBinding.from_str("Ctrl+A Shift+[ Meta+9")
+    kb = KeyBinding.from_str("Ctrl+A Shift+[ Alt+/ Meta+9")
     expected = expected_non_use_symbols
     if use_symbols:
         expected = expected_use_symbols
