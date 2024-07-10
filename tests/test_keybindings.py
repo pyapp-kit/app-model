@@ -27,8 +27,11 @@ MAC = sys.platform == "darwin"
     ],
 )
 def test_simple_keybinding_to_text(
-    use_symbols, os, expected_use_symbols, expected_non_use_symbols
-):
+    use_symbols: bool,
+    os: OperatingSystem,
+    expected_use_symbols: str,
+    expected_non_use_symbols: str,
+) -> None:
     kb = SimpleKeyBinding.from_str("Meta+A")
     expected = expected_non_use_symbols
     if use_symbols:
@@ -46,8 +49,11 @@ def test_simple_keybinding_to_text(
     ],
 )
 def test_keybinding_to_text(
-    use_symbols, os, expected_use_symbols, expected_non_use_symbols
-):
+    use_symbols: bool,
+    os: OperatingSystem,
+    expected_use_symbols: str,
+    expected_non_use_symbols: str,
+) -> None:
     kb = KeyBinding.from_str("Ctrl+A Shift+[ Meta+9")
     expected = expected_non_use_symbols
     if use_symbols:

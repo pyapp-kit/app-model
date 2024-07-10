@@ -169,7 +169,7 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
-    def _kb2mods(self) -> list[str]:
+    def _kb2mods(self) -> List[str]:
         """Extract list of modifiers from this SimpleKeyBinding."""
         mods = []
         if self.ctrl:
