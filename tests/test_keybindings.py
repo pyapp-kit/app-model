@@ -11,9 +11,48 @@ from app_model.types import (
     KeyMod,
     SimpleKeyBinding,
 )
+from app_model.types._constants import OperatingSystem
 from app_model.types._keys import KeyChord, KeyCombo, StandardKeyBinding
 
 MAC = sys.platform == "darwin"
+
+
+@pytest.mark.parametrize("use_symbols", [True, False])
+@pytest.mark.parametrize(
+    ("os", "expected_use_symbols", "expected_non_use_symbols"),
+    [
+     (OperatingSystem.WINDOWS, "⊞+A", "Win+A"),
+     (OperatingSystem.LINUX, "Super+A", "Super+A"),
+     (OperatingSystem.MACOS, "⌘A", "CmdA"),
+     ]
+)
+def test_simple_keybinding_to_text(
+    use_symbols, os, expected_use_symbols, expected_non_use_symbols
+):
+    kb = SimpleKeyBinding.from_str("Meta+A")
+    expected = expected_non_use_symbols
+    if use_symbols:
+        expected = expected_use_symbols
+    assert kb.to_text(os=os, use_symbols=use_symbols) == expected
+
+
+@pytest.mark.parametrize("use_symbols", [True, False])
+@pytest.mark.parametrize(
+    ("os", "expected_use_symbols", "expected_non_use_symbols"),
+    [
+     (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ ⊞+9", "Ctrl+A Shift+[ Win+9"),
+     (OperatingSystem.LINUX, "Ctrl+A ⇧+[ Super+9", "Ctrl+A Shift+[ Super+9"),
+     (OperatingSystem.MACOS, "⌃A ⇧[ ⌘9", "ControlA Shift[ Cmd9"),
+     ]
+)
+def test_keybinding_to_text(
+    use_symbols, os, expected_use_symbols, expected_non_use_symbols
+):
+    kb = KeyBinding.from_str("Ctrl+A Shift+[ Meta+9")
+    expected = expected_non_use_symbols
+    if use_symbols:
+        expected = expected_use_symbols
+    assert kb.to_text(os=os, use_symbols=use_symbols) == expected
 
 
 @pytest.mark.parametrize("key", list("ADgf`]/,"))

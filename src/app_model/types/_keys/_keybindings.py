@@ -19,6 +19,58 @@ _re_win = re.compile(r"win[\+|\-]")
 _re_cmd = re.compile(r"cmd[\+|\-]")
 
 
+def get_keys_user_facing_representation(
+    os: Optional[OperatingSystem] = None,
+) -> tuple[str, dict, dict]:
+    """Get user-facing strings representation of keys following current or given OS."""
+    os = OperatingSystem.current() if os is None else os
+    joinchar = "+"
+    key_symbols = {
+        "Ctrl": "Ctrl",
+        "Shift": "⇧",
+        "Alt": "Alt",
+        "Meta": "⊞",
+        "Left": "←",
+        "Right": "→",
+        "Up": "↑",
+        "Down": "↓",
+        "Backspace": "⌫",
+        "Delete": "⌦",
+        "Tab": "↹",
+        "Escape": "Esc",
+        "Return": "⏎",
+        "Enter": "↵",
+        "Space": "␣",
+    }
+    key_names = {
+        "Ctrl": "Ctrl",
+        "Shift": "Shift",
+        "Alt": "Alt",
+        "Meta": "Win",
+        "Left": "Left",
+        "Right": "Right",
+        "Up": "Up",
+        "Down": "Down",
+        "Backspace": "Backspace",
+        "Delete": "Supr",
+        "Tab": "Tab",
+        "Escape": "Esc",
+        "Return": "Return",
+        "Enter": "Enter",
+        "Space": "Space",
+    }
+
+    if os == OperatingSystem.MACOS:
+        joinchar = ""
+        key_symbols.update({"Ctrl": "⌃", "Alt": "⌥", "Meta": "⌘"})
+        key_names.update({"Ctrl": "Control", "Alt": "Option", "Meta": "Cmd"})
+    elif os == OperatingSystem.LINUX:
+        key_symbols.update({"Meta": "Super"})
+        key_names.update({"Meta": "Super"})
+
+    return joinchar, key_symbols, key_names
+
+
 class SimpleKeyBinding(BaseModel):
     """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
 
@@ -117,6 +169,33 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
+    def _kb2mods(self) -> list[str]:
+        """Extract list of modifiers from this SimpleKeyBinding."""
+        mods = []
+        if self.ctrl:
+            mods.append("Ctrl")
+        if self.shift:
+            mods.append("Shift")
+        if self.alt:
+            mods.append("Alt")
+        if self.meta:
+            mods.append("Meta")
+        return mods
+
+    def to_text(
+        self, os: Optional[OperatingSystem] = None, use_symbols: bool = False
+    ) -> str:
+        """Get a user-facing string representation of this SimpleKeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+        """
+        joinchar, key_symbols, key_names = get_keys_user_facing_representation(os=os)
+        return joinchar.join(
+            key_symbols.get(x, x) if use_symbols else key_names.get(x, x)
+            for x in ([*self._kb2mods(), str(self.key)])
+        )
+
     @classmethod
     def _parse_input(cls, v: Any) -> "SimpleKeyBinding":
         if isinstance(v, SimpleKeyBinding):
@@ -206,7 +285,7 @@ class KeyBinding:
         return cls(parts=[SimpleKeyBinding.from_int(first_part, os)])
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
-        """Convert this SimpleKeyBinding to an integer representation."""
+        """Convert this KeyBinding to an integer representation."""
         if len(self.parts) > 2:  # pragma: no cover
             raise NotImplementedError(
                 "Cannot represent chords with more than 2 parts as int"
@@ -216,6 +295,18 @@ class KeyBinding:
         if len(parts) == 2:
             return KeyChord(*parts)
         return parts[0]
+
+    def to_text(
+        self, os: Optional[OperatingSystem] = None, use_symbols: bool = False
+    ) -> str:
+        """Get a text representation of this KeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+        """
+        return " ".join(
+            part.to_text(os=os, use_symbols=use_symbols) for part in self.parts
+        )
 
     def __int__(self) -> int:
         return int(self.to_int())
