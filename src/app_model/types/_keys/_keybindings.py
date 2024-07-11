@@ -244,7 +244,7 @@ class KeyBinding:
         raise TypeError("invalid keybinding")  # pragma: no cover
 
 
-_re_ctrl = re.compile(r"(ctrl|control|ctl|⌃)[\+|\-]")
+_re_ctrl = re.compile(r"(ctrl|control|ctl|⌃|^)[\+|\-]")
 _re_shift = re.compile(r"(shift|⇧)[\+|\-]")
 _re_alt = re.compile(r"(alt|opt|option|⌥)[\+|\-]")
 _re_meta = re.compile(r"(meta|super|win|windows|⊞|cmd|command|⌘)[\+|\-]")
