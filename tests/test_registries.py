@@ -24,7 +24,7 @@ def test_register_keybinding_rule_filter() -> None:
     """Check `filter_keybinding` in `register_keybinding_rule`."""
     reg = KeyBindingsRegistry()
 
-    def filter_fun(kb: KeyBinding) -> str | None:
+    def filter_fun(kb: KeyBinding) -> str:
         if kb.part0.is_modifier_key():
             return "modifier only sequences not allowed"
         return ""
