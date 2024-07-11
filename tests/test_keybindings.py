@@ -61,7 +61,7 @@ def test_simple_keybinding_multi_mod() -> None:
     assert kb.is_modifier_key()
 
 
-controls = ["ctrl", "control", "ctl"]
+controls = ["ctrl", "control", "ctl", "⌃"]
 shifts = ["shift", "⇧"]
 alts = ["alt", "opt", "option", "⌥"]
 metas = ["meta", "super", "cmd", "command", "⌘", "win", "windows", "⊞"]
