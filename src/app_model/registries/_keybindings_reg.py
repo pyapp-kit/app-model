@@ -26,12 +26,30 @@ class _RegisteredKeyBinding(NamedTuple):
 
 
 class KeyBindingsRegistry:
-    """Registry for keybindings."""
+    """Registry for keybindings.
+
+    Attributes
+    ----------
+    filter_keybinding : Callable[[KeyBinding], str] | None
+        Optional function for filtering out invalid `KeyBinding`s.
+        Callable should return a error message string if `KeyBinding` is invalid
+        or empty string if `KeyBinding` is valid.
+    """
 
     registered = Signal()
 
     def __init__(self) -> None:
         self._keybindings: list[_RegisteredKeyBinding] = []
+        self._filter_keybinding: Callable[[KeyBinding], str] | None = None
+
+    @property
+    def filter_keybinding(self) -> Callable[[KeyBinding], str] | None:
+        """Return the `filter_keybinding`."""
+        return self._filter_keybinding
+
+    @filter_keybinding.setter
+    def filter_keybinding(self, filter: Callable[[KeyBinding], str] | None) -> None:
+        self._filter_keybinding = filter
 
     def register_action_keybindings(self, action: Action) -> DisposeCallable | None:
         """Register all keybindings declared in `action.keybindings`.
@@ -93,6 +111,10 @@ class KeyBindingsRegistry:
         """
         if plat_keybinding := rule._bind_to_current_platform():
             keybinding = KeyBinding.validate(plat_keybinding)
+            if self._filter_keybinding:
+                msg = self._filter_keybinding(keybinding)
+                if msg:
+                    raise ValueError(msg)
             entry = _RegisteredKeyBinding(
                 keybinding=keybinding,
                 command_id=id,
