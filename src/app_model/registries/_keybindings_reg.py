@@ -31,8 +31,8 @@ class KeyBindingsRegistry:
     Attributes
     ----------
     filter_keybinding : Callable[[KeyBinding], str] | None
-        Optional function for filtering out invalid `KeyBinding`s.
-        Callable should return a error message string if `KeyBinding` is invalid
+        Function for filtering out invalid `KeyBinding`s.
+        Callable should return an error message string if `KeyBinding` is invalid
         or empty string if `KeyBinding` is valid.
     """
 
