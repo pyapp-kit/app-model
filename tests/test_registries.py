@@ -56,8 +56,8 @@ def test_register_keybinding_rule_filter() -> None:
     kb = KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyO)
     reg.register_keybinding_rule("test", kb)
     # Invalid keybinding
-    kb = KeyBindingRule(primary=KeyMod.CtrlCmd | KeyMod.Shift)
-    with pytest.raises(ValueError, match=r"Ctrl\+Shift\+: modifier only"):
+    kb = KeyBindingRule(primary=KeyMod.Alt)
+    with pytest.raises(ValueError, match=r"Alt\+: modifier only"):
         reg.register_keybinding_rule("test", kb)
 
 
