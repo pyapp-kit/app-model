@@ -1,7 +1,14 @@
 import pytest
 
 from app_model.registries import KeyBindingsRegistry, MenusRegistry
-from app_model.types import Action, KeyBinding, KeyBindingRule, KeyCode, KeyMod, MenuItem
+from app_model.types import (
+    Action,
+    KeyBinding,
+    KeyBindingRule,
+    KeyCode,
+    KeyMod,
+    MenuItem,
+)
 
 
 def test_menus_registry() -> None:
@@ -24,7 +31,7 @@ def test_register_keybinding_rule_filter_type() -> None:
     """Check `_filter_keybinding` type checking when setting."""
     reg = KeyBindingsRegistry()
     with pytest.raises(TypeError, match="'filter_keybinding' must be a callable"):
-        reg.filter_keybinding = 'string'
+        reg.filter_keybinding = "string"
 
 
 def _filter_fun(kb: KeyBinding) -> str:
@@ -54,17 +61,22 @@ def test_register_keybinding_rule_filter() -> None:
         reg.register_keybinding_rule("test", kb)
 
 
-@pytest.mark.parametrize("kb, msg", [
-    (
-        [{"primary": KeyMod.CtrlCmd | KeyCode.KeyA},
-         {"primary": KeyMod.Shift | KeyCode.KeyC}],
-        ""
-    ),
-    (
-        [{"primary": KeyMod.CtrlCmd}, {"primary": KeyMod.Shift}],
-        r"Ctrl\+: modifier only sequences not allowed\nShift\+: modifier",
-    ),
-])
+@pytest.mark.parametrize(
+    "kb, msg",
+    [
+        (
+            [
+                {"primary": KeyMod.CtrlCmd | KeyCode.KeyA},
+                {"primary": KeyMod.Shift | KeyCode.KeyC},
+            ],
+            "",
+        ),
+        (
+            [{"primary": KeyMod.CtrlCmd}, {"primary": KeyMod.Shift}],
+            r"Ctrl\+: modifier only sequences not allowed\nShift\+: modifier",
+        ),
+    ],
+)
 def test_register_action_keybindings_filter(kb, msg) -> None:
     """Check `filter_keybinding` in `register_action_keybindings`."""
     reg = KeyBindingsRegistry()
