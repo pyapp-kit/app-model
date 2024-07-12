@@ -1,6 +1,10 @@
+from typing import Callable
+
 import pytest
 
+from app_model.types._constants import OperatingSystem
 from app_model.types._keys import KeyChord, KeyCode, KeyMod, ScanCode, SimpleKeyBinding
+from app_model.types._keys._key_codes import keycode_to_os_name, keycode_to_os_symbol
 
 
 def test_key_codes():
@@ -15,6 +19,27 @@ def test_key_codes():
 
     with pytest.raises(TypeError, match="cannot convert"):
         KeyCode.validate({"a"})
+
+
+@pytest.mark.parametrize("symbol_or_name", ["symbol", "name"])
+@pytest.mark.parametrize(
+    ("os", "key_symbols_func", "key_names_func"),
+    [
+        (OperatingSystem.WINDOWS, keycode_to_os_symbol, keycode_to_os_name),
+        (OperatingSystem.MACOS, keycode_to_os_symbol, keycode_to_os_name),
+        (OperatingSystem.LINUX, keycode_to_os_symbol, keycode_to_os_name),
+    ],
+)
+def test_key_codes_to_os(
+    symbol_or_name: str,
+    os: OperatingSystem,
+    key_symbols_func: Callable[[KeyCode, OperatingSystem], str],
+    key_names_func: Callable[[KeyCode, OperatingSystem], str],
+) -> None:
+    to_os_method = f"to_os_{symbol_or_name}"
+    key_map_func = key_symbols_func if symbol_or_name == "symbol" else key_names_func
+    for key in KeyCode:
+        assert getattr(key, to_os_method)(os) == key_map_func(key, os)
 
 
 def test_scan_codes():

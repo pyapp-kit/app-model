@@ -19,16 +19,17 @@ MAC = sys.platform == "darwin"
 
 @pytest.mark.parametrize("use_symbols", [True, False])
 @pytest.mark.parametrize(
-    ("os", "expected_use_symbols", "expected_non_use_symbols"),
+    ("os", "joinchar", "expected_use_symbols", "expected_non_use_symbols"),
     [
-        (OperatingSystem.WINDOWS, "⊞+A", "Win+A"),
-        (OperatingSystem.LINUX, "Super+A", "Super+A"),
-        (OperatingSystem.MACOS, "⌘A", "CmdA"),
+        (OperatingSystem.WINDOWS, "+", "⊞+A", "Win+A"),
+        (OperatingSystem.LINUX, "-", "Super-A", "Super-A"),
+        (OperatingSystem.MACOS, "", "⌘A", "CmdA"),
     ],
 )
 def test_simple_keybinding_to_text(
     use_symbols: bool,
     os: OperatingSystem,
+    joinchar: str,
     expected_use_symbols: str,
     expected_non_use_symbols: str,
 ) -> None:
@@ -36,25 +37,32 @@ def test_simple_keybinding_to_text(
     expected = expected_non_use_symbols
     if use_symbols:
         expected = expected_use_symbols
-    assert kb.to_text(os=os, use_symbols=use_symbols) == expected
+    assert kb.to_text(os=os, use_symbols=use_symbols, joinchar=joinchar) == expected
 
 
 @pytest.mark.parametrize("use_symbols", [True, False])
 @pytest.mark.parametrize(
-    ("os", "expected_use_symbols", "expected_non_use_symbols"),
+    ("os", "joinchar", "expected_use_symbols", "expected_non_use_symbols"),
     [
-        (OperatingSystem.WINDOWS, "Ctrl+A ⇧+[ Alt+/ ⊞+9", "Ctrl+A Shift+[ Alt+/ Win+9"),
+        (
+            OperatingSystem.WINDOWS,
+            "+",
+            "Ctrl+A ⇧+[ Alt+/ ⊞+9",
+            "Ctrl+A Shift+[ Alt+/ Win+9",
+        ),
         (
             OperatingSystem.LINUX,
-            "Ctrl+A ⇧+[ Alt+/ Super+9",
-            "Ctrl+A Shift+[ Alt+/ Super+9",
+            "-",
+            "Ctrl-A ⇧-[ Alt-/ Super-9",
+            "Ctrl-A Shift-[ Alt-/ Super-9",
         ),
-        (OperatingSystem.MACOS, "⌃A ⇧[ ⌥/ ⌘9", "ControlA Shift[ Option/ Cmd9"),
+        (OperatingSystem.MACOS, "", "⌃A ⇧[ ⌥/ ⌘9", "ControlA Shift[ Option/ Cmd9"),
     ],
 )
 def test_keybinding_to_text(
     use_symbols: bool,
     os: OperatingSystem,
+    joinchar: str,
     expected_use_symbols: str,
     expected_non_use_symbols: str,
 ) -> None:
@@ -62,7 +70,7 @@ def test_keybinding_to_text(
     expected = expected_non_use_symbols
     if use_symbols:
         expected = expected_use_symbols
-    assert kb.to_text(os=os, use_symbols=use_symbols) == expected
+    assert kb.to_text(os=os, use_symbols=use_symbols, joinchar=joinchar) == expected
 
 
 @pytest.mark.parametrize("key", list("ADgf`]/,"))

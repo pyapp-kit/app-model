@@ -19,58 +19,6 @@ _re_win = re.compile(r"win[\+|\-]")
 _re_cmd = re.compile(r"cmd[\+|\-]")
 
 
-def get_keys_user_facing_representation(
-    os: Optional[OperatingSystem] = None,
-) -> Tuple[str, Dict[str, str], Dict[str, str]]:
-    """Get user-facing strings representation of keys following current or given OS."""
-    os = OperatingSystem.current() if os is None else os
-    joinchar = "+"
-    key_symbols = {
-        "Ctrl": "Ctrl",
-        "Shift": "⇧",
-        "Alt": "Alt",
-        "Meta": "⊞",
-        "Left": "←",
-        "Right": "→",
-        "Up": "↑",
-        "Down": "↓",
-        "Backspace": "⌫",
-        "Delete": "⌦",
-        "Tab": "↹",
-        "Escape": "Esc",
-        "Return": "⏎",
-        "Enter": "↵",
-        "Space": "␣",
-    }
-    key_names = {
-        "Ctrl": "Ctrl",
-        "Shift": "Shift",
-        "Alt": "Alt",
-        "Meta": "Win",
-        "Left": "Left",
-        "Right": "Right",
-        "Up": "Up",
-        "Down": "Down",
-        "Backspace": "Backspace",
-        "Delete": "Supr",
-        "Tab": "Tab",
-        "Escape": "Esc",
-        "Return": "Return",
-        "Enter": "Enter",
-        "Space": "Space",
-    }
-
-    if os == OperatingSystem.MACOS:
-        joinchar = ""
-        key_symbols.update({"Ctrl": "⌃", "Alt": "⌥", "Meta": "⌘"})
-        key_names.update({"Ctrl": "Control", "Alt": "Option", "Meta": "Cmd"})
-    elif os == OperatingSystem.LINUX:
-        key_symbols.update({"Meta": "Super"})
-        key_names.update({"Meta": "Super"})
-
-    return joinchar, key_symbols, key_names
-
-
 class SimpleKeyBinding(BaseModel):
     """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
 
@@ -169,31 +117,40 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
-    def _kb2mods(self) -> List[str]:
-        """Extract list of modifiers from this SimpleKeyBinding."""
+    def _mods2keycodes(self) -> List[KeyCode]:
+        """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
         mods = []
         if self.ctrl:
-            mods.append("Ctrl")
+            mods.append(KeyCode.from_string("Ctrl"))
         if self.shift:
-            mods.append("Shift")
+            mods.append(KeyCode.from_string("Shift"))
         if self.alt:
-            mods.append("Alt")
+            mods.append(KeyCode.from_string("Alt"))
         if self.meta:
-            mods.append("Meta")
+            mods.append(KeyCode.from_string("Meta"))
         return mods
 
     def to_text(
-        self, os: Optional[OperatingSystem] = None, use_symbols: bool = False
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
     ) -> str:
         """Get a user-facing string representation of this SimpleKeyBinding.
 
         Optionally, the string representation can be constructed with symbols
         like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
         """
-        joinchar, key_symbols, key_names = get_keys_user_facing_representation(os=os)
+        os = OperatingSystem.current() if os is None else os
+        keybinding_elements = [*self._mods2keycodes()]
+        if self.key:
+            keybinding_elements.append(self.key)
+
         return joinchar.join(
-            key_symbols.get(x, x) if use_symbols else key_names.get(x, x)
-            for x in ([*self._kb2mods(), str(self.key)])
+            kbe.to_os_symbol(os=os) if use_symbols else kbe.to_os_name(os=os)
+            for kbe in keybinding_elements
         )
 
     @classmethod
@@ -297,15 +254,21 @@ class KeyBinding:
         return parts[0]
 
     def to_text(
-        self, os: Optional[OperatingSystem] = None, use_symbols: bool = False
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
     ) -> str:
         """Get a text representation of this KeyBinding.
 
         Optionally, the string representation can be constructed with symbols
         like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
         """
         return " ".join(
-            part.to_text(os=os, use_symbols=use_symbols) for part in self.parts
+            part.to_text(os=os, use_symbols=use_symbols, joinchar=joinchar)
+            for part in self.parts
         )
 
     def __int__(self) -> int:

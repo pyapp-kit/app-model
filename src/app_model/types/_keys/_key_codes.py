@@ -6,12 +6,15 @@ from typing import (
     Dict,
     Generator,
     NamedTuple,
+    Optional,
     Set,
     Tuple,
     Type,
     Union,
     overload,
 )
+
+from app_model.types._constants import OperatingSystem
 
 if TYPE_CHECKING:
     from pydantic.annotated_handlers import GetCoreSchemaHandler
@@ -24,6 +27,7 @@ __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
 # flake8: noqa
 # fmt: off
+
 
 class KeyCode(IntEnum):
     """Virtual Key Codes, the integer value does not hold any inherent meaning.
@@ -151,6 +155,14 @@ class KeyCode(IntEnum):
 
     def __str__(self) -> str:
         return keycode_to_string(self)
+
+    def to_os_symbol(self, os: Optional[OperatingSystem] = None) -> str:
+        os = OperatingSystem.current() if os is None else os
+        return keycode_to_os_symbol(self, os)
+
+    def to_os_name(self, os: Optional[OperatingSystem] = None) -> str:
+        os = OperatingSystem.current() if os is None else os
+        return keycode_to_os_name(self, os)
 
     @classmethod
     def from_string(cls, string: str) -> 'KeyCode':
@@ -429,6 +441,8 @@ _NATIVE_WINDOWS_VK_TO_KEYCODE: Dict[str, KeyCode] = {}
 def _build_maps() -> Tuple[
     Callable[[KeyCode], str],
     Callable[[str], KeyCode],
+    Callable[[KeyCode, OperatingSystem], str],
+    Callable[[KeyCode, OperatingSystem], str],
     Callable[[ScanCode], str],
     Callable[[str], ScanCode],
 ]:
@@ -571,6 +585,48 @@ def _build_maps() -> Tuple[
         'cmd': KeyCode.Meta,
     }
 
+    # key symbols mappings per platform
+    WIN_KEY_SYMBOLS: dict[str, str] = {
+        "Ctrl": "Ctrl",
+        "Shift": "⇧",
+        "Alt": "Alt",
+        "Meta": "⊞",
+        "Left": "←",
+        "Right": "→",
+        "Up": "↑",
+        "Down": "↓",
+        "Backspace": "⌫",
+        "Delete": "⌦",
+        "Tab": "↹",
+        "Escape": "Esc",
+        "Return": "⏎",
+        "Enter": "↵",
+        "Space": "␣",
+    }
+    MACOS_KEY_SYMBOLS: dict[str, str] = {**WIN_KEY_SYMBOLS, "Ctrl": "⌃", "Alt": "⌥", "Meta": "⌘"}
+    LINUX_KEY_SYMBOLS: dict[str, str] = {**WIN_KEY_SYMBOLS, "Meta": "Super"}
+
+    # key names mappings per platform
+    WIN_KEY_NAMES: dict[str, str] = {
+        "Ctrl": "Ctrl",
+        "Shift": "Shift",
+        "Alt": "Alt",
+        "Meta": "Win",
+        "Left": "Left",
+        "Right": "Right",
+        "Up": "Up",
+        "Down": "Down",
+        "Backspace": "Backspace",
+        "Delete": "Supr",
+        "Tab": "Tab",
+        "Escape": "Esc",
+        "Return": "Return",
+        "Enter": "Enter",
+        "Space": "Space",
+    }
+    MACOS_KEY_NAMES: dict[str, str] = {**WIN_KEY_NAMES, "Ctrl": "Control", "Alt": "Option", "Meta": "Cmd"}
+    LINUX_KEY_NAMES: dict[str, str] = {**WIN_KEY_NAMES, "Meta": "Super"}
+
     seen_scancodes: Set[ScanCode] = set()
     seen_keycodes: Set[KeyCode] = set()
     for i, km in enumerate(_MAPPINGS):
@@ -602,6 +658,22 @@ def _build_maps() -> Tuple[
         # sourcery skip
         return KEYCODE_FROM_LOWERCASE_STRING.get(str(keystr).lower(), KeyCode.UNKNOWN)
 
+    def _keycode_to_os_symbol(keycode: KeyCode, os: OperatingSystem) -> str:
+        """Return key symbol for an OS for a given KeyCode."""
+        if os == OperatingSystem.MACOS:
+            return MACOS_KEY_SYMBOLS.get(str(keycode), str(keycode))
+        elif os == OperatingSystem.LINUX:
+            return LINUX_KEY_SYMBOLS.get(str(keycode), str(keycode))
+        return WIN_KEY_SYMBOLS.get(str(keycode), str(keycode))
+
+    def _keycode_to_os_name(keycode: KeyCode, os: OperatingSystem) -> str:
+        """Return key name for an OS for a given KeyCode."""
+        if os == OperatingSystem.MACOS:
+            return MACOS_KEY_NAMES.get(str(keycode), str(keycode))
+        elif os == OperatingSystem.LINUX:
+            return LINUX_KEY_NAMES.get(str(keycode), str(keycode))
+        return WIN_KEY_NAMES.get(str(keycode), str(keycode))
+
     def _scancode_to_string(scancode: ScanCode) -> str:
         """Return the string representation of a ScanCode."""
         # sourcery skip
@@ -617,6 +689,8 @@ def _build_maps() -> Tuple[
     return (
         _keycode_to_string,
         _keycode_from_string,
+        _keycode_to_os_symbol,
+        _keycode_to_os_name,
         _scancode_to_string,
         _scancode_from_string,
     )
@@ -625,6 +699,8 @@ def _build_maps() -> Tuple[
 (
     keycode_to_string,
     keycode_from_string,
+    keycode_to_os_symbol,
+    keycode_to_os_name,
     scancode_to_string,
     scancode_from_string,
 ) = _build_maps()
