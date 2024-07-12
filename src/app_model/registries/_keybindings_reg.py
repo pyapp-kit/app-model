@@ -31,9 +31,9 @@ class KeyBindingsRegistry:
     Attributes
     ----------
     filter_keybinding : Callable[[KeyBinding], str] | None
-        Function for filtering out invalid `KeyBinding`s.
-        Callable should return an error message string if `KeyBinding` is invalid
-        or empty string if `KeyBinding` is valid.
+        Optional function for applying additional `KeyBinding` filtering.
+        Callable should accept a `KeyBinding` object and return an error message
+        (`str`) if `KeyBinding` is rejected, or empty string otherwise.
     """
 
     registered = Signal()
@@ -48,8 +48,11 @@ class KeyBindingsRegistry:
         return self._filter_keybinding
 
     @filter_keybinding.setter
-    def filter_keybinding(self, filter: Callable[[KeyBinding], str] | None) -> None:
-        self._filter_keybinding = filter
+    def filter_keybinding(self, value: Callable[[KeyBinding], str] | None) -> None:
+        if callable(value) or value is None:
+            self._filter_keybinding = value
+        else:
+            raise TypeError("'filter_keybinding' must be a callable or None")
 
     def register_action_keybindings(self, action: Action) -> DisposeCallable | None:
         """Register all keybindings declared in `action.keybindings`.
@@ -69,6 +72,7 @@ class KeyBindingsRegistry:
             return None
 
         disposers: list[Callable[[], None]] = []
+        msg: list[str] = []
         for keyb in keybindings:
             if action.enablement is not None:
                 kwargs = keyb.model_dump()
@@ -80,8 +84,17 @@ class KeyBindingsRegistry:
                 _keyb = type(keyb)(**kwargs)
             else:
                 _keyb = keyb
-            if d := self.register_keybinding_rule(action.id, _keyb):
+
+            try:
+                d = self.register_keybinding_rule(action.id, _keyb)
+            except ValueError as e:
+                msg.append(str(e))
+            else:
                 disposers.append(d)
+        if msg:
+            raise ValueError(
+                "The following keybindings were not valid:\n" + "\n".join(msg)
+            )
 
         if not disposers:  # pragma: no cover
             return None
@@ -114,7 +127,7 @@ class KeyBindingsRegistry:
             if self._filter_keybinding:
                 msg = self._filter_keybinding(keybinding)
                 if msg:
-                    raise ValueError(msg)
+                    raise ValueError(f"{keybinding}: {msg}")
             entry = _RegisteredKeyBinding(
                 keybinding=keybinding,
                 command_id=id,
