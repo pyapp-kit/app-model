@@ -72,8 +72,8 @@ def test_register_keybinding_rule_filter() -> None:
             "",
         ),
         (
-            [{"primary": KeyMod.CtrlCmd}, {"primary": KeyMod.Shift}],
-            r"Ctrl\+: modifier only sequences not allowed\nShift\+: modifier",
+            [{"primary": KeyMod.Alt}, {"primary": KeyMod.Shift}],
+            r"Alt\+: modifier only sequences not allowed\nShift\+: modifier",
         ),
     ],
 )

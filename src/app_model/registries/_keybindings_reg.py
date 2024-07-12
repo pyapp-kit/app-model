@@ -86,11 +86,10 @@ class KeyBindingsRegistry:
                 _keyb = keyb
 
             try:
-                d = self.register_keybinding_rule(action.id, _keyb)
+                if d := self.register_keybinding_rule(action.id, _keyb):
+                    disposers.append(d)
             except ValueError as e:
                 msg.append(str(e))
-            else:
-                disposers.append(d)
         if msg:
             raise ValueError(
                 "The following keybindings were not valid:\n" + "\n".join(msg)
