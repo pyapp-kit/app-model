@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from ._action import Action
 from ._command_rule import CommandRule, ToggleRule
+from ._constants import OperatingSystem
 from ._icon import Icon
 from ._keybinding_rule import KeyBindingRule
 from ._keys import (
@@ -41,6 +42,7 @@ __all__ = [
     "KeyCode",
     "KeyCombo",
     "KeyMod",
+    "OperatingSystem",
     "MenuItem",
     "MenuItemBase",
     "MenuRule",

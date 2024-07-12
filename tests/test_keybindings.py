@@ -1,3 +1,4 @@
+import itertools
 import sys
 from typing import ClassVar
 
@@ -102,7 +103,7 @@ def test_simple_keybinding_single_mod(mod: str, key: str) -> None:
     assert int(as_full_kb) == int(kb)
 
 
-def test_simple_keybinding_multi_mod():
+def test_simple_keybinding_multi_mod() -> None:
     # here we're also testing that cmd and win get cast to 'KeyMod.CtrlCmd'
 
     kb = SimpleKeyBinding.from_str("cmd+shift+A")
@@ -115,6 +116,24 @@ def test_simple_keybinding_multi_mod():
 
     kb = SimpleKeyBinding.from_str("win")  # just a modifier
     assert kb.is_modifier_key()
+
+
+controls = ["ctrl", "control", "ctl", "⌃", "^"]
+shifts = ["shift", "⇧"]
+alts = ["alt", "opt", "option", "⌥"]
+metas = ["meta", "super", "cmd", "command", "⌘", "win", "windows", "⊞"]
+delimiters = ["+", "-"]
+key = ["A"]
+combos = [
+    delim.join(x)
+    for delim, *x in itertools.product(delimiters, controls, shifts, alts, metas, key)
+]
+
+
+@pytest.mark.parametrize("key", combos)
+def test_keybinding_parser(key: str) -> None:
+    # Test all the different ways to write the modifiers
+    assert str(KeyBinding.from_str(key)) == "Ctrl+Shift+Alt+Meta+A"
 
 
 def test_chord_keybinding() -> None:
@@ -132,7 +151,7 @@ def test_chord_keybinding() -> None:
     assert KeyBinding.validate(kb) == kb
 
 
-def test_in_dict():
+def test_in_dict() -> None:
     a = SimpleKeyBinding.from_str("Shift+A")
     b = KeyBinding.from_str("Shift+B")
 
@@ -156,7 +175,7 @@ def test_in_dict():
         kbs[new_a]
 
 
-def test_in_model():
+def test_in_model() -> None:
     class M(BaseModel):
         key: KeyBinding
 
@@ -170,7 +189,7 @@ def test_in_model():
     assert m.model_dump_json().replace('": "', '":"') == '{"key":"Shift+A B"}'
 
 
-def test_standard_keybindings():
+def test_standard_keybindings() -> None:
     class M(BaseModel):
         key: KeyBindingRule
 
