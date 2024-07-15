@@ -114,13 +114,13 @@ class SimpleKeyBinding(BaseModel):
         """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
         mods = []
         if self.ctrl:
-            mods.append(KeyCode.from_string("Ctrl"))
+            mods.append(KeyCode.Ctrl)
         if self.shift:
-            mods.append(KeyCode.from_string("Shift"))
+            mods.append(KeyCode.Shift)
         if self.alt:
-            mods.append(KeyCode.from_string("Alt"))
+            mods.append(KeyCode.Alt)
         if self.meta:
-            mods.append(KeyCode.from_string("Meta"))
+            mods.append(KeyCode.Meta)
         return mods
 
     def to_text(

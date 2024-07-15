@@ -585,47 +585,43 @@ def _build_maps() -> Tuple[
         'cmd': KeyCode.Meta,
     }
 
-    # key symbols mappings per platform
-    WIN_KEY_SYMBOLS: dict[str, str] = {
-        "Ctrl": "Ctrl",
-        "Shift": "⇧",
-        "Alt": "Alt",
-        "Meta": "⊞",
-        "Left": "←",
-        "Right": "→",
-        "Up": "↑",
-        "Down": "↓",
-        "Backspace": "⌫",
-        "Delete": "⌦",
-        "Tab": "↹",
-        "Escape": "Esc",
-        "Return": "⏎",
-        "Enter": "↵",
-        "Space": "␣",
+    # key symbols on all platforms
+    KEY_SYMBOLS: dict[KeyCode, str] = {
+        KeyCode.Shift: "⇧",
+        KeyCode.LeftArrow: "←",
+        KeyCode.RightArrow: "→",
+        KeyCode.UpArrow: "↑",
+        KeyCode.DownArrow: "↓",
+        KeyCode.Backspace: "⌫",
+        KeyCode.Delete: "⌦",
+        KeyCode.Tab: "⇥",
+        KeyCode.Escape: "⎋",
+        KeyCode.Enter: "↵",
+        KeyCode.Space: "␣",
+        KeyCode.CapsLock: "⇪",
     }
-    MACOS_KEY_SYMBOLS: dict[str, str] = {**WIN_KEY_SYMBOLS, "Ctrl": "⌃", "Alt": "⌥", "Meta": "⌘"}
-    LINUX_KEY_SYMBOLS: dict[str, str] = {**WIN_KEY_SYMBOLS, "Meta": "Super"}
+    # key symbols mappings per platform
+    OS_KEY_SYMBOLS: dict[OperatingSystem, dict[KeyCode, str]] = {
+        OperatingSystem.WINDOWS: {**KEY_SYMBOLS, KeyCode.Meta: "⊞"},
+        OperatingSystem.LINUX: {**KEY_SYMBOLS, KeyCode.Meta: "Super"},
+        OperatingSystem.MACOS: {
+            **KEY_SYMBOLS,
+            KeyCode.Ctrl: "⌃",
+            KeyCode.Alt: "⌥",
+            KeyCode.Meta: "⌘",
+        },
+    }
 
     # key names mappings per platform
-    WIN_KEY_NAMES: dict[str, str] = {
-        "Ctrl": "Ctrl",
-        "Shift": "Shift",
-        "Alt": "Alt",
-        "Meta": "Win",
-        "Left": "Left",
-        "Right": "Right",
-        "Up": "Up",
-        "Down": "Down",
-        "Backspace": "Backspace",
-        "Delete": "Supr",
-        "Tab": "Tab",
-        "Escape": "Esc",
-        "Return": "Return",
-        "Enter": "Enter",
-        "Space": "Space",
+    OS_KEY_NAMES: dict[OperatingSystem, dict[KeyCode, str]] = {
+        OperatingSystem.WINDOWS: {KeyCode.Meta: "Win"},
+        OperatingSystem.LINUX: {KeyCode.Meta: "Super"},
+        OperatingSystem.MACOS: {
+            KeyCode.Ctrl: "Control",
+            KeyCode.Alt: "Option",
+            KeyCode.Meta: "Cmd",
+        },
     }
-    MACOS_KEY_NAMES: dict[str, str] = {**WIN_KEY_NAMES, "Ctrl": "Control", "Alt": "Option", "Meta": "Cmd"}
-    LINUX_KEY_NAMES: dict[str, str] = {**WIN_KEY_NAMES, "Meta": "Super"}
 
     seen_scancodes: Set[ScanCode] = set()
     seen_keycodes: Set[KeyCode] = set()
@@ -660,19 +656,15 @@ def _build_maps() -> Tuple[
 
     def _keycode_to_os_symbol(keycode: KeyCode, os: OperatingSystem) -> str:
         """Return key symbol for an OS for a given KeyCode."""
-        if os == OperatingSystem.MACOS:
-            return MACOS_KEY_SYMBOLS.get(str(keycode), str(keycode))
-        elif os == OperatingSystem.LINUX:
-            return LINUX_KEY_SYMBOLS.get(str(keycode), str(keycode))
-        return WIN_KEY_SYMBOLS.get(str(keycode), str(keycode))
+        if keycode in (symbols := OS_KEY_SYMBOLS.get(os, {})):
+            return symbols[keycode]
+        return str(keycode)
 
     def _keycode_to_os_name(keycode: KeyCode, os: OperatingSystem) -> str:
         """Return key name for an OS for a given KeyCode."""
-        if os == OperatingSystem.MACOS:
-            return MACOS_KEY_NAMES.get(str(keycode), str(keycode))
-        elif os == OperatingSystem.LINUX:
-            return LINUX_KEY_NAMES.get(str(keycode), str(keycode))
-        return WIN_KEY_NAMES.get(str(keycode), str(keycode))
+        if keycode in (names := OS_KEY_NAMES.get(os, {})):
+            return names[keycode]
+        return str(keycode)
 
     def _scancode_to_string(scancode: ScanCode) -> str:
         """Return the string representation of a ScanCode."""
