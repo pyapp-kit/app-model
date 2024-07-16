@@ -36,10 +36,10 @@ def test_key_codes_to_os(
     key_symbols_func: Callable[[KeyCode, OperatingSystem], str],
     key_names_func: Callable[[KeyCode, OperatingSystem], str],
 ) -> None:
-    to_os_method = f"to_os_{symbol_or_name}"
+    os_method = f"os_{symbol_or_name}"
     key_map_func = key_symbols_func if symbol_or_name == "symbol" else key_names_func
     for key in KeyCode:
-        assert getattr(key, to_os_method)(os) == key_map_func(key, os)
+        assert getattr(key, os_method)(os) == key_map_func(key, os)
 
 
 def test_scan_codes():

@@ -154,13 +154,32 @@ class KeyCode(IntEnum):
     PauseBreak = auto()
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this `KeyCode`."""
         return keycode_to_string(self)
 
-    def to_os_symbol(self, os: Optional[OperatingSystem] = None) -> str:
+    def os_symbol(self, os: Optional[OperatingSystem] = None) -> str:
+        """Get a string representation of this `KeyCode` using a symbol/OS specific symbol.
+
+        Some examples:
+            * `KeyCode.Enter` is represented by `↵`
+            * `KeyCode.Meta` is represented by `⊞` on Windows, `Super` on Linux and `⌘` on MacOS
+
+        If no OS is given, the current detected one is used.
+        """
         os = OperatingSystem.current() if os is None else os
         return keycode_to_os_symbol(self, os)
 
-    def to_os_name(self, os: Optional[OperatingSystem] = None) -> str:
+    def os_name(self, os: Optional[OperatingSystem] = None) -> str:
+        """Get a string representation of this `KeyCode` using the OS specific naming for the key.
+
+        This differs from `__str__` since with it a normalized representation (constant to all OSes) is given.
+        Sometimes these representations coincide but not always! Some examples:
+            * `KeyCode.Enter` is represented by `Enter` (`__str__` represents it as `Enter`)
+            * `KeyCode.Meta` is represented by `Win` on Windows, `Super` on Linux and `Cmd` on MacOS
+            (`__str__` represents it as `Meta`)
+
+        If no OS is given, the current detected one is used.
+        """
         os = OperatingSystem.current() if os is None else os
         return keycode_to_os_name(self, os)
 

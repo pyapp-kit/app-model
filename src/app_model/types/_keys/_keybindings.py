@@ -44,6 +44,7 @@ class SimpleKeyBinding(BaseModel):
         )
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this SimpleKeyBinding."""
         out = ""
         if self.ctrl:
             out += "Ctrl+"
@@ -139,7 +140,9 @@ class SimpleKeyBinding(BaseModel):
         """Get a user-facing string representation of this SimpleKeyBinding.
 
         Optionally, the string representation can be constructed with symbols
-        like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
 
         Also, a join character can be defined. By default `+` is used.
         """
@@ -149,7 +152,7 @@ class SimpleKeyBinding(BaseModel):
             keybinding_elements.append(self.key)
 
         return joinchar.join(
-            kbe.to_os_symbol(os=os) if use_symbols else kbe.to_os_name(os=os)
+            kbe.os_symbol(os=os) if use_symbols else kbe.os_name(os=os)
             for kbe in keybinding_elements
         )
 
@@ -195,6 +198,7 @@ class KeyBinding:
         self.parts = parts
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this KeyBinding."""
         return " ".join(str(part) for part in self.parts)
 
     def __repr__(self) -> str:
@@ -262,7 +266,9 @@ class KeyBinding:
         """Get a text representation of this KeyBinding.
 
         Optionally, the string representation can be constructed with symbols
-        like ↵ for Enter or OS specific ones like ⌘ for Cmd on MacOS.
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
 
         Also, a join character can be defined. By default `+` is used.
         """
