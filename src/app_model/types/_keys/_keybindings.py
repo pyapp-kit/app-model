@@ -11,13 +11,6 @@ if TYPE_CHECKING:
     from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
-_re_ctrl = re.compile(r"ctrl[\+|\-]")
-_re_shift = re.compile(r"shift[\+|\-]")
-_re_alt = re.compile(r"alt[\+|\-]")
-_re_meta = re.compile(r"meta[\+|\-]")
-_re_win = re.compile(r"win[\+|\-]")
-_re_cmd = re.compile(r"cmd[\+|\-]")
-
 
 class SimpleKeyBinding(BaseModel):
     """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
@@ -122,13 +115,13 @@ class SimpleKeyBinding(BaseModel):
         """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
         mods = []
         if self.ctrl:
-            mods.append(KeyCode.from_string("Ctrl"))
+            mods.append(KeyCode.Ctrl)
         if self.shift:
-            mods.append(KeyCode.from_string("Shift"))
+            mods.append(KeyCode.Shift)
         if self.alt:
-            mods.append(KeyCode.from_string("Alt"))
+            mods.append(KeyCode.Alt)
         if self.meta:
-            mods.append(KeyCode.from_string("Meta"))
+            mods.append(KeyCode.Meta)
         return mods
 
     def to_text(
@@ -311,6 +304,12 @@ class KeyBinding:
         raise TypeError("invalid keybinding")  # pragma: no cover
 
 
+_re_ctrl = re.compile(r"(ctrl|control|ctl|⌃|\^)[\+|\-]")
+_re_shift = re.compile(r"(shift|⇧)[\+|\-]")
+_re_alt = re.compile(r"(alt|opt|option|⌥)[\+|\-]")
+_re_meta = re.compile(r"(meta|super|win|windows|⊞|cmd|command|⌘)[\+|\-]")
+
+
 def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
     """Parse modifiers from a string (case insensitive).
 
@@ -319,38 +318,17 @@ def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
     """
     remainder = input.lower()
 
-    ctrl = False
-    shift = False
-    alt = False
-    meta = False
-
+    patterns = {"ctrl": _re_ctrl, "shift": _re_shift, "alt": _re_alt, "meta": _re_meta}
+    mods = dict.fromkeys(patterns, False)
     while True:
         saw_modifier = False
-        if _re_ctrl.match(remainder):
-            remainder = remainder[5:]
-            ctrl = True
-            saw_modifier = True
-        if _re_shift.match(remainder):
-            remainder = remainder[6:]
-            shift = True
-            saw_modifier = True
-        if _re_alt.match(remainder):
-            remainder = remainder[4:]
-            alt = True
-            saw_modifier = True
-        if _re_meta.match(remainder):
-            remainder = remainder[5:]
-            meta = True
-            saw_modifier = True
-        if _re_win.match(remainder):
-            remainder = remainder[4:]
-            meta = True
-            saw_modifier = True
-        if _re_cmd.match(remainder):
-            remainder = remainder[4:]
-            meta = True
-            saw_modifier = True
+        for key, ptrn in patterns.items():
+            if m := ptrn.match(remainder):
+                remainder = remainder[m.span()[1] :]
+                mods[key] = True
+                saw_modifier = True
+                break
         if not saw_modifier:
             break
 
-    return {"ctrl": ctrl, "shift": shift, "alt": alt, "meta": meta}, remainder
+    return mods, remainder
