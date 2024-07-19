@@ -37,6 +37,7 @@ class SimpleKeyBinding(BaseModel):
         )
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this SimpleKeyBinding."""
         out = ""
         if self.ctrl:
             out += "Ctrl+"
@@ -110,6 +111,44 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
+    def _mods2keycodes(self) -> List[KeyCode]:
+        """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
+        mods = []
+        if self.ctrl:
+            mods.append(KeyCode.Ctrl)
+        if self.shift:
+            mods.append(KeyCode.Shift)
+        if self.alt:
+            mods.append(KeyCode.Alt)
+        if self.meta:
+            mods.append(KeyCode.Meta)
+        return mods
+
+    def to_text(
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
+    ) -> str:
+        """Get a user-facing string representation of this SimpleKeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
+        """
+        os = OperatingSystem.current() if os is None else os
+        keybinding_elements = [*self._mods2keycodes()]
+        if self.key:
+            keybinding_elements.append(self.key)
+
+        return joinchar.join(
+            kbe.os_symbol(os=os) if use_symbols else kbe.os_name(os=os)
+            for kbe in keybinding_elements
+        )
+
     @classmethod
     def _parse_input(cls, v: Any) -> "SimpleKeyBinding":
         if isinstance(v, SimpleKeyBinding):
@@ -152,6 +191,7 @@ class KeyBinding:
         self.parts = parts
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this KeyBinding."""
         return " ".join(str(part) for part in self.parts)
 
     def __repr__(self) -> str:
@@ -199,7 +239,7 @@ class KeyBinding:
         return cls(parts=[SimpleKeyBinding.from_int(first_part, os)])
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
-        """Convert this SimpleKeyBinding to an integer representation."""
+        """Convert this KeyBinding to an integer representation."""
         if len(self.parts) > 2:  # pragma: no cover
             raise NotImplementedError(
                 "Cannot represent chords with more than 2 parts as int"
@@ -209,6 +249,26 @@ class KeyBinding:
         if len(parts) == 2:
             return KeyChord(*parts)
         return parts[0]
+
+    def to_text(
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
+    ) -> str:
+        """Get a text representation of this KeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
+        """
+        return " ".join(
+            part.to_text(os=os, use_symbols=use_symbols, joinchar=joinchar)
+            for part in self.parts
+        )
 
     def __int__(self) -> int:
         return int(self.to_int())

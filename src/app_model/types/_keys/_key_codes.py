@@ -6,12 +6,15 @@ from typing import (
     Dict,
     Generator,
     NamedTuple,
+    Optional,
     Set,
     Tuple,
     Type,
     Union,
     overload,
 )
+
+from app_model.types._constants import OperatingSystem
 
 if TYPE_CHECKING:
     from pydantic.annotated_handlers import GetCoreSchemaHandler
@@ -24,6 +27,7 @@ __all__ = ["KeyCode", "KeyMod", "ScanCode", "KeyChord"]
 
 # flake8: noqa
 # fmt: off
+
 
 class KeyCode(IntEnum):
     """Virtual Key Codes, the integer value does not hold any inherent meaning.
@@ -150,7 +154,34 @@ class KeyCode(IntEnum):
     PauseBreak = auto()
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this `KeyCode`."""
         return keycode_to_string(self)
+
+    def os_symbol(self, os: Optional[OperatingSystem] = None) -> str:
+        """Get a string representation of this `KeyCode` using a symbol/OS specific symbol.
+
+        Some examples:
+            * `KeyCode.Enter` is represented by `↵`
+            * `KeyCode.Meta` is represented by `⊞` on Windows, `Super` on Linux and `⌘` on MacOS
+
+        If no OS is given, the current detected one is used.
+        """
+        os = OperatingSystem.current() if os is None else os
+        return keycode_to_os_symbol(self, os)
+
+    def os_name(self, os: Optional[OperatingSystem] = None) -> str:
+        """Get a string representation of this `KeyCode` using the OS specific naming for the key.
+
+        This differs from `__str__` since with it a normalized representation (constant to all OSes) is given.
+        Sometimes these representations coincide but not always! Some examples:
+            * `KeyCode.Enter` is represented by `Enter` (`__str__` represents it as `Enter`)
+            * `KeyCode.Meta` is represented by `Win` on Windows, `Super` on Linux and `Cmd` on MacOS
+            (`__str__` represents it as `Meta`)
+
+        If no OS is given, the current detected one is used.
+        """
+        os = OperatingSystem.current() if os is None else os
+        return keycode_to_os_name(self, os)
 
     @classmethod
     def from_string(cls, string: str) -> 'KeyCode':
@@ -429,6 +460,8 @@ _NATIVE_WINDOWS_VK_TO_KEYCODE: Dict[str, KeyCode] = {}
 def _build_maps() -> Tuple[
     Callable[[KeyCode], str],
     Callable[[str], KeyCode],
+    Callable[[KeyCode, OperatingSystem], str],
+    Callable[[KeyCode, OperatingSystem], str],
     Callable[[ScanCode], str],
     Callable[[str], ScanCode],
 ]:
@@ -571,6 +604,44 @@ def _build_maps() -> Tuple[
         'cmd': KeyCode.Meta,
     }
 
+    # key symbols on all platforms
+    KEY_SYMBOLS: dict[KeyCode, str] = {
+        KeyCode.Shift: "⇧",
+        KeyCode.LeftArrow: "←",
+        KeyCode.RightArrow: "→",
+        KeyCode.UpArrow: "↑",
+        KeyCode.DownArrow: "↓",
+        KeyCode.Backspace: "⌫",
+        KeyCode.Delete: "⌦",
+        KeyCode.Tab: "⇥",
+        KeyCode.Escape: "⎋",
+        KeyCode.Enter: "↵",
+        KeyCode.Space: "␣",
+        KeyCode.CapsLock: "⇪",
+    }
+    # key symbols mappings per platform
+    OS_KEY_SYMBOLS: dict[OperatingSystem, dict[KeyCode, str]] = {
+        OperatingSystem.WINDOWS: {**KEY_SYMBOLS, KeyCode.Meta: "⊞"},
+        OperatingSystem.LINUX: {**KEY_SYMBOLS, KeyCode.Meta: "Super"},
+        OperatingSystem.MACOS: {
+            **KEY_SYMBOLS,
+            KeyCode.Ctrl: "⌃",
+            KeyCode.Alt: "⌥",
+            KeyCode.Meta: "⌘",
+        },
+    }
+
+    # key names mappings per platform
+    OS_KEY_NAMES: dict[OperatingSystem, dict[KeyCode, str]] = {
+        OperatingSystem.WINDOWS: {KeyCode.Meta: "Win"},
+        OperatingSystem.LINUX: {KeyCode.Meta: "Super"},
+        OperatingSystem.MACOS: {
+            KeyCode.Ctrl: "Control",
+            KeyCode.Alt: "Option",
+            KeyCode.Meta: "Cmd",
+        },
+    }
+
     seen_scancodes: Set[ScanCode] = set()
     seen_keycodes: Set[KeyCode] = set()
     for i, km in enumerate(_MAPPINGS):
@@ -602,6 +673,18 @@ def _build_maps() -> Tuple[
         # sourcery skip
         return KEYCODE_FROM_LOWERCASE_STRING.get(str(keystr).lower(), KeyCode.UNKNOWN)
 
+    def _keycode_to_os_symbol(keycode: KeyCode, os: OperatingSystem) -> str:
+        """Return key symbol for an OS for a given KeyCode."""
+        if keycode in (symbols := OS_KEY_SYMBOLS.get(os, {})):
+            return symbols[keycode]
+        return str(keycode)
+
+    def _keycode_to_os_name(keycode: KeyCode, os: OperatingSystem) -> str:
+        """Return key name for an OS for a given KeyCode."""
+        if keycode in (names := OS_KEY_NAMES.get(os, {})):
+            return names[keycode]
+        return str(keycode)
+
     def _scancode_to_string(scancode: ScanCode) -> str:
         """Return the string representation of a ScanCode."""
         # sourcery skip
@@ -617,6 +700,8 @@ def _build_maps() -> Tuple[
     return (
         _keycode_to_string,
         _keycode_from_string,
+        _keycode_to_os_symbol,
+        _keycode_to_os_name,
         _scancode_to_string,
         _scancode_from_string,
     )
@@ -625,6 +710,8 @@ def _build_maps() -> Tuple[
 (
     keycode_to_string,
     keycode_from_string,
+    keycode_to_os_symbol,
+    keycode_to_os_name,
     scancode_to_string,
     scancode_from_string,
 ) = _build_maps()
