@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.2.8](https://github.com/pyapp-kit/app-model/tree/v0.2.8) (2024-07-19)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.7...v0.2.8)
+
+**Implemented enhancements:**
+
+- feat: more flexible keybinding parser [\#213](https://github.com/pyapp-kit/app-model/pull/213) ([tlambert03](https://github.com/tlambert03))
+- feat: Add `filter_keybinding` to `KeyBindingRegistry` [\#212](https://github.com/pyapp-kit/app-model/pull/212) ([lucyleeow](https://github.com/lucyleeow))
+- feat: add a way to get a user-facing string representation of keybindings [\#211](https://github.com/pyapp-kit/app-model/pull/211) ([dalthviz](https://github.com/dalthviz))
+- feat: add Sequences to expressions [\#202](https://github.com/pyapp-kit/app-model/pull/202) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- perf: faster `Expr.eval` by precompiling expressions [\#197](https://github.com/pyapp-kit/app-model/pull/197) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.7](https://github.com/pyapp-kit/app-model/tree/v0.2.7) (2024-05-08)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.6...v0.2.7)
