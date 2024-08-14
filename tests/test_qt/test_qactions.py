@@ -1,8 +1,17 @@
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
+import pytest
+
 from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
-from app_model.types import Action, CommandRule, MenuItem, ToggleRule
+from app_model.types import (
+    Action,
+    CommandRule,
+    KeyBindingRule,
+    KeyCode,
+    MenuItem,
+    ToggleRule,
+)
 
 if TYPE_CHECKING:
     from app_model import Application
@@ -64,3 +73,46 @@ def test_icon_visible_in_menu(qapp, simple_app: "Application") -> None:
     rule = CommandRule(id="test", title="Test", icon_visible_in_menu=False)
     q_action = QCommandRuleAction(command_rule=rule, app=simple_app)
     assert not q_action.isIconVisibleInMenu()
+
+
+@pytest.mark.parametrize(
+    ("tooltip", "expected_tooltip"),
+    [
+        ("", "Test tooltip"),
+        ("Test action with a tooltip", "Test action with a tooltip"),
+    ],
+)
+def test_tooltip(
+    qapp, simple_app: "Application", tooltip: str, expected_tooltip: str
+) -> None:
+    action = Action(
+        id="test.tooltip", title="Test tooltip", tooltip=tooltip, callback=lambda: None
+    )
+    simple_app.register_action(action)
+    q_action = QCommandRuleAction(action, simple_app)
+    assert q_action.toolTip() == expected_tooltip
+
+
+@pytest.mark.parametrize(
+    ("tooltip", "expected_tooltip"),
+    [
+        ("", "Test keybinding tooltip (K)"),
+        (
+            "Test action with a tooltip and a keybinding",
+            "Test action with a tooltip and a keybinding (K)",
+        ),
+    ],
+)
+def test_keybinding_in_tooltip(
+    qapp, simple_app: "Application", tooltip: str, expected_tooltip: str
+) -> None:
+    action = Action(
+        id="test.keybinding.tooltip",
+        title="Test keybinding tooltip",
+        callback=lambda: None,
+        tooltip=tooltip,
+        keybindings=[KeyBindingRule(primary=KeyCode.KeyK)],
+    )
+    simple_app.register_action(action)
+    q_action = QCommandRuleAction(action, simple_app)
+    assert q_action.toolTip() == expected_tooltip

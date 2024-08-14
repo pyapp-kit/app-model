@@ -44,8 +44,10 @@ class QCommandAction(QAction):
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
         self.setObjectName(command_id)
+        self._keybinding_tooltip = ""
         if kb := self._app.keybindings.get_keybinding(command_id):
             self.setShortcut(QKeyBindingSequence(kb.keybinding))
+            self._keybinding_tooltip = f"({kb.keybinding.to_text()})"
         self.triggered.connect(self._on_triggered)
 
     def _on_triggered(self, checked: bool) -> None:
@@ -53,6 +55,11 @@ class QCommandAction(QAction):
         # asynchronous without breaking the API.  For now, we call result()
         # to raise any exceptions.
         self._app.commands.execute_command(self._command_id).result()
+
+    def setToolTip(self, tooltip: str) -> None:
+        """Override Qt method to append keybinding information to tooltip."""
+        tooltip_with_keybinding = f"{tooltip} {self._keybinding_tooltip}".rstrip()
+        super().setToolTip(tooltip_with_keybinding)
 
 
 class QCommandRuleAction(QCommandAction):
@@ -84,6 +91,9 @@ class QCommandRuleAction(QCommandAction):
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
+        # Since the default tooltip value is the action `text`, call `setToolTip`
+        # logic to  include keybinding information.
+        self.setToolTip(self.text())
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
