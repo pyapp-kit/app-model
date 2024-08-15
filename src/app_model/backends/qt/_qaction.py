@@ -56,11 +56,6 @@ class QCommandAction(QAction):
         # to raise any exceptions.
         self._app.commands.execute_command(self._command_id).result()
 
-    def setToolTip(self, tooltip: str) -> None:
-        """Override Qt method to append keybinding information to tooltip."""
-        tooltip_with_keybinding = f"{tooltip} {self._keybinding_tooltip}".rstrip()
-        super().setToolTip(tooltip_with_keybinding)
-
 
 class QCommandRuleAction(QCommandAction):
     """QAction for a CommandRule.
@@ -91,9 +86,6 @@ class QCommandRuleAction(QCommandAction):
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
-        # Since the default tooltip value is the action `text`, call `setToolTip`
-        # logic to  include keybinding information.
-        self.setToolTip(self.text())
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
@@ -104,6 +96,10 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.toggled is not None:
             self.setCheckable(True)
             self._refresh()
+        tooltip_with_keybinding = (
+            f"{self.toolTip()} {self._keybinding_tooltip}".rstrip()
+        )
+        self.setToolTip(tooltip_with_keybinding)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""

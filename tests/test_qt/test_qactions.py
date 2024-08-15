@@ -94,17 +94,22 @@ def test_tooltip(
 
 
 @pytest.mark.parametrize(
-    ("tooltip", "expected_tooltip"),
+    ("tooltip", "tooltip_with_keybinding", "tooltip_without_keybinding"),
     [
-        ("", "Test keybinding tooltip (K)"),
+        ("", "Test keybinding tooltip (K)", "Test keybinding tooltip"),
         (
             "Test action with a tooltip and a keybinding",
             "Test action with a tooltip and a keybinding (K)",
+            "Test action with a tooltip and a keybinding",
         ),
     ],
 )
 def test_keybinding_in_tooltip(
-    qapp, simple_app: "Application", tooltip: str, expected_tooltip: str
+    qapp,
+    simple_app: "Application",
+    tooltip: str,
+    tooltip_with_keybinding: str,
+    tooltip_without_keybinding: str,
 ) -> None:
     action = Action(
         id="test.keybinding.tooltip",
@@ -114,5 +119,11 @@ def test_keybinding_in_tooltip(
         keybindings=[KeyBindingRule(primary=KeyCode.KeyK)],
     )
     simple_app.register_action(action)
+
+    # check initial action instance shows keybinding info in its tooltip if available
     q_action = QCommandRuleAction(action, simple_app)
-    assert q_action.toolTip() == expected_tooltip
+    assert q_action.toolTip() == tooltip_with_keybinding
+
+    # check setting tooltip manually removes keybinding info
+    q_action.setToolTip(tooltip)
+    assert q_action.toolTip() == tooltip_without_keybinding
