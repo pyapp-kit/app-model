@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
@@ -20,6 +21,7 @@ class MainWindow(QModelMainWindow):
         self.setModelMenuBar([MenuId.FILE, MenuId.EDIT, MenuId.HELP])
         self.addModelToolBar(MenuId.FILE, exclude={CommandId.SAVE_AS, CommandId.EXIT})
         self.addModelToolBar(MenuId.EDIT)
+        self.addModelToolBar(MenuId.HELP)
         self.statusBar().showMessage("Ready")
 
         self.set_current_file("")
@@ -156,6 +158,9 @@ class CommandId:
     EXIT = "exit"
 
 
+ABOUT_ICON_PATH = os.path.abspath("demo/images/about.svg")
+
+
 ACTIONS: List[types.Action] = [
     types.Action(
         id="new_file",
@@ -231,6 +236,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="about",
+        icon=f"file:///{ABOUT_ICON_PATH}",
         title="About",
         status_tip="Show the application's About box",
         menus=[{"id": MenuId.HELP}],
