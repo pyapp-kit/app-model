@@ -70,6 +70,7 @@ class StandardKeyBinding(Enum):
     Underline = auto()
     Undo = auto()
     WhatsThis = auto()
+    OriginalSize = auto()
     ZoomIn = auto()
     ZoomOut = auto()
 
@@ -148,6 +149,7 @@ _STANDARD_KEYS = [
     SK(StandardKeyBinding.Underline, KeyMod.CtrlCmd | KeyCode.KeyU),
     SK(StandardKeyBinding.Undo, KeyMod.CtrlCmd | KeyCode.KeyZ),
     SK(StandardKeyBinding.WhatsThis, KeyMod.Shift | KeyCode.F1),
+    SK(StandardKeyBinding.OriginalSize, KeyMod.CtrlCmd | KeyCode.Digit0),
     SK(StandardKeyBinding.ZoomIn, KeyMod.CtrlCmd | KeyCode.Equal),
     SK(StandardKeyBinding.ZoomOut, KeyMod.CtrlCmd | KeyCode.Minus),
 ]
