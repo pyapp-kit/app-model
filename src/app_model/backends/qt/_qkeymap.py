@@ -64,7 +64,9 @@ if QT6:
         )
         key = modelkey2qkey(skb.key) if skb.key else Qt.Key.Key_unknown
         mods = (v for k, v in lookup.items() if getattr(skb, k))
-        combo = QKeyCombination(reduce(operator.or_, mods), key)
+        combo = QKeyCombination(
+            reduce(operator.or_, mods, Qt.KeyboardModifier.NoModifier), key
+        )
         return int(combo.toCombined())
 
 else:
