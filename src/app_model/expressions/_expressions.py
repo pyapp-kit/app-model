@@ -188,7 +188,7 @@ class Expr(ast.AST, Generic[T]):
 
     def _recompile(self) -> None:
         ast.fix_missing_locations(self)
-        self._code = compile(ast.Expression(body=self), "<Expr>", "eval")
+        self._code = compile(ast.Expression(body=self), "<Expr>", "eval")  # type: ignore [arg-type]
         self._names = set(self._iter_names())
 
     def eval(
