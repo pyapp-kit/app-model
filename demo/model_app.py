@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from typing import List
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
@@ -158,8 +158,7 @@ class CommandId:
     EXIT = "exit"
 
 
-ABOUT_ICON_PATH = os.path.abspath("demo/images/about.svg")
-
+ABOUT_ICON_PATH = Path(__file__).parent / "images" / "about.svg"
 
 ACTIONS: List[types.Action] = [
     types.Action(
@@ -236,7 +235,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="about",
-        icon=f"file:///{ABOUT_ICON_PATH}",
+        icon=f"file://{ABOUT_ICON_PATH}",
         title="About",
         status_tip="Show the application's About box",
         menus=[{"id": MenuId.HELP}],
