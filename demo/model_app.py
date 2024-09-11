@@ -235,7 +235,7 @@ ACTIONS: List[types.Action] = [
     ),
     types.Action(
         id="about",
-        icon=f"file://{ABOUT_ICON_PATH}",
+        icon=f"file:///{ABOUT_ICON_PATH}",
         title="About",
         status_tip="Show the application's About box",
         menus=[{"id": MenuId.HELP}],
