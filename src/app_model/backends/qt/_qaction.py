@@ -44,8 +44,10 @@ class QCommandAction(QAction):
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
         self.setObjectName(command_id)
+        self._keybinding_tooltip = ""
         if kb := self._app.keybindings.get_keybinding(command_id):
             self.setShortcut(QKeyBindingSequence(kb.keybinding))
+            self._keybinding_tooltip = f"({kb.keybinding.to_text()})"
         self.triggered.connect(self._on_triggered)
 
     def _on_triggered(self, checked: bool) -> None:
@@ -94,6 +96,10 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.toggled is not None:
             self.setCheckable(True)
             self._refresh()
+        tooltip_with_keybinding = (
+            f"{self.toolTip()} {self._keybinding_tooltip}".rstrip()
+        )
+        self.setToolTip(tooltip_with_keybinding)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
