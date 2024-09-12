@@ -56,7 +56,10 @@ class CommandRule(_BaseModel):
         "or in menus. These may be [iconify keys](https://icon-sets.iconify.design), "
         "such as `fa6-solid:arrow-down`, or "
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
-        " keys, such as `fa6s.arrow_down`",
+        " keys, such as `fa6s.arrow_down`, or a path to a local `.svg` file using the "
+        "[file URI scheme](https://en.wikipedia.org/wiki/File_URI_scheme). "
+        "Note that on Windows the file URI scheme should always start with "
+        "`file:///` (three slashes)",
     )
     icon_visible_in_menu: bool = Field(
         True,
