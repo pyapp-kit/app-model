@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from qtpy.QtCore import QUrl
 from qtpy.QtGui import QIcon
 
 if TYPE_CHECKING:
@@ -15,7 +16,9 @@ def to_qicon(icon: Icon, theme: Literal["dark", "light"] = "dark") -> QIcon:
     from superqt import QIconifyIcon, fonticon
 
     if icn := getattr(icon, theme, ""):
-        if ":" in icn:
+        if icn.startswith("file://"):
+            return QIcon(QUrl(icn).toLocalFile())
+        elif ":" in icn:
             return QIconifyIcon(icn)
         else:
             return fonticon.icon(icn)
