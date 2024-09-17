@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.3.0](https://github.com/pyapp-kit/app-model/tree/v0.3.0) (2024-09-17)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.8...v0.3.0)
+
+**Implemented enhancements:**
+
+- feat: Include command/control-0 for OriginalSize in StandardKeyBindings [\#220](https://github.com/pyapp-kit/app-model/pull/220) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
+- feat: add support for `.svg` file paths as `Action` icon [\#219](https://github.com/pyapp-kit/app-model/pull/219) ([dalthviz](https://github.com/dalthviz))
+- feat: add action keybinding info over tooltip [\#218](https://github.com/pyapp-kit/app-model/pull/218) ([dalthviz](https://github.com/dalthviz))
+
 ## [v0.2.8](https://github.com/pyapp-kit/app-model/tree/v0.2.8) (2024-07-19)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.7...v0.2.8)
