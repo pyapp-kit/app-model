@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 
 from app_model import Application
@@ -109,7 +107,7 @@ def test_errors(simple_app: Application):
 
 
 def test_register_multiple_actions(simple_app: Application):
-    actions: List[Action] = [
+    actions: list[Action] = [
         Action(id="cmd_id1", title="title1", callback=lambda: None),
         Action(id="cmd_id2", title="title2", callback=lambda: None),
     ]

@@ -1,5 +1,6 @@
 import re
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from pydantic_compat import PYDANTIC2, BaseModel, Field, model_validator
 
@@ -111,7 +112,7 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
-    def _mods2keycodes(self) -> List[KeyCode]:
+    def _mods2keycodes(self) -> list[KeyCode]:
         """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
         mods = []
         if self.ctrl:
@@ -185,9 +186,9 @@ class KeyBinding:
         The parts of the keybinding.  There must be at least one part.
     """
 
-    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
+    parts: list[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
-    def __init__(self, *, parts: List[SimpleKeyBinding]):
+    def __init__(self, *, parts: list[SimpleKeyBinding]):
         self.parts = parts
 
     def __str__(self) -> str:
@@ -310,7 +311,7 @@ _re_alt = re.compile(r"(alt|opt|option|⌥)[\+|\-]")
 _re_meta = re.compile(r"(meta|super|win|windows|⊞|cmd|command|⌘)[\+|\-]")
 
 
-def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
+def _parse_modifiers(input: str) -> tuple[dict[str, bool], str]:
     """Parse modifiers from a string (case insensitive).
 
     modifiers must start at the beginning of the string, and be separated by

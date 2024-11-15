@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import os
 import sys
+from collections import ChainMap
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, ChainMap, Iterator, MutableMapping
+from typing import TYPE_CHECKING, Any, Callable
 from weakref import finalize
 
 from psygnal import Signal
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, MutableMapping
     from types import FrameType
     from typing import TypedDict
 

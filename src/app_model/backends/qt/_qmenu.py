@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Collection, Iterable, Mapping, Sequence, cast
+from collections.abc import Collection, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, cast
 
 from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
 

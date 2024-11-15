@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
@@ -160,7 +159,7 @@ class CommandId:
 
 ABOUT_ICON_PATH = Path(__file__).parent / "images" / "about.svg"
 
-ACTIONS: List[types.Action] = [
+ACTIONS: list[types.Action] = [
     types.Action(
         id="new_file",
         icon="fa6-solid:file-circle-plus",

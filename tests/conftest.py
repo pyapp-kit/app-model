@@ -11,7 +11,8 @@ from app_model import Action, Application
 from app_model.types import KeyCode, KeyMod, SubmenuItem
 
 if TYPE_CHECKING:
-    from typing import Iterator, NoReturn
+    from collections.abc import Iterator
+    from typing import NoReturn
 
 try:
     from fonticon_fa6 import FA6S

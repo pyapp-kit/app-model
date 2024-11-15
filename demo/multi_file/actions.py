@@ -1,11 +1,9 @@
-from typing import List
-
 from app_model.types import Action, KeyBindingRule, KeyCode, KeyMod, MenuRule
 
 from . import functions
 from .constants import CommandId, MenuId
 
-ACTIONS: List[Action] = [
+ACTIONS: list[Action] = [
     Action(
         id=CommandId.OPEN,
         title="Open",

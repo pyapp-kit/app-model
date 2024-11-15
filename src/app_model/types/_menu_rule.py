@@ -1,9 +1,8 @@
+from collections.abc import Generator
 from typing import (
     Any,
     Callable,
-    Generator,
     Optional,
-    Type,
     TypedDict,
     Union,
 )
@@ -43,7 +42,7 @@ class MenuItemBase(_BaseModel):
         yield cls._validate
 
     @classmethod
-    def _validate(cls: Type["MenuItemBase"], v: Any) -> "MenuItemBase":
+    def _validate(cls: type["MenuItemBase"], v: Any) -> "MenuItemBase":
         """Validate icon."""
         if isinstance(v, MenuItemBase):
             return v
@@ -67,7 +66,7 @@ class MenuRule(MenuItemBase):
 
     # for v1
     @classmethod
-    def _validate(cls: Type["MenuRule"], v: Any) -> Any:
+    def _validate(cls: type["MenuRule"], v: Any) -> Any:
         if isinstance(v, str):
             v = {"id": v}
         return super()._validate(v)

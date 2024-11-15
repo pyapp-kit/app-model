@@ -9,7 +9,6 @@ from typing import (
     ClassVar,
     Generic,
     Literal,
-    MutableMapping,
     NamedTuple,
     TypeVar,
     overload,
@@ -19,6 +18,7 @@ from ._expressions import Name
 
 if TYPE_CHECKING:
     import builtins
+    from collections.abc import MutableMapping
 
 T = TypeVar("T")
 A = TypeVar("A")
