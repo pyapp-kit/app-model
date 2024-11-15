@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Final, Iterable, Iterator
+from typing import TYPE_CHECKING, Any, Callable, Final
 
 from psygnal import Signal
 
 from app_model.types import MenuItem
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from app_model.types import Action, DisposeCallable, MenuOrSubmenu
 
 MenuId = str

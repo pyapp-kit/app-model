@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, ClassVar, Mapping
+from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakValueDictionary
 
 from app_model import Application
@@ -12,6 +12,8 @@ from ._qkeymap import QKeyBindingSequence
 from ._util import to_qicon
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from PyQt6.QtGui import QAction
     from qtpy.QtCore import QObject
     from typing_extensions import Self

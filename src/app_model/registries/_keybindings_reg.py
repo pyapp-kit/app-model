@@ -7,7 +7,8 @@ from psygnal import Signal
 from app_model.types import KeyBinding
 
 if TYPE_CHECKING:
-    from typing import Iterator, TypeVar
+    from collections.abc import Iterator
+    from typing import TypeVar
 
     from app_model import expressions
     from app_model.types import Action, DisposeCallable, KeyBindingRule

@@ -3,17 +3,12 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
+from collections.abc import Iterable, MutableMapping
 from typing import (
     TYPE_CHECKING,
     ClassVar,
-    Dict,
-    Iterable,
-    List,
     Literal,
-    MutableMapping,
     Optional,
-    Tuple,
-    Type,
     overload,
 )
 
@@ -85,17 +80,17 @@ class Application:
     """
 
     destroyed = Signal(str)
-    _instances: ClassVar[Dict[str, Application]] = {}
+    _instances: ClassVar[dict[str, Application]] = {}
 
     def __init__(
         self,
         name: str,
         *,
         raise_synchronous_exceptions: bool = False,
-        commands_reg_class: Type[CommandsRegistry] = CommandsRegistry,
-        menus_reg_class: Type[MenusRegistry] = MenusRegistry,
-        keybindings_reg_class: Type[KeyBindingsRegistry] = KeyBindingsRegistry,
-        injection_store_class: Type[ino.Store] = ino.Store,
+        commands_reg_class: type[CommandsRegistry] = CommandsRegistry,
+        menus_reg_class: type[MenusRegistry] = MenusRegistry,
+        keybindings_reg_class: type[KeyBindingsRegistry] = KeyBindingsRegistry,
+        injection_store_class: type[ino.Store] = ino.Store,
         context: Context | MutableMapping | None = None,
     ) -> None:
         self._name = name
@@ -131,7 +126,7 @@ class Application:
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
-        self._disposers: List[Tuple[str, DisposeCallable]] = []
+        self._disposers: list[tuple[str, DisposeCallable]] = []
 
     @property
     def raise_synchronous_exceptions(self) -> bool:

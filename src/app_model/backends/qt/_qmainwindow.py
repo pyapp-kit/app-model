@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Collection, Mapping, Sequence
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget
@@ -8,6 +8,9 @@ from qtpy.QtWidgets import QMainWindow, QWidget
 from app_model import Application
 
 from ._qmenu import QModelMenuBar, QModelToolBar
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Mapping, Sequence
 
 
 class QModelMainWindow(QMainWindow):

@@ -8,11 +8,7 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Iterator,
-    Mapping,
-    Sequence,
     SupportsIndex,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -29,6 +25,7 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping, Sequence
     from types import CodeType
 
     from pydantic.annotated_handlers import GetCoreSchemaHandler
@@ -507,10 +504,7 @@ class Set(Expr, ast.Set):
     `elts` is a list of expressions.
     """
 
-    def __init__(
-        self, elts: Sequence[Expr], ctx: ast.expr_context = LOAD, **kwargs: Any
-    ) -> None:
-        kwargs["ctx"] = ctx
+    def __init__(self, elts: Sequence[Expr], **kwargs: Any) -> None:
         super().__init__(elts=[Expr._cast(e) for e in elts], **kwargs)
 
 
@@ -643,7 +637,7 @@ class _ExprSerializer(ast.NodeVisitor):
         self.write(node.body, " if ", node.test, " else ", node.orelse)
 
 
-OpType = Union[Type[ast.operator], Type[ast.cmpop], Type[ast.boolop], Type[ast.unaryop]]
+OpType = Union[type[ast.operator], type[ast.cmpop], type[ast.boolop], type[ast.unaryop]]
 _OPS: dict[OpType, str] = {
     # ast.boolop
     ast.Or: "or",

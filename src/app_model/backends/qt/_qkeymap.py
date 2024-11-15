@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import operator
 from functools import reduce
-from typing import TYPE_CHECKING, Mapping, MutableMapping
+from typing import TYPE_CHECKING
 
 from qtpy import API, QT_VERSION
 from qtpy.QtCore import QCoreApplication, Qt
@@ -19,6 +19,8 @@ from app_model.types import (
 from app_model.types._constants import OperatingSystem
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping, MutableMapping
+
     from qtpy.QtCore import QKeyCombination
 
 try:

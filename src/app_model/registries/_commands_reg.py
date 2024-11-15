@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast
 
 from in_n_out import Store
 from psygnal import Signal
 
 # maintain runtime compatibility with older typing_extensions
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from typing_extensions import ParamSpec
 
     from app_model.types import Action, DisposeCallable

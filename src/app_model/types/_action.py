@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Generic, Optional, TypeVar, Union
 
 from pydantic_compat import Field, field_validator
 
@@ -39,13 +39,13 @@ class Action(CommandRule, Generic[P, R]):
         "`{obj.__module__}:{obj.__qualname__}` "
         "(e.g. `my_package.a_module:some_function`)",
     )
-    menus: Optional[List[MenuRule]] = Field(
+    menus: Optional[list[MenuRule]] = Field(
         None,
         description="(Optional) Menus to which this action should be added.  Note that "
         "menu items in the sequence may be supplied as a plain string, which will "
         "be converted to a `MenuRule` with the string as the `id` field.",
     )
-    keybindings: Optional[List[KeyBindingRule]] = Field(
+    keybindings: Optional[list[KeyBindingRule]] = Field(
         None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )
