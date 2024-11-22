@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.3.1](https://github.com/pyapp-kit/app-model/tree/v0.3.1) (2024-11-22)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.0...v0.3.1)
+
+**Merged pull requests:**
+
+- build: drop 3.8 and add 3.13 [\#224](https://github.com/pyapp-kit/app-model/pull/224) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#222](https://github.com/pyapp-kit/app-model/pull/222) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.3.0](https://github.com/pyapp-kit/app-model/tree/v0.3.0) (2024-09-17)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.8...v0.3.0)
