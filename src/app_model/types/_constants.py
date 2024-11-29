@@ -3,6 +3,14 @@ import sys
 from enum import Enum
 
 
+class KeyBindingSource(Enum):
+    """Keybinding source enum."""
+
+    SYSTEM = 0
+    PLUGIN = 1
+    USER = 2
+
+
 class OperatingSystem(Enum):
     """Operating system enum."""
 
