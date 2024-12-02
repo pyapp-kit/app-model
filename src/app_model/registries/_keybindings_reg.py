@@ -204,12 +204,33 @@ class KeyBindingsRegistry:
     def get_context_prioritized_keybinding(
         self, key: int, context: Mapping[str, object]
     ) -> _RegisteredKeyBinding | None:
+        """
+        Return the first keybinding that matches the given key sequence.
+
+        The keybinding should be enabled given the context to be returned.
+
+        Parameters
+        ----------
+        key : int
+            The key sequence that represent the keybinding.
+        context : Mapping[str, object]
+            Variable context to parse the `when` expression to determine if the
+            keybinding is enabled or not.
+
+        Returns
+        -------
+        _RegisteredKeyBinding | None
+            The keybinding found or None otherwise.
+
+        """
         if key not in self._keymap:
             return None
+        reversed_list = self._keymap[key].copy()
+        reversed_list.reverse()
         return next(
             (
                 entry
-                for entry in self._keymap[key]
+                for entry in reversed_list
                 if entry.when is None or entry.when.eval(context)
             ),
             None,

@@ -93,3 +93,64 @@ def test_register_action_keybindings_filter(kb, msg) -> None:
             reg.register_action_keybindings(action)
     else:
         reg.register_action_keybindings(action)
+
+
+@pytest.mark.parametrize(
+    "kb1, kb2, kb3",
+    [
+        (
+            [
+                {
+                    "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                    "when": "active",
+                    "weight": 10,
+                },
+            ],
+            [
+                {
+                    "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                },
+            ],
+            [
+                {"primary": KeyMod.CtrlCmd | KeyCode.KeyA, "weight": 5},
+            ],
+        ),
+    ],
+)
+def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
+    """Check `get_context_prioritized_keybinding`."""
+    reg = KeyBindingsRegistry()
+
+    action1 = Action(
+        id="cmd_id1",
+        title="title1",
+        callback=lambda: None,
+        keybindings=kb1,
+    )
+    reg.register_action_keybindings(action1)
+
+    action2 = Action(
+        id="cmd_id2",
+        title="title2",
+        callback=lambda: None,
+        keybindings=kb2,
+    )
+    reg.register_action_keybindings(action2)
+
+    action3 = Action(
+        id="cmd_id3",
+        title="title3",
+        callback=lambda: None,
+        keybindings=kb3,
+    )
+    reg.register_action_keybindings(action3)
+
+    keybinding = reg.get_context_prioritized_keybinding(
+        kb1[0]["primary"], {"active": False}
+    )
+    assert keybinding.command_id == "cmd_id3"
+
+    keybinding = reg.get_context_prioritized_keybinding(
+        kb1[0]["primary"], {"active": True}
+    )
+    assert keybinding.command_id == "cmd_id1"
