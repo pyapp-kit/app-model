@@ -619,7 +619,7 @@ class _ExprSerializer(ast.NodeVisitor):
     def visit_BoolOp(self, node: ast.BoolOp) -> Any:
         op = f" {_OPS[type(node.op)]} "
         for idx, value in enumerate(node.values):
-            self.write(idx and op or "", value)
+            self.write((idx and op) or "", value)
 
     def visit_Compare(self, node: ast.Compare) -> None:
         self.visit(node.left)

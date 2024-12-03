@@ -9,6 +9,6 @@ __all__ = [
     "KeyCombo",
     "KeyMod",
     "ScanCode",
-    "StandardKeyBinding",
     "SimpleKeyBinding",
+    "StandardKeyBinding",
 ]

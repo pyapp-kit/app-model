@@ -16,7 +16,6 @@ from ._expressions import (
 )
 
 __all__ = [
-    "app_model_context",
     "BinOp",
     "BoolOp",
     "Compare",
@@ -25,12 +24,13 @@ __all__ = [
     "ContextKey",
     "ContextKeyInfo",
     "ContextNamespace",
-    "create_context",
     "Expr",
-    "get_context",
     "IfExp",
     "Name",
+    "UnaryOp",
+    "app_model_context",
+    "create_context",
+    "get_context",
     "parse_expression",
     "safe_eval",
-    "UnaryOp",
 ]

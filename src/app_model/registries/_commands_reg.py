@@ -38,13 +38,13 @@ class RegisteredCommand(Generic[P, R]):
     """
 
     __slots__ = (
-        "id",
-        "callback",
-        "title",
-        "_resolved_callback",
-        "_injection_store",
-        "_injected_callback",
         "_initialized",
+        "_injected_callback",
+        "_injection_store",
+        "_resolved_callback",
+        "callback",
+        "id",
+        "title",
     )
 
     def __init__(

@@ -9,6 +9,6 @@ __all__ = [
     "CommandsRegistry",
     "KeyBindingsRegistry",
     "MenusRegistry",
-    "register_action",
     "RegisteredCommand",
+    "register_action",
 ]

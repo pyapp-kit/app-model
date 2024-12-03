@@ -16,10 +16,7 @@ from ._util import to_qicon
 __all__ = [
     "QCommandAction",
     "QCommandRuleAction",
-    "qkey2modelkey",
     "QKeyBindingSequence",
-    "qkeycombo2modelkey",
-    "qkeysequence2modelkeybinding",
     "QMenuItemAction",
     "QModelKeyBindingEdit",
     "QModelMainWindow",
@@ -27,6 +24,9 @@ __all__ = [
     "QModelMenuBar",
     "QModelSubmenu",
     "QModelToolBar",
+    "qkey2modelkey",
+    "qkeycombo2modelkey",
+    "qkeysequence2modelkeybinding",
     "qmods2modelmods",
     "to_qicon",
 ]
