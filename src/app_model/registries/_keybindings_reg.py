@@ -12,8 +12,12 @@ if TYPE_CHECKING:
     from typing import TypeVar
 
     from app_model import expressions
-    from app_model.types import Action, DisposeCallable, KeyBindingRule
-    from app_model.types._constants import KeyBindingSource
+    from app_model.types import (
+        Action,
+        DisposeCallable,
+        KeyBindingRule,
+        KeyBindingSource,
+    )
 
     CommandDecorator = Callable[[Callable], Callable]
     CommandCallable = TypeVar("CommandCallable", bound=Callable)
@@ -225,12 +229,12 @@ class KeyBindingsRegistry:
         """
         if key not in self._keymap:
             return None
-        reversed_list = self._keymap[key].copy()
-        reversed_list.reverse()
+        registered_keybindings_list = self._keymap[key].copy()
+        registered_keybindings_list.reverse()
         return next(
             (
                 entry
-                for entry in reversed_list
+                for entry in registered_keybindings_list
                 if entry.when is None or entry.when.eval(context)
             ),
             None,
