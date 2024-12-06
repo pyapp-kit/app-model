@@ -5,7 +5,7 @@ from pydantic_compat import PYDANTIC2, Field, model_validator
 from app_model import expressions
 
 from ._base import _BaseModel
-from ._constants import OperatingSystem
+from ._constants import KeyBindingSource, OperatingSystem
 from ._keys import StandardKeyBinding
 
 KeyEncoding = Union[int, str]
@@ -48,6 +48,10 @@ class KeyBindingRule(_BaseModel):
         0,
         description="Internal weight used to sort keybindings. "
         "This is not part of the plugin schema",
+    )
+    source: KeyBindingSource = Field(
+        KeyBindingSource.SYSTEM,
+        description="Who registered the keybinding. Used to sort keybindings.",
     )
 
     def _bind_to_current_platform(self) -> Optional[KeyEncoding]:
