@@ -1,9 +1,9 @@
 import os
 import sys
-from enum import Enum
+from enum import Enum, IntEnum
 
 
-class KeyBindingSource(Enum):
+class KeyBindingSource(IntEnum):
     """Keybinding source enum."""
 
     SYSTEM = 0

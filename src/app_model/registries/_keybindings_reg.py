@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from bisect import insort_left
+from collections import defaultdict
 from typing import TYPE_CHECKING, Callable, NamedTuple
 
 from psygnal import Signal
@@ -8,7 +9,7 @@ from psygnal import Signal
 from app_model.types import KeyBinding
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
+    from collections.abc import Iterable, Iterator, Mapping
     from typing import TypeVar
 
     from app_model import expressions
@@ -35,21 +36,17 @@ class _RegisteredKeyBinding(NamedTuple):
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, _RegisteredKeyBinding):
             return NotImplemented
-        return self.source.value > other.source.value or (
-            self.source == other.source and self.weight > other.weight
-        )
+        return (self.source, self.weight) > (other.source, other.weight)
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, _RegisteredKeyBinding):
             return NotImplemented
-        return self.source.value < other.source.value or (
-            self.source == other.source and self.weight < other.weight
-        )
+        return (self.source, self.weight) < (other.source, other.weight)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, _RegisteredKeyBinding):
             return NotImplemented
-        return self.source.value == other.source.value and self.weight == other.weight
+        return (self.source, self.weight) == (other.source, other.weight)
 
 
 class KeyBindingsRegistry:
@@ -67,9 +64,12 @@ class KeyBindingsRegistry:
     unregistered = Signal()
 
     def __init__(self) -> None:
-        self._keybindings: list[_RegisteredKeyBinding] = []
-        self._keymap: dict[int, list[_RegisteredKeyBinding]] = {}
+        self._keymap = defaultdict[int, list[_RegisteredKeyBinding]](list)
         self._filter_keybinding: Callable[[KeyBinding], str] | None = None
+
+    @property
+    def _keybindings(self) -> Iterable[_RegisteredKeyBinding]:
+        return (entry for entries in self._keymap.values() for entry in entries)
 
     @property
     def filter_keybinding(self) -> Callable[[KeyBinding], str] | None:
@@ -164,28 +164,19 @@ class KeyBindingsRegistry:
                 when=rule.when,
                 source=rule.source,
             )
-            self._keybindings.append(entry)
 
             # inverse map registry
-            kb = keybinding.to_int()
-            if kb not in self._keymap:
-                entries: list[_RegisteredKeyBinding] = []
-                self._keymap[kb] = entries
-            else:
-                entries = self._keymap[kb]
+            entries = self._keymap[keybinding.to_int()]
             insort_left(entries, entry)
 
             self.registered.emit()
 
             def _dispose() -> None:
-                # list registry remove
-                self._keybindings.remove(entry)
-
                 # inverse map registry remove
                 entries.remove(entry)
                 self.unregistered.emit()
                 if len(entries) == 0:
-                    del self._keymap[kb]
+                    del self._keymap[keybinding.to_int()]
 
             return _dispose
         return None  # pragma: no cover
@@ -193,9 +184,12 @@ class KeyBindingsRegistry:
     def __iter__(self) -> Iterator[_RegisteredKeyBinding]:
         yield from self._keybindings
 
+    def __len__(self) -> int:
+        return sum(len(entries) for entries in self._keymap.values())
+
     def __repr__(self) -> str:
         name = self.__class__.__name__
-        return f"<{name} at {hex(id(self))} ({len(self._keybindings)} bindings)>"
+        return f"<{name} at {hex(id(self))} ({len(self)} bindings)>"
 
     def get_keybinding(self, command_id: str) -> _RegisteredKeyBinding | None:
         """Return the first keybinding that matches the given command ID."""
@@ -227,15 +221,8 @@ class KeyBindingsRegistry:
             The keybinding found or None otherwise.
 
         """
-        if key not in self._keymap:
-            return None
-        registered_keybindings_list = self._keymap[key].copy()
-        registered_keybindings_list.reverse()
-        return next(
-            (
-                entry
-                for entry in registered_keybindings_list
-                if entry.when is None or entry.when.eval(context)
-            ),
-            None,
-        )
+        if key in self._keymap:
+            for entry in reversed(self._keymap[key]):
+                if entry.when is None or entry.when.eval(context):
+                    return entry
+        return None
