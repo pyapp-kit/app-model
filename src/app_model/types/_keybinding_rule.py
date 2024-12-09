@@ -50,7 +50,7 @@ class KeyBindingRule(_BaseModel):
         "This is not part of the plugin schema",
     )
     source: KeyBindingSource = Field(
-        KeyBindingSource.SYSTEM,
+        KeyBindingSource.APP,
         description="Who registered the keybinding. Used to sort keybindings.",
     )
 

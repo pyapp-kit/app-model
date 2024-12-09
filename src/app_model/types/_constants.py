@@ -6,7 +6,7 @@ from enum import Enum, IntEnum
 class KeyBindingSource(IntEnum):
     """Keybinding source enum."""
 
-    SYSTEM = 0
+    APP = 0
     PLUGIN = 1
     USER = 2
 
