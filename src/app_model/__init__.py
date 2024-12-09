@@ -11,4 +11,4 @@ from ._app import Application
 from .registries._register import register_action
 from .types import Action
 
-__all__ = ["__version__", "Application", "Action", "register_action"]
+__all__ = ["Action", "Application", "__version__", "register_action"]

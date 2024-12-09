@@ -107,10 +107,8 @@ class QCommandRuleAction(QCommandAction):
         """Update the enabled state of this menu item from `ctx`."""
         self.setEnabled(expr.eval(ctx) if (expr := self._cmd_rule.enablement) else True)
         if expr2 := self._cmd_rule.toggled:
-            if (
-                isinstance(expr2, Expr)
-                or isinstance(expr2, ToggleRule)
-                and (expr2 := expr2.condition)
+            if isinstance(expr2, Expr) or (
+                isinstance(expr2, ToggleRule) and (expr2 := expr2.condition)
             ):
                 self.setChecked(expr2.eval(ctx))
 
