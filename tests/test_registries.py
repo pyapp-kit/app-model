@@ -1,10 +1,12 @@
 import pytest
 
 from app_model.registries import KeyBindingsRegistry, MenusRegistry
+from app_model.registries._keybindings_reg import _RegisteredKeyBinding
 from app_model.types import (
     Action,
     KeyBinding,
     KeyBindingRule,
+    KeyBindingSource,
     KeyCode,
     KeyMod,
     MenuItem,
@@ -93,3 +95,170 @@ def test_register_action_keybindings_filter(kb, msg) -> None:
             reg.register_action_keybindings(action)
     else:
         reg.register_action_keybindings(action)
+
+
+@pytest.mark.parametrize(
+    "kb1, kb2, kb3",
+    [
+        (
+            [
+                {
+                    "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                    "when": "active",
+                    "weight": 10,
+                },
+            ],
+            [
+                {
+                    "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                },
+            ],
+            [
+                {"primary": KeyMod.CtrlCmd | KeyCode.KeyA, "weight": 5},
+            ],
+        ),
+    ],
+)
+def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
+    """Check `get_context_prioritized_keybinding`."""
+    reg = KeyBindingsRegistry()
+
+    action1 = Action(
+        id="cmd_id1",
+        title="title1",
+        callback=lambda: None,
+        keybindings=kb1,
+    )
+    reg.register_action_keybindings(action1)
+
+    action2 = Action(
+        id="cmd_id2",
+        title="title2",
+        callback=lambda: None,
+        keybindings=kb2,
+    )
+    reg.register_action_keybindings(action2)
+
+    action3 = Action(
+        id="cmd_id3",
+        title="title3",
+        callback=lambda: None,
+        keybindings=kb3,
+    )
+    reg.register_action_keybindings(action3)
+
+    keybinding = reg.get_context_prioritized_keybinding(
+        kb1[0]["primary"], {"active": False}
+    )
+    assert keybinding.command_id == "cmd_id3"
+
+    keybinding = reg.get_context_prioritized_keybinding(
+        kb1[0]["primary"], {"active": True}
+    )
+    assert keybinding.command_id == "cmd_id1"
+
+    keybinding = reg.get_context_prioritized_keybinding(
+        KeyMod.Shift | kb1[0]["primary"], {"active": True}
+    )
+    assert keybinding is None
+
+
+@pytest.mark.parametrize(
+    "kb1, kb2, gt, lt, eq",
+    [
+        (
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id1",
+                "weight": 0,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id2",
+                "weight": 0,
+                "when": None,
+                "source": KeyBindingSource.APP,
+            },
+            True,
+            False,
+            False,
+        ),
+        (
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id1",
+                "weight": 0,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id2",
+                "weight": 10,
+                "when": None,
+                "source": KeyBindingSource.APP,
+            },
+            True,
+            False,
+            False,
+        ),
+        (
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id1",
+                "weight": 0,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id2",
+                "weight": 10,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            False,
+            True,
+            False,
+        ),
+        (
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id1",
+                "weight": 10,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            {
+                "primary": KeyMod.CtrlCmd | KeyCode.KeyA,
+                "command_id": "command_id2",
+                "weight": 10,
+                "when": None,
+                "source": KeyBindingSource.USER,
+            },
+            False,
+            False,
+            True,
+        ),
+    ],
+)
+def test_registered_keybinding_comparison(kb1, kb2, gt, lt, eq):
+    rkb1 = _RegisteredKeyBinding(
+        keybinding=kb1["primary"],
+        command_id=kb1["command_id"],
+        weight=kb1["weight"],
+        when=kb1["when"],
+        source=kb1["source"],
+    )
+    rkb2 = _RegisteredKeyBinding(
+        keybinding=kb2["primary"],
+        command_id=kb2["command_id"],
+        weight=kb2["weight"],
+        when=kb2["when"],
+        source=kb2["source"],
+    )
+    assert (rkb1 > rkb2) == gt
+    assert (rkb1 < rkb2) == lt
+    assert (rkb1 == rkb2) == eq

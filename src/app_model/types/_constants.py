@@ -1,6 +1,14 @@
 import os
 import sys
-from enum import Enum
+from enum import Enum, IntEnum
+
+
+class KeyBindingSource(IntEnum):
+    """Keybinding source enum."""
+
+    APP = 0
+    PLUGIN = 1
+    USER = 2
 
 
 class OperatingSystem(Enum):
