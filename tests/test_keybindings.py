@@ -195,3 +195,43 @@ def test_standard_keybindings() -> None:
 
     m = M(key=StandardKeyBinding.Copy)
     assert m.key.primary == KeyMod.CtrlCmd | KeyCode.KeyC
+
+
+@pytest.mark.parametrize(
+    "enc, os, expect",
+    [
+        (KeyMod.CtrlCmd | KeyCode.KeyX, OperatingSystem.MACOS, "Cmd+X"),
+        (KeyMod.CtrlCmd | KeyCode.KeyX, OperatingSystem.WINDOWS, "Ctrl+X"),
+        (KeyMod.WinCtrl | KeyCode.KeyX, OperatingSystem.MACOS, "Control+X"),
+        (KeyMod.WinCtrl | KeyCode.KeyX, OperatingSystem.WINDOWS, "Win+X"),
+        (KeyMod.Ctrl | KeyCode.KeyX, OperatingSystem.MACOS, "Control+X"),
+        (KeyMod.Ctrl | KeyCode.KeyX, OperatingSystem.WINDOWS, "Ctrl+X"),
+        (KeyMod.Meta | KeyCode.KeyX, OperatingSystem.MACOS, "Cmd+X"),
+        (KeyMod.Meta | KeyCode.KeyX, OperatingSystem.WINDOWS, "Win+X"),
+        # careful, it can be a bit confusing to combine Ctrl | CtrlCmd
+        # it's not recommended
+        (
+            KeyMod.Ctrl | KeyMod.CtrlCmd | KeyCode.KeyX,
+            OperatingSystem.MACOS,
+            "Control+Cmd+X",
+        ),
+        (
+            KeyMod.Ctrl | KeyMod.CtrlCmd | KeyCode.KeyX,
+            OperatingSystem.WINDOWS,
+            "Ctrl+X",
+        ),
+        (
+            KeyMod.Meta | KeyMod.CtrlCmd | KeyCode.KeyX,
+            OperatingSystem.MACOS,
+            "Cmd+X",
+        ),
+        (
+            KeyMod.Meta | KeyMod.CtrlCmd | KeyCode.KeyX,
+            OperatingSystem.WINDOWS,
+            "Ctrl+Win+X",
+        ),
+    ],
+)
+def test_keymod_ctrl_meta(enc: int, os: OperatingSystem, expect: str) -> None:
+    rule = KeyBindingRule(primary=enc)
+    assert rule.to_keybinding(os=os).to_text(os=os, joinchar="+") == expect

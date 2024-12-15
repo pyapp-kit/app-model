@@ -736,10 +736,14 @@ class KeyMod(IntFlag):
     """A Flag indicating keyboard modifiers."""
 
     NONE = 0
+
     CtrlCmd = 1 << 11  # command on a mac, control on windows
     Shift = 1 << 10  # shift key
     Alt = 1 << 9  # alt option
-    WinCtrl = 1 << 8  # meta key on windows, ctrl key on mac
+    WinCtrl = 1 << 8  # meta key on windows, control key on mac
+
+    Ctrl = 1 << 12  # control key, regardless of OS
+    Meta = 1 << 13  # command key on a mac, meta key on windows
 
     @overload  # type: ignore
     def __or__(self, other: "KeyMod") -> "KeyMod": ...
