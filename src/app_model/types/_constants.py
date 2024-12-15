@@ -27,12 +27,12 @@ class OperatingSystem(Enum):
     @property
     def is_windows(self) -> bool:
         """Returns True if this enum instance is Windows."""
-        return self == OperatingSystem.WINDOWS
+        return self == OperatingSystem.WINDOWS  # pragma: no cover
 
     @property
     def is_linux(self) -> bool:
         """Returns True if this enum instance is Linux."""
-        return self == OperatingSystem.LINUX
+        return self == OperatingSystem.LINUX  # pragma: no cover
 
     @property
     def is_mac(self) -> bool:

@@ -61,7 +61,7 @@ class KeyBindingRule(_BaseModel):
                 return KeyBinding.from_str(enc)
             else:
                 raise TypeError("invalid keybinding")  # pragma: no cover
-        raise ValueError("No keybinding for platform")
+        raise ValueError("No keybinding for platform")  # pragma: no cover
 
     def for_os(self, os: Optional[OperatingSystem] = None) -> Optional[KeyEncoding]:
         """Select the encoding for the given OS, or current OS if not specified."""
