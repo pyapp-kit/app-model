@@ -51,7 +51,7 @@ class KeyBindingRule(_BaseModel):
     )
 
     def to_keybinding(
-        self, os: OperatingSystem | None = None
+        self, os: Optional[OperatingSystem] = None
     ) -> "Optional[KeyBinding]":
         if (enc := self.for_os(os)) is not None:
             if isinstance(enc, int):
@@ -62,7 +62,7 @@ class KeyBindingRule(_BaseModel):
                 raise TypeError("invalid keybinding")  # pragma: no cover
         raise ValueError("No keybinding for platform")
 
-    def for_os(self, os: OperatingSystem | None = None) -> Optional[KeyEncoding]:
+    def for_os(self, os: Optional[OperatingSystem] = None) -> Optional[KeyEncoding]:
         if os is None:
             os = OperatingSystem.current()
         enc = {
