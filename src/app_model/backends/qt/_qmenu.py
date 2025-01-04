@@ -72,7 +72,7 @@ class QModelMenu(QMenu):
         return _find_action(self.actions(), object_name)
 
     def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
+        self, ctx: Mapping[str, object], _skip: QModelMenu | None = None
     ) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
@@ -85,10 +85,10 @@ class QModelMenu(QMenu):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
+        _skip : QModelMenu, optional
             recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx, _skip=_skip)
 
     def rebuild(
         self, include_submenus: bool = True, exclude: Collection[str] | None = None
@@ -146,10 +146,10 @@ class QModelSubmenu(QModelMenu):
             self.setIcon(to_qicon(submenu.icon))
 
     def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
+        self, ctx: Mapping[str, object], _skip: QModelMenu | None = None
     ) -> None:
         """Update the enabled state of this menu item from `ctx`."""
-        super().update_from_context(ctx, _recurse=_recurse)
+        super().update_from_context(ctx, _skip=_skip)
         self.setEnabled(expr.eval(ctx) if (expr := self._submenu.enablement) else True)
         # TODO: ... visibility needs to be controlled at the level of placement
         # in the submenu.  consider only using the `when` expression
@@ -214,7 +214,7 @@ class QModelToolBar(QToolBar):
         return _find_action(self.actions(), object_name)
 
     def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
+        self, ctx: Mapping[str, object], _skip: QModelMenu | None = None
     ) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
@@ -227,10 +227,10 @@ class QModelToolBar(QToolBar):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
+        _skip : QModelMenu, optional
             recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx, _skip=_skip)
 
     def rebuild(
         self, include_submenus: bool = True, exclude: Collection[str] | None = None
@@ -279,7 +279,7 @@ class QModelMenuBar(QMenuBar):
             self.addMenu(QModelMenu(id_, app, title, self))
 
     def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
+        self, ctx: Mapping[str, object], _skip: QModelMenu | None = None
     ) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
@@ -292,10 +292,10 @@ class QModelMenuBar(QMenuBar):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
+        _skip : QModelMenu, optional
             recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx, _skip=_skip)
 
 
 def _rebuild(
@@ -328,7 +328,9 @@ def _rebuild(
 
 
 def _update_from_context(
-    actions: Iterable[QAction], ctx: Mapping[str, object], _recurse: bool = True
+    actions: Iterable[QAction],
+    ctx: Mapping[str, object],
+    _skip: QModelMenu | None = None,
 ) -> None:
     """Update the enabled/visible state of each menu item with `ctx`.
 
@@ -343,7 +345,7 @@ def _update_from_context(
         `'when'` expressions provided for each action in the menu.
         *ALL variables used in these expressions must either be present in
         the `ctx` dict, or be builtins*.
-    _recurse : bool
+    _skip : QModelMenu, optional
         recursion check, internal use only
     """
     for action in actions:
@@ -358,8 +360,8 @@ def _update_from_context(
             # but I'm not sure if it's the right thing to do, and it leads to a
             # recursion error.  I stop it with the _recurse flag here, but I wonder
             # whether that will cause other problems.
-            if _recurse:
-                parent.update_from_context(ctx, _recurse=False)
+            if _skip is not parent:
+                parent.update_from_context(ctx, _skip=parent)
 
 
 def _find_action(actions: Iterable[QAction], object_name: str) -> QAction | None:
