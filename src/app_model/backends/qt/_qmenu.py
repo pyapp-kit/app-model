@@ -328,11 +328,14 @@ def _update_from_context(actions: Iterable[QAction], ctx: Mapping[str, object]) 
         *ALL variables used in these expressions must either be present in
         the `ctx` dict, or be builtins*.
     """
-    for action in actions:
-        if isinstance(action, QMenuItemAction):
-            action.update_from_context(ctx)
-        elif isinstance(menu := action.menu(), QModelMenu):
-            menu.update_from_context(ctx)
+    try:
+        for action in actions:
+            if isinstance(action, QMenuItemAction):
+                action.update_from_context(ctx)
+            elif isinstance(menu := action.menu(), QModelMenu):
+                menu.update_from_context(ctx)
+    except AttributeError as e:  # pragma: no cover
+        raise AttributeError(f"This version of Qt is not supported: {e}") from e
 
 
 def _find_action(actions: Iterable[QAction], object_name: str) -> QAction | None:
