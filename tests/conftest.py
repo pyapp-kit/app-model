@@ -186,6 +186,7 @@ def build_app(name: str = "complete_test_app") -> FullApp:
             title="Open from B",
             callback=app.mocks.open_from_b,
             menus=[{"id": Menus.FILE_OPEN_FROM}],
+            enablement="sat",
         ),
         Action(
             id=Commands.UNIMPORTABLE,
