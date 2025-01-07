@@ -77,6 +77,9 @@ def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
     assert menu_texts == ["Open From...", "Open..."]
 
     submenu = menu.findChild(QModelMenu, app.Menus.FILE_OPEN_FROM)
+    submenu_action = submenu.findAction(app.Commands.OPEN_FROM_B)
+
+    assert submenu_action
     assert isinstance(submenu, QModelMenu)
     submenu.setVisible(True)
     assert submenu.isVisible()
@@ -86,21 +89,29 @@ def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
     # "not something_open" is the when clause
     # "friday" is the enablement clause
 
-    menu.update_from_context({"something_open": False, "friday": True})
+    menu.update_from_context({"something_open": False, "friday": True, "sat": True})
     assert submenu.isVisible()
     assert submenu.isEnabled()
+    assert submenu_action.isVisible()
+    assert submenu_action.isEnabled()
 
-    menu.update_from_context({"something_open": False, "friday": False})
+    menu.update_from_context({"something_open": False, "friday": False, "sat": True})
     assert submenu.isVisible()
     assert not submenu.isEnabled()
+    assert submenu_action.isVisible()
+    assert submenu_action.isEnabled()
 
-    menu.update_from_context({"something_open": True, "friday": False})
-    # assert not submenu.isVisible()
+    menu.update_from_context({"something_open": True, "friday": False, "sat": True})
     assert not submenu.isEnabled()
+    assert submenu_action.isEnabled()
 
-    menu.update_from_context({"something_open": True, "friday": True})
-    # assert not submenu.isVisible()
+    menu.update_from_context({"something_open": True, "friday": True, "sat": True})
     assert submenu.isEnabled()
+    assert submenu_action.isEnabled()
+
+    menu.update_from_context({"something_open": True, "friday": True, "sat": False})
+    assert submenu.isEnabled()
+    assert not submenu_action.isEnabled()
 
 
 @pytest.mark.filterwarnings("ignore:QPixmapCache.find:")
