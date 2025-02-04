@@ -602,13 +602,13 @@ class _ExprSerializer(ast.NodeVisitor):
         self.write(node.id)
 
     def visit_Tuple(self, node: ast.Tuple) -> None:
-        self.write(f'({", ".join(map(str, node.elts))})')
+        self.write(f"({', '.join(map(str, node.elts))})")
 
     def visit_Set(self, node: ast.Set) -> None:
         self.write("{" + ", ".join(map(str, node.elts)) + "}")
 
     def visit_List(self, node: ast.List) -> None:
-        self.write(f'[{", ".join(map(str, node.elts))}]')
+        self.write(f"[{', '.join(map(str, node.elts))}]")
 
     def visit_ContextKey(self, node: ContextKey) -> None:
         return self.visit_Name(node)
