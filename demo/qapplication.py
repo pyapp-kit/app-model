@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
             ret = QMessageBox.warning(
                 self,
                 "Application",
-                "The document has been modified.\nDo you want to save " "your changes?",
+                "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox.StandardButton.Save
                 | QMessageBox.StandardButton.Discard
                 | QMessageBox.StandardButton.Cancel,
