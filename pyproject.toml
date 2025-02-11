@@ -123,7 +123,11 @@ docstring-code-format = true
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
 minversion = "6.0"
-filterwarnings = ["error", "ignore:Enum value:DeprecationWarning:superqt"]
+filterwarnings = [
+    "error",
+    "ignore:Enum value:DeprecationWarning:superqt",
+    "ignore:`__get_validators__` is deprecated and will be removed",
+]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
