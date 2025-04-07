@@ -33,12 +33,12 @@ def test_menu(
 
     # check that triggering the actions calls the associated commands
     for cmd in (app.Commands.UNDO, app.Commands.REDO):
-        action = cast(QAction, menu.findAction(cmd))
+        action = cast("QAction", menu.findAction(cmd))
         with qtbot.waitSignal(action.triggered):
             action.trigger()
             getattr(app.mocks, cmd).assert_called_once()
 
-    redo_action = cast(QAction, menu.findAction(app.Commands.REDO))
+    redo_action = cast("QAction", menu.findAction(app.Commands.REDO))
 
     assert redo_action.isVisible()
     assert redo_action.isEnabled()

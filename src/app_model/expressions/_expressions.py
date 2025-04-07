@@ -561,7 +561,7 @@ class ExprTransformer(ast.NodeTransformer):
                 kwargs[name] = field
 
         # return instance of Expr from this module corresponding to the node type
-        return cast(Expr, globals()[type_](**kwargs))
+        return cast("Expr", globals()[type_](**kwargs))
 
 
 class _ExprSerializer(ast.NodeVisitor):
