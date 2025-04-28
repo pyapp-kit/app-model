@@ -8,7 +8,8 @@ from app_model.expressions._expressions import _OPS, _iter_names
 
 
 def test_names():
-    assert Name("n").eval({"n": 5}) == 5
+    expr = Name("n", bound=int)
+    assert expr.eval({"n": 5}) == 5
 
     # currently, evaludating with a missing name is an error.
     with pytest.raises(NameError):

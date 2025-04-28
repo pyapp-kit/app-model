@@ -69,6 +69,10 @@ class ContextKey(Name, Generic[A, T]):
         Explicitly provide the `Name` string used when evaluating a context,
         by default the key will be taken as the attribute name to which this
         object is assigned as a class attribute:
+    bound : Any | None
+        The type of the variable represented by this name (i.e. the type to which this
+        name evaluates to when used in an expression). This is used to provide type
+        hints when evaluating the expression. If `None`, the type is not known.
 
     Examples
     --------
@@ -97,7 +101,8 @@ class ContextKey(Name, Generic[A, T]):
         *,
         id: str = "",  # optional because of __set_name__
     ) -> None:
-        super().__init__(id or "")
+        bound = type(default_value) if default_value is not MISSING else None
+        super().__init__(id or "", bound=bound)
         self._default_value = default_value
         self._getter = getter
         self._description = description
