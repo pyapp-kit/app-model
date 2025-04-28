@@ -269,19 +269,4 @@ def _register_action_obj(app: Application | str, action: Action) -> DisposeCalla
     from app_model._app import Application
 
     app = app if isinstance(app, Application) else Application.get_or_create(app)
-
-    # commands
-    disposers = [app.commands.register_action(action)]
-    # menus
-    if dm := app.menus.append_action_menus(action):
-        disposers.append(dm)
-    # keybindings
-    if dk := app.keybindings.register_action_keybindings(action):
-        disposers.append(dk)
-
-    def _dispose() -> None:
-        for d in disposers:
-            d()
-
-    app._disposers.append((action.id, _dispose))
-    return _dispose
+    return app._register_action_obj(action)
