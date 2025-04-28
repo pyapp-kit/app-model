@@ -69,10 +69,6 @@ class ContextKey(Name, Generic[A, T]):
         Explicitly provide the `Name` string used when evaluating a context,
         by default the key will be taken as the attribute name to which this
         object is assigned as a class attribute:
-    bound : Any | None
-        The type of the variable represented by this name (i.e. the type to which this
-        name evaluates to when used in an expression). This is used to provide type
-        hints when evaluating the expression. If `None`, the type is not known.
 
     Examples
     --------
