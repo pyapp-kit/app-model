@@ -97,7 +97,8 @@ class ContextKey(Name, Generic[A, T]):
         *,
         id: str = "",  # optional because of __set_name__
     ) -> None:
-        super().__init__(id or "")
+        bound = type(default_value) if default_value is not MISSING else None
+        super().__init__(id or "", bound=bound)
         self._default_value = default_value
         self._getter = getter
         self._description = description
