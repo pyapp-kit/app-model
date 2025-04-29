@@ -8,6 +8,8 @@ import pytest
 
 from app_model import Application
 from app_model.expressions import Context
+from app_model.types import Action
+from app_model.types._menu_rule import MenuRule
 
 if TYPE_CHECKING:
     from conftest import FullApp
@@ -115,3 +117,18 @@ def test_app_context() -> None:
 
     with pytest.raises(TypeError, match="context must be a Context or MutableMapping"):
         Application("app4", context=1)  # type: ignore[arg-type]
+
+
+def test_register_actions() -> None:
+    app = Application("app5")
+    actions = app.registered_actions
+    assert not actions
+    dispose = app.register_action(
+        "my_action", title="My Action", callback=lambda: None, menus=["Window"]
+    )
+    assert "my_action" in actions
+    assert isinstance(action := actions["my_action"], Action)
+    assert action.menus == [MenuRule(id="Window")]
+    dispose()
+    assert "my_action" not in actions
+    assert not actions

@@ -4,6 +4,7 @@ import contextlib
 import os
 import sys
 from collections.abc import Iterable, MutableMapping
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     ClassVar,
@@ -126,6 +127,7 @@ class Application:
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
+        self._registered_actions: dict[str, Action] = {}
         self._disposers: list[tuple[str, DisposeCallable]] = []
 
     @property
@@ -290,4 +292,43 @@ class Application:
             while d:
                 d.pop()()
 
+        return _dispose
+
+    @property
+    def registered_actions(self) -> MappingProxyType[str, Action]:
+        """Return a Mapping of id->Action object for all registered actions.
+
+        Note that this only includes actions that were registered using
+        `register_action`.  Commands registered directly via
+        `Application.commands.register_action` will not be included in this mapping.
+        """
+        return MappingProxyType(self._registered_actions)
+
+    def _register_action_obj(self, action: Action) -> DisposeCallable:
+        """Register an Action object. Return a function that unregisters the action.
+
+        Helper for `register_action()`.
+        """
+        # register commands
+        disposers = [self.commands.register_action(action)]
+        # register menus
+        if dm := self.menus.append_action_menus(action):
+            disposers.append(dm)
+        # register keybindings
+        if dk := self.keybindings.register_action_keybindings(action):
+            disposers.append(dk)
+
+        # remember the action object as a whole.
+        # note that commands.register_action will have raised an exception
+        # if the action.id is already registered, so we can assume that
+        # the keys are unique.
+        self._registered_actions[action.id] = action
+
+        # create a function that will dispose of all the disposers
+        def _dispose() -> None:
+            self._registered_actions.pop(action.id, None)
+            for d in disposers:
+                d()
+
+        self._disposers.append((action.id, _dispose))
         return _dispose
