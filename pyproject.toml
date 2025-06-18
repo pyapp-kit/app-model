@@ -191,6 +191,9 @@ exclude_lines = [
 [tool.coverage.run]
 source = ["app_model"]
 
+[tool.coverage.paths]
+source = ["src/", "*/app-model/app-model/src", "*/site-packages/"]
+
 [tool.check-manifest]
 ignore = [
     ".github_changelog_generator",
