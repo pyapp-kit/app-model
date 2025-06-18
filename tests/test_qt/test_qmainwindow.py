@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
+from qtpy.QtGui import QAction
 
 from app_model.backends.qt import QModelMainWindow, QModelToolBar
+from app_model.types._action import Action
 
 if TYPE_CHECKING:
     from ..conftest import FullApp  # noqa: TID252
@@ -27,3 +29,15 @@ def test_qmodel_main_window(qtbot, full_app: "FullApp"):
     )
     assert isinstance(tb, QModelToolBar)
     win.addModelToolBar(full_app.Menus.EDIT, area=Qt.ToolBarArea.RightToolBarArea)
+
+    full_app.register_action(
+        Action(
+            id="late-action",
+            title="Late Action",
+            keybindings=[{"primary": "Ctrl+L"}],
+            menus=[{"id": full_app.Menus.FILE}],
+            callback=lambda: None,
+        )
+    )
+    action = win.findChild(QAction, "late-action")
+    assert action.shortcut().toString() == "Meta+L"
