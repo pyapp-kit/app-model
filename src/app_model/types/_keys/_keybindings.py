@@ -188,7 +188,7 @@ class KeyBinding:
 
     parts: list[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
 
-    def __init__(self, *, parts: list[SimpleKeyBinding]):
+    def __init__(self, *, parts: list[SimpleKeyBinding]) -> None:
         self.parts = parts
 
     def __str__(self) -> str:

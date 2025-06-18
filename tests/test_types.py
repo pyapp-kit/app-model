@@ -4,13 +4,13 @@ from pydantic import ValidationError
 from app_model.types import Action, Icon
 
 
-def test_icon_validate():
+def test_icon_validate() -> None:
     assert Icon._validate('"fa6s.arrow_down"') == Icon(
         dark='"fa6s.arrow_down"', light='"fa6s.arrow_down"'
     )
 
 
-def test_action_validation():
+def test_action_validation() -> None:
     with pytest.raises(ValidationError, match="'s!adf' is not a valid python_name"):
         Action(id="test", title="test", callback="s!adf")
 
