@@ -414,7 +414,7 @@ class Constant(Expr[V], ast.Constant):
         The kind of constant.  This is used to provide type hints when
     """
 
-    value: V
+    value: V  # pyright: ignore[reportIncompatibleVariableOverride]
 
     def __init__(
         self, value: V, kind: str | None = None, **kwargs: Unpack[_Attributes]

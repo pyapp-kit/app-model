@@ -13,6 +13,7 @@ from ._keys import (
     KeyCode,
     KeyCombo,
     KeyMod,
+    ScanCode,
     SimpleKeyBinding,
     StandardKeyBinding,
 )

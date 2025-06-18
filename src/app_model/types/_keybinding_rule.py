@@ -29,28 +29,28 @@ class KeyBindingRule(_BaseModel):
     """
 
     primary: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Key combo, (e.g. Ctrl+O)."
+        default=None, description="(Optional) Key combo, (e.g. Ctrl+O)."
     )
     win: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Windows specific key combo."
+        default=None, description="(Optional) Windows specific key combo."
     )
     mac: Optional[KeyEncoding] = Field(
-        None, description="(Optional) MacOS specific key combo."
+        default=None, description="(Optional) MacOS specific key combo."
     )
     linux: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Linux specific key combo."
+        default=None, description="(Optional) Linux specific key combo."
     )
     when: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition when the keybingding is active.",
     )
     weight: int = Field(
-        0,
+        default=0,
         description="Internal weight used to sort keybindings. "
         "This is not part of the plugin schema",
     )
     source: KeyBindingSource = Field(
-        KeyBindingSource.APP,
+        default=KeyBindingSource.APP,
         description="Who registered the keybinding. Used to sort keybindings.",
     )
 

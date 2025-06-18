@@ -223,7 +223,7 @@ main.setModelMenuBar(['File'])
 main.addModelToolBar('File')
 main.show()
 
-app.exec_()
+app.exec()
 ```
 
 You should now have a QMainWindow with a menu bar and toolbar populated with

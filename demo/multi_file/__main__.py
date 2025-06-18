@@ -10,4 +10,4 @@ from multi_file.app import MyApp
 qapp = QApplication.instance() or QApplication([])
 app = MyApp()
 app.show()
-qapp.exec_()
+qapp.exec()

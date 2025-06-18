@@ -79,6 +79,7 @@ dev = [
     "pre-commit-uv>=4",
     "pyqt6>=6.8.0",
     "rich>=13.9.4",
+    "pyright>=1.1.402",
 ]
 docs = [
     "griffe-fieldz>=0.1.0",
@@ -172,6 +173,11 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = ["qtpy.*"]
 implicit_reexport = true
+
+[tool.pyright]
+include = ["src", "demo"]
+reportArgumentType = "none" # hard with pydantic casting
+venvPath = "."
 
 # https://coverage.readthedocs.io/
 [tool.coverage.report]

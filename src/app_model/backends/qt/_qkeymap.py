@@ -1,11 +1,13 @@
 # mypy: disable-error-code="operator"
+# pyright: reportOperatorIssue=false
+
 from __future__ import annotations
 
 import operator
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from qtpy import API, QT_VERSION
+from qtpy import API, QT_VERSION  # pyright: ignore[reportAttributeAccessIssue]
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
@@ -239,7 +241,7 @@ MAC_KEYMOD_TO_QT = {**KEYMOD_TO_QT, KeyMod.WinCtrl: QCTRL, KeyMod.CtrlCmd: QMETA
 
 
 KEY_FROM_QT: MutableMapping[Qt.Key, KeyCode | KeyCombo] = {
-    v.toCombined() if hasattr(v, "toCombined") else int(v): k
+    v.toCombined() if hasattr(v, "toCombined") else int(v): k  # pyright: ignore
     for k, v in KEY_TO_QT.items()
     if k
 }

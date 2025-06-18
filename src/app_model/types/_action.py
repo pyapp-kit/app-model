@@ -40,17 +40,17 @@ class Action(CommandRule, Generic[P, R]):
         "(e.g. `my_package.a_module:some_function`)",
     )
     menus: Optional[list[MenuRule]] = Field(
-        None,
+        default=None,
         description="(Optional) Menus to which this action should be added.  Note that "
         "menu items in the sequence may be supplied as a plain string, which will "
         "be converted to a `MenuRule` with the string as the `id` field.",
     )
     keybindings: Optional[list[KeyBindingRule]] = Field(
-        None,
+        default=None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )
     palette: bool = Field(
-        True,
+        default=True,
         description="Whether to add this command to the global Command Palette "
         "during registration.",
     )

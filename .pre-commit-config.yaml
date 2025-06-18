@@ -22,7 +22,6 @@ repos:
         args: ["--fix", "--unsafe-fixes"]
       - id: ruff-format
 
-
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.1
     hooks:
@@ -32,3 +31,14 @@ repos:
           - pydantic >2
           - pydantic-compat
           - in-n-out
+
+  - repo: local
+    hooks:
+      - id: pyright
+        stages: [manual]
+        name: pyright
+        language: system
+        exclude: "^tests/.*|^demo/.*|^docs/.*"
+        types_or: [python, pyi]
+        require_serial: true
+        entry: uv run pyright

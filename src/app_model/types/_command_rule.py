@@ -12,12 +12,12 @@ class ToggleRule(_BaseModel):
     """More detailed description of a toggle rule."""
 
     condition: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",
     )
     get_current: Optional[Callable[[], bool]] = Field(
-        None,
+        default=None,
         description="Function that returns the current state of the toggle.",
     )
 
@@ -38,20 +38,20 @@ class CommandRule(_BaseModel):
         description="Title by which the command is represented in the UI.",
     )
     category: Optional[str] = Field(
-        None,
+        default=None,
         description="(Optional) Category string by which the command may be grouped "
         "in the UI",
     )
     tooltip: Optional[str] = Field(
-        None, description="(Optional) Tooltip to show when hovered."
+        default=None, description="(Optional) Tooltip to show when hovered."
     )
     status_tip: Optional[str] = Field(
-        None,
+        default=None,
         description="(Optional) Help message to show in the status bar when a "
         "button representing this command is hovered (for backends that support it).",
     )
     icon: Optional[Icon] = Field(
-        None,
+        default=None,
         description="(Optional) Icon used to represent this command, e.g. on buttons "
         "or in menus. These may be [iconify keys](https://icon-sets.iconify.design), "
         "such as `fa6-solid:arrow-down`, or "
@@ -62,24 +62,24 @@ class CommandRule(_BaseModel):
         "`file:///` (three slashes)",
     )
     icon_visible_in_menu: bool = Field(
-        True,
+        default=True,
         description="Whether to show the icon in menus (for backends that support it). "
         "If `False`, only the title will be shown. By default, `True`.",
     )
     enablement: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition which must be true to enable the command in "
         "the UI (menu and keybindings). Does not prevent executing the command by "
         "other means, like the `execute_command` API.",
     )
     short_title: Optional[str] = Field(
-        None,
+        default=None,
         description="(Optional) Short title by which the command is represented in "
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
     toggled: Union[ToggleRule, expressions.Expr, None] = Field(
-        None,
+        default=None,
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",
     )
