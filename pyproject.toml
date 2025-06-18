@@ -3,6 +3,16 @@
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+# https://hatch.pypa.io/latest/config/metadata/
+[tool.hatch.version]
+source = "vcs"
+
+# read more about configuring hatch at:
+# https://hatch.pypa.io/latest/config/build/
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
 # https://peps.python.org/pep-0621/
 [project]
 name = "app-model"
@@ -27,61 +37,72 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "psygnal>=0.3.4",
-    "pydantic>=1.8",
+    "psygnal>=0.10",
+    "pydantic>=1.10.18",
     "pydantic-compat>=0.1.1",
     "in-n-out>=0.1.5",
-    "typing_extensions",
-]
-
-# extras
-# https://peps.python.org/pep-0621/#dependencies-optional-dependencies
-[project.optional-dependencies]
-qt = ["qtpy", "superqt[iconify]"]
-test = ["pytest>=6.0", "pytest-cov"]
-test-qt = [
-    "app-model[qt]",
-    "app-model[test]",
-    "pytest-qt",
-    "fonticon-fontawesome6",
-]
-dev = ["app-model[test-qt]", "ipython", "mypy", "pdbpp", "pre-commit", "rich"]
-docs = [
-    "griffe-fieldz",
-    "griffe==0.36.9",
-    "mkdocs-gen-files",
-    "mkdocs-literate-nav",
-    "mkdocs-macros-plugin==1.0.5",
-    "mkdocs-material==9.4.1",
-    "mkdocs==1.5.3",
-    "mkdocstrings-python==1.7.3",
-    "mkdocstrings==0.23.0",
-    "typing_extensions>=4.0",
+    "typing_extensions>=4.12",
 ]
 
 [project.urls]
 homepage = "https://github.com/pyapp-kit/app-model"
 repository = "https://github.com/pyapp-kit/app-model"
 
-[tool.hatch.version]
-source = "vcs"
+[project.optional-dependencies]
+qt = ["qtpy>=2.4.0", "superqt[iconify]>=0.7.2"]
+pyqt5 = [
+    "app-model[qt]",
+    "PyQt5>=5.15.10",
+    "pyqt5-qt5<=5.15.2; sys_platform == 'win32'",
+    "pyqt5-qt5>=5.15.4; sys_platform != 'win32'",
+]
+pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0"]
+pyside2 = ["app-model[qt]", "PySide2>=5.15.2.1"]
+pyside6 = ["app-model[qt]", "PySide6>=6.6.0"]
 
-[tool.hatch.envs.test]
-features = ["test"]
-[tool.hatch.envs.test.scripts]
-run = "pytest  -v --color=yes --cov-config=pyproject.toml -W i --cov=app_model --cov-report=xml --cov-report=term-missing"
+# https://peps.python.org/pep-0735/
+# setup with `uv sync` or `pip install -e . --group dev`
+[dependency-groups]
+test = ["pytest>=7.0", "pytest-cov >=6.1"]
+test-qt = [
+    { include-group = "test" },
+    "app-model[qt]",
+    "pytest-qt >=4.3.0",
+    "fonticon-fontawesome6 >=6.4.0",
+]
+dev = [
+    { include-group = "test-qt" },
+    "ruff>=0.8.3",
+    "ipython>=8.18.0",
+    "mypy>=1.13.0",
+    "pdbpp>=0.11.6; sys_platform != 'win32'",
+    "pre-commit-uv>=4",
+    "pyqt6>=6.8.0",
+    "rich>=13.9.4",
+]
+docs = [
+    "griffe-fieldz>=0.1.0",
+    "griffe==0.36.9",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.2",
+    "mkdocs-macros-plugin==1.0.5",
+    "mkdocs-material==9.4.1",
+    "mkdocs==1.5.3",
+    "mkdocstrings-python==1.7.3",
+    "mkdocstrings==0.23.0",
+    "typing_extensions>=4.11",
+]
 
+[tool.uv.sources]
+app-model = { workspace = true }
 
-# https://pycqa.github.io/isort/docs/configuration/options.html
-[tool.isort]
-profile = "black"
-src_paths = ["src/app_model", "tests"]
-
-# https://github.com/charliermarsh/ruff
+# https://docs.astral.sh/ruff
 [tool.ruff]
 line-length = 88
-src = ["src", "tests"]
 target-version = "py39"
+src = ["src", "tests"]
+fix = true
+# unsafe-fixes = true
 
 [tool.ruff.lint]
 pydocstyle = { convention = "numpy" }
@@ -96,12 +117,13 @@ select = [
     "C4",   # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
-    "RUF",  # ruff-specific rules
-    "TID",  # tidy imports
-    "TCH",  # type checking
+    # "ANN",  # flake8-annotations
+    "RUF", # ruff-specific rules
+    "TC",  # flake8-type-checking
+    "TID", # flake8-tidy-imports
 ]
 ignore = [
-    "D401", # First line should be in imperative mood
+    "D401", # First line should be in imperative mood (remove to opt in)
 ]
 
 [tool.ruff.lint.pyupgrade]
@@ -120,12 +142,16 @@ keep-runtime-typing = true
 [tool.ruff.format]
 docstring-code-format = true
 
-# https://docs.pytest.org/en/6.2.x/customize.html
+# https://docs.pytest.org/
 [tool.pytest.ini_options]
-minversion = "6.0"
+minversion = "7.0"
+addopts = ["--color=yes"]
+testpaths = ["tests"]
 filterwarnings = [
     "error",
     "ignore:Enum value:DeprecationWarning:superqt",
+    "ignore:Failed to disconnect::pytestqt",
+    "ignore:Failing to pass a value to the 'type_params' parameter::pydantic",
     "ignore:`__get_validators__` is deprecated and will be removed",
 ]
 
@@ -147,23 +173,27 @@ disallow_untyped_defs = false
 module = ["qtpy.*"]
 implicit_reexport = true
 
-[tool.coverage.run]
-source = ["app_model"]
-
-# https://coverage.readthedocs.io/en/6.4/config.html
+# https://coverage.readthedocs.io/
 [tool.coverage.report]
+show_missing = true
+skip_covered = true
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
     "@overload",
     "except ImportError",
-    "return NotImplemented",
+    "raise AssertionError",
+    "\\.\\.\\.",
+    "raise NotImplementedError()",
     "pass",
 ]
-skip_covered = true
-show_missing = true
 
-# https://github.com/mgedmin/check-manifest#configuration
+[tool.coverage.run]
+source = ["app_model"]
+
+[tool.coverage.paths]
+source = ["src/", "*/app-model/app-model/src", "*/site-packages/"]
+
 [tool.check-manifest]
 ignore = [
     ".github_changelog_generator",
@@ -178,5 +208,6 @@ ignore = [
     ".ruff_cache/**/*",
 ]
 
-[tool.typos]
-default.extend-ignore-identifiers-re = ["to_string_ser_schema"]
+# https://github.com/crate-ci/typos/blob/master/docs/reference.md
+[tool.typos.default]
+extend-ignore-identifiers-re = ["to_string_ser_schema"]
