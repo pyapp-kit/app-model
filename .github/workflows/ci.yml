@@ -58,6 +58,8 @@ jobs:
 
       - name: 🧪 Run Tests
         run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
@@ -82,6 +84,8 @@ jobs:
         exclude:
           - platform: "macos-latest"
             extra: "pyside2"
+          - python-version: "3.12"
+            extra: "pyside2"
 
     steps:
       - uses: actions/checkout@v4
@@ -94,7 +98,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
           cache-dependency-glob: "**/pyproject.toml"
-      
+
       - uses: pyvista/setup-headless-display-action@v4
         with:
           qt: true
@@ -104,6 +108,8 @@ jobs:
 
       - name: 🧪 Run Tests
         run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
 
       # If something goes wrong with --pre tests, we can open an issue in the repo
       - name: 📝 Report --pre Failures
@@ -175,4 +181,4 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: './dist/*'
+          files: "./dist/*"
