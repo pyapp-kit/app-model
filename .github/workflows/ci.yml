@@ -7,74 +7,130 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *" # run once a day
+    # run every week (for --pre release tests)
+    - cron: "0 0 * * 0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  check-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pipx run check-manifest
+
   test:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
-      pip-post-installs: ${{ matrix.pydantic }}
-      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      coverage-upload: artifact
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.platform }}
+    env:
+      UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
+      UV_NO_SYNC: 1
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.12", "3.13"]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        pydantic: [""]
+        python-version: ["3.9", "3.11", "3.13"]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
         include:
-          - python-version: "3.11"
-            os: "ubuntu-latest"
+          - python-version: "3.10"
+            platform: "macos-latest"
           - python-version: "3.12"
-            os: "ubuntu-latest"
-            pydantic: "'pydantic<2'"
+            platform: "macos-latest"
+          - python-version: "3.9"
+            platform: "ubuntu-latest"
+            resolution: "lowest-direct"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Install Dependencies
+        run: uv sync --no-dev --group test --resolution ${{ matrix.resolution || 'highest'}}
+
+      - name: 🧪 Run Tests
+        run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}
+          path: ./.coverage*
+          include-hidden-files: true
 
   test-qt:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      qt: ${{ matrix.qt }}
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
-      extras: test-qt
-      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      coverage-upload: artifact
+    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{matrix.extra }} ${{ matrix.resolution }}
+    runs-on: ${{ matrix.platform }}
+    env:
+      UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
+      UV_NO_SYNC: 1
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - python-version: "3.10"
-            os: "ubuntu-latest"
-            qt: "PyQt5~=5.15.0"
-          - python-version: "3.10"
-            os: "ubuntu-latest"
-            qt: "PySide2~=5.15.0"
-          - python-version: "3.10"
-            os: "ubuntu-latest"
-            qt: "PySide6~=6.3.0"
-          - python-version: "3.10"
-            os: "ubuntu-latest"
-            qt: "PyQt6~=6.4.0"
-          - python-version: "3.11"
-            os: "ubuntu-latest"
-            qt: "PySide6~=6.5.0"
-          - python-version: "3.11"
-            os: "ubuntu-latest"
-            qt: "PySide6~=6.6.0"
-          - python-version: "3.13"
-            os: "ubuntu-latest"
-            qt: pyqt6
-          - python-version: "3.10"
-            os: "windows-latest"
-            qt: "PySide2"
-          - python-version: "3.9"
-            os: "macos-13"
-            qt: "PySide2"
+        python-version: ["3.10", "3.12"]
+        platform: [macos-latest, windows-latest]
+        extra: [pyqt5, pyside2, pyside6, pyqt6]
+        resolution: [highest, lowest-direct]
+        exclude:
+          - platform: "macos-latest"
+            extra: "pyside2"
+          - python-version: "3.12"
+            extra: "pyside2"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - uses: pyvista/setup-headless-display-action@v4
+        with:
+          qt: true
+
+      - name: Install Dependencies
+        run: uv sync --no-dev --group test-qt --extra ${{ matrix.extra }} --resolution ${{ matrix.resolution }}
+
+      - name: 🧪 Run Tests
+        run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
+
+      # If something goes wrong with --pre tests, we can open an issue in the repo
+      - name: 📝 Report --pre Failures
+        if: failure() && github.event_name == 'schedule'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLATFORM: ${{ matrix.platform }}
+          PYTHON: ${{ matrix.python-version }}
+          RUN_ID: ${{ github.run_id }}
+          TITLE: "[test-bot] pip install --pre is failing"
+        with:
+          filename: .github/TEST_FAIL_TEMPLATE.md
+          update_existing: true
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}-${{ matrix.extra }}-${{ matrix.resolution }}
+          path: ./.coverage*
+          include-hidden-files: true
 
   upload_coverage:
     if: always()
@@ -86,51 +142,42 @@ jobs:
     uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       dependency-repo: napari/napari
-      dependency-ref: ${{ matrix.napari-version }}
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
-      pytest-args: 'napari/_qt/_qapp_model napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
+      pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
       python-version: "3.10"
-      post-install-cmd: "pip install lxml_html_clean" # fix for napari v0.4.19
     strategy:
       fail-fast: false
       matrix:
-        napari-version: ["", "v0.4.19.post1"]
         qt: ["pyqt5", "pyside2"]
 
-  check-manifest:
-    name: Check Manifest
+  build-and-inspect-package:
+    name: Build & inspect package.
+    needs: [check-manifest, test]
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: pipx run check-manifest
-
-  deploy:
-    name: Deploy
-    needs: [check-manifest, test, test_napari]
-    if: success() && startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: hynek/build-and-inspect-python-package@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+  upload-to-pypi:
+    name: Upload package to PyPI
+    needs: build-and-inspect-package
+    if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Download built artifact to dist/
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.x"
-
-      - name: 👷 Build
-        run: |
-          python -m pip install build
-          python -m build
-
+          name: Packages
+          path: dist
       - name: 🚢 Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true

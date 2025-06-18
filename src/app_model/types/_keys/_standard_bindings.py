@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict
+from typing_extensions import Final
 
 from ._key_codes import KeyCode, KeyMod
 
@@ -81,7 +82,7 @@ class StandardKeyBinding(Enum):
         return KeyBindingRule(**_STANDARD_KEY_MAP[self])
 
 
-_ = None
+_: Final[None] = None
 SK = namedtuple("SK", "sk, primary, win, mac, gnome", defaults=(_, _, _, _, _))
 
 # fmt: off
