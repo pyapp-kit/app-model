@@ -89,7 +89,7 @@ jobs:
       dependency-ref: ${{ matrix.napari-version }}
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
-      pytest-args: 'napari/_qt/_qapp_model napari/_app_model napari/utils/_tests/test_key_bindings.py -k "not async and not qt_dims_2"'
+      pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
       python-version: "3.10"
       post-install-cmd: "pip install lxml_html_clean" # fix for napari v0.4.19
     strategy:
