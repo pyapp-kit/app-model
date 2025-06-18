@@ -244,7 +244,7 @@ def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
         ),
     ],
 )
-def test_registered_keybinding_comparison(kb1, kb2, gt, lt, eq):
+def test_registered_keybinding_comparison(kb1, kb2, gt, lt, eq) -> None:
     rkb1 = _RegisteredKeyBinding(
         keybinding=kb1["primary"],
         command_id=kb1["command_id"],

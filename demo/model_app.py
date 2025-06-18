@@ -9,7 +9,7 @@ from app_model.expressions import create_context
 
 
 class MainWindow(QModelMainWindow):
-    def __init__(self, app: Application):
+    def __init__(self, app: Application) -> None:
         super().__init__(app)
 
         self._cur_file: str = ""
