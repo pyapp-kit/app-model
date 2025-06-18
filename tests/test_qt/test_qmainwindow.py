@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ..conftest import FullApp  # noqa: TID252
 
 
-def test_qmodel_main_window(qtbot, full_app: "FullApp"):
+def test_qmodel_main_window(qtbot, full_app: "FullApp") -> None:
     win = QModelMainWindow(full_app)
     qtbot.addWidget(win)
 

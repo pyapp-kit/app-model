@@ -476,7 +476,7 @@ class BoolOp(Expr[T], ast.BoolOp):
         op: ast.boolop,
         values: Sequence[ConstType | Expr],
         **kwargs: Unpack[_Attributes],
-    ):
+    ) -> None:
         super().__init__(op, [Expr._cast(v) for v in values], **kwargs)
 
 
