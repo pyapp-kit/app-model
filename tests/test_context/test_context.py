@@ -7,7 +7,7 @@ from app_model.expressions import Context, create_context, get_context
 from app_model.expressions._context import _OBJ_TO_CONTEXT
 
 
-def test_create_context():
+def test_create_context() -> None:
     """You can create a context for any object"""
 
     class T: ...
@@ -30,7 +30,7 @@ def test_create_context():
         create_context(T(), root={})  # type: ignore
 
 
-def test_create_and_get_scoped_contexts():
+def test_create_and_get_scoped_contexts() -> None:
     """Test that objects created in the stack of another contexted object.
 
     likely the most common way that this API will be used:
@@ -61,7 +61,7 @@ def test_create_and_get_scoped_contexts():
     assert len(_OBJ_TO_CONTEXT) == before
 
 
-def test_context_events():
+def test_context_events() -> None:
     """Changing context keys emits an event"""
     mock = Mock()
     root = Context()

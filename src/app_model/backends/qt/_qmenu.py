@@ -42,7 +42,7 @@ class QModelMenu(QMenu):
         app: Application | str,
         title: str | None = None,
         parent: QWidget | None = None,
-    ):
+    ) -> None:
         QMenu.__init__(self, parent)
 
         # NOTE: code duplication with QModelToolBar, but Qt mixins and multiple
@@ -132,7 +132,7 @@ class QModelSubmenu(QModelMenu):
         submenu: SubmenuItem,
         app: Application | str,
         parent: QWidget | None = None,
-    ):
+    ) -> None:
         assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
         self._submenu = submenu
         super().__init__(

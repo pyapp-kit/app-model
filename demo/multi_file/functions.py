@@ -1,32 +1,32 @@
 from qtpy.QtWidgets import QApplication, QFileDialog
 
 
-def open_file():
+def open_file() -> None:
     name, _ = QFileDialog.getOpenFileName()
     print("Open file:", name)
 
 
-def close():
+def close() -> None:
     if win := QApplication.activeWindow():
         win.close()
     print("close")
 
 
-def undo():
+def undo() -> None:
     print("undo")
 
 
-def redo():
+def redo() -> None:
     print("redo")
 
 
-def cut():
+def cut() -> None:
     print("cut")
 
 
-def copy():
+def copy() -> None:
     print("copy")
 
 
-def paste():
+def paste() -> None:
     print("paste")

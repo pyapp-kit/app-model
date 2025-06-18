@@ -41,7 +41,7 @@ class QCommandAction(QAction):
         command_id: str,
         app: Application | str,
         parent: QObject | None = None,
-    ):
+    ) -> None:
         super().__init__(parent)
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
         self._command_id = command_id
@@ -81,7 +81,7 @@ class QCommandRuleAction(QCommandAction):
         parent: QObject | None = None,
         *,
         use_short_title: bool = False,
-    ):
+    ) -> None:
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
         if use_short_title and command_rule.short_title:
@@ -144,7 +144,7 @@ class QMenuItemAction(QCommandRuleAction):
         menu_item: MenuItem,
         app: Application | str,
         parent: QObject | None = None,
-    ):
+    ) -> None:
         super().__init__(menu_item.command, app, parent)
         self._menu_item = menu_item
         with contextlib.suppress(NameError):

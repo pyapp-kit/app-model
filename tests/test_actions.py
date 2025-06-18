@@ -41,14 +41,14 @@ def test_register_action_decorator(
     if mode == "decorator":
 
         @register_action(app=app, id_or_action=cmd_id, **kwargs)
-        def f1():
+        def f1() -> str:
             return "hi"
 
         assert f1() == "hi"  # decorator returns the function
 
     else:
 
-        def f2():
+        def f2() -> str:
             return "hi"
 
         if mode == "str":
@@ -99,14 +99,14 @@ def test_register_action_decorator(
     assert not list(app.menus)
 
 
-def test_errors(simple_app: Application):
+def test_errors(simple_app: Application) -> None:
     with pytest.raises(ValueError, match="'title' is required"):
         simple_app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):
         simple_app.register_action(None)  # type: ignore
 
 
-def test_register_multiple_actions(simple_app: Application):
+def test_register_multiple_actions(simple_app: Application) -> None:
     actions: list[Action] = [
         Action(id="cmd_id1", title="title1", callback=lambda: None),
         Action(id="cmd_id2", title="title2", callback=lambda: None),
