@@ -22,7 +22,7 @@ jobs:
       - run: pipx run check-manifest
 
   test:
-    name: ${{ matrix.platform }} (${{ matrix.python-version }})
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     env:
       UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
@@ -67,7 +67,7 @@ jobs:
           include-hidden-files: true
 
   test-qt:
-    name: ${{ matrix.platform }} (${{ matrix.python-version }})
+    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{matrix.extra }} ${{ matrix.resolution }}
     runs-on: ${{ matrix.platform }}
     env:
       UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
@@ -122,7 +122,7 @@ jobs:
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
-          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}
+          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}-${{ matrix.extra }}-${{ matrix.resolution }}
           path: ./.coverage*
           include-hidden-files: true
 
