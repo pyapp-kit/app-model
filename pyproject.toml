@@ -58,7 +58,11 @@ pyqt5 = [
 ]
 pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0"]
 pyside2 = ["app-model[qt]", "PySide2>=5.15.2.1"]
-pyside6 = ["app-model[qt]", "PySide6>=6.4.0"]
+pyside6 = [
+    "app-model[qt]",
+    "PySide6>=6.4.0",
+    "PySide6>=6.5.0; sys_platform != 'win32'",
+]
 
 # https://peps.python.org/pep-0735/
 # setup with `uv sync` or `pip install -e . --group dev`
@@ -118,9 +122,9 @@ select = [
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     # "ANN",  # flake8-annotations
-    "RUF",  # ruff-specific rules
-    "TC",   # flake8-type-checking
-    "TID",  # flake8-tidy-imports
+    "RUF", # ruff-specific rules
+    "TC",  # flake8-type-checking
+    "TID", # flake8-tidy-imports
 ]
 ignore = [
     "D401", # First line should be in imperative mood (remove to opt in)
