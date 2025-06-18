@@ -150,6 +150,7 @@ testpaths = ["tests"]
 filterwarnings = [
     "error",
     "ignore:Enum value:DeprecationWarning:superqt",
+    "ignore:Failed to disconnect::pytestqt",
     "ignore:Failing to pass a value to the 'type_params' parameter::pydantic",
     "ignore:`__get_validators__` is deprecated and will be removed",
 ]
