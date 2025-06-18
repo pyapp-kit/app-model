@@ -84,6 +84,8 @@ jobs:
         exclude:
           - platform: "macos-latest"
             extra: "pyside2"
+          - python-version: "3.12"
+            extra: "pyside2"
 
     steps:
       - uses: actions/checkout@v4
