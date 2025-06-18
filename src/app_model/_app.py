@@ -314,12 +314,12 @@ class Application:
         """
         # register commands
         disposers = [self.commands.register_action(action)]
-        # register menus
-        if dm := self.menus.append_action_menus(action):
-            disposers.append(dm)
         # register keybindings
         if dk := self.keybindings.register_action_keybindings(action):
             disposers.append(dk)
+        # register menus
+        if dm := self.menus.append_action_menus(action):
+            disposers.append(dm)
 
         # remember the action object as a whole.
         # note that commands.register_action will have raised an exception
