@@ -40,11 +40,11 @@ def test_qmodel_main_window(
         Action(
             id="late-action",
             title="Late Action",
-            keybindings=[{"primary": "Ctrl+L"}],
+            keybindings=[{"primary": "Shift+L"}],
             menus=[{"id": full_app.Menus.FILE}],
             callback=lambda: None,
         )
     )
 
     action = qapp.findChild(QAction, "late-action")
-    assert action.shortcut().toString() == "Meta+L"
+    assert action.shortcut().toString() == "Shift+L"
