@@ -37,7 +37,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "psygnal>=0.3.4",
+    "psygnal>=0.10",
     "pydantic>=1.10.18",
     "pydantic-compat>=0.1.1",
     "in-n-out>=0.1.5",
@@ -61,7 +61,7 @@ pyside2 = ["app-model[qt]", "PySide2>=5.15.2.1"]
 pyside6 = [
     "app-model[qt]",
     "PySide6>=6.4.0",
-    "PySide6>=6.5.0; sys_platform != 'win32'",
+    "PySide6>=6.6.0; sys_platform == 'win32'",
 ]
 
 # https://peps.python.org/pep-0735/
