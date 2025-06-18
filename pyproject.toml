@@ -57,7 +57,7 @@ pyqt5 = [
     "pyqt5-qt5>=5.15.4; sys_platform != 'win32'",
 ]
 pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0"]
-pyside2 = ["app-model[qt]", "PySide2>=5.15"]
+pyside2 = ["app-model[qt]", "PySide2>=5.15.2"]
 pyside6 = ["app-model[qt]", "PySide6>=6.4.0"]
 
 # https://peps.python.org/pep-0735/
@@ -151,6 +151,7 @@ filterwarnings = [
     "error",
     "ignore:Enum value:DeprecationWarning:superqt",
     "ignore:Failed to disconnect::pytestqt",
+    "DeprecationWarning:ast.Str is deprecated",
     "ignore:Failing to pass a value to the 'type_params' parameter::pydantic",
     "ignore:`__get_validators__` is deprecated and will be removed",
 ]
