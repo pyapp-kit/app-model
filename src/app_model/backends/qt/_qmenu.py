@@ -50,6 +50,7 @@ class QModelMenu(QMenu):
         assert isinstance(menu_id, str), f"Expected str, got {type(menu_id)!r}"
         self._menu_id = menu_id
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
+        self._action_list = []  # type: list[QAction]
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
@@ -184,6 +185,7 @@ class QModelToolBar(QToolBar):
         assert isinstance(menu_id, str), f"Expected str, got {type(menu_id)!r}"
         self._menu_id = menu_id
         self._app = Application.get_or_create(app) if isinstance(app, str) else app
+        self._action_list = []  # type: list[QAction]
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
@@ -285,7 +287,7 @@ class QModelMenuBar(QMenuBar):
 
 
 def _rebuild(
-    menu: QMenu | QToolBar,
+    menu: QModelMenu | QModelToolBar,
     app: Application,
     menu_id: str,
     include_submenus: bool = True,
@@ -307,7 +309,9 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction.create(item, app=app, parent=menu)
+                action = QMenuItemAction.create(item, app=app)
+                if action not in menu._action_list:
+                    menu._action_list.append(action)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()
