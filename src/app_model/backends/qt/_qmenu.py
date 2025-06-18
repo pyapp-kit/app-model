@@ -4,7 +4,7 @@ import contextlib
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, cast
 
-from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
+from qtpy.QtWidgets import QApplication, QMenu, QMenuBar, QToolBar
 
 from app_model import Application
 from app_model.types import SubmenuItem
@@ -300,6 +300,7 @@ def _rebuild(
 
     groups = list(app.menus.iter_menu_groups(menu_id))
     n_groups = len(groups)
+    qapp = QApplication.instance()
     for n, group in enumerate(groups):
         for item in group:
             if isinstance(item, SubmenuItem):
@@ -307,7 +308,10 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction.create(item, app=app, parent=menu)
+                # use QApplication instance as parent for actions
+                # because we use action singleton, and actions
+                # are not related to any window.
+                action = QMenuItemAction.create(item, app=app, parent=qapp)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()
