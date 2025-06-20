@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.4.0](https://github.com/pyapp-kit/app-model/tree/v0.4.0) (2025-06-20)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.1...v0.4.0)
+
+**Implemented enhancements:**
+
+- feat: add `registered_actions` to Application [\#242](https://github.com/pyapp-kit/app-model/pull/242) ([tlambert03](https://github.com/tlambert03))
+- feat: allow explicit variable bound to be passed to Name [\#241](https://github.com/pyapp-kit/app-model/pull/241) ([tlambert03](https://github.com/tlambert03))
+- feat: initial exploration for keybinding source addition and inverse map for keybinding registry [\#226](https://github.com/pyapp-kit/app-model/pull/226) ([dalthviz](https://github.com/dalthviz))
+
+**Fixed bugs:**
+
+- fix: order of menu registration to come after keybindings registration [\#249](https://github.com/pyapp-kit/app-model/pull/249) ([tlambert03](https://github.com/tlambert03))
+- fix: Use QApplication instance as a parent of global actions [\#246](https://github.com/pyapp-kit/app-model/pull/246) ([Czaki](https://github.com/Czaki))
+- fix: Fix recursion check in Qt6 [\#232](https://github.com/pyapp-kit/app-model/pull/232) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: fix small typo in Getting Started doc [\#236](https://github.com/pyapp-kit/app-model/pull/236) ([kevinyamauchi](https://github.com/kevinyamauchi))
+
+**Merged pull requests:**
+
+- chore: bunch of typing fixes, run pyright on ci [\#252](https://github.com/pyapp-kit/app-model/pull/252) ([tlambert03](https://github.com/tlambert03))
+- chore: add ANN rule to ruff [\#251](https://github.com/pyapp-kit/app-model/pull/251) ([tlambert03](https://github.com/tlambert03))
+- build: update for uv project management [\#250](https://github.com/pyapp-kit/app-model/pull/250) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#240](https://github.com/pyapp-kit/app-model/pull/240) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- chore: Filter out \_\_get\_validators\_\_ warning [\#239](https://github.com/pyapp-kit/app-model/pull/239) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#237](https://github.com/pyapp-kit/app-model/pull/237) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: \[pre-commit.ci\] autoupdate [\#233](https://github.com/pyapp-kit/app-model/pull/233) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: \[pre-commit.ci\] autoupdate [\#227](https://github.com/pyapp-kit/app-model/pull/227) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.3.1](https://github.com/pyapp-kit/app-model/tree/v0.3.1) (2024-11-22)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.0...v0.3.1)
