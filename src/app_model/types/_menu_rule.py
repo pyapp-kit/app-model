@@ -20,18 +20,18 @@ class MenuItemBase(_BaseModel):
     """Data representing where and when a menu item should be shown."""
 
     when: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition which must be true to show the item.",
     )
     group: Optional[str] = Field(
-        None,
+        default=None,
         description="(Optional) Menu group to which this item should be added. Menu "
         "groups are sortable strings (like `'1_cutandpaste'`). 'navigation' is a "
         "special group that always appears at the top of a menu.  If not provided, "
         "the item is added in the last group of the menu.",
     )
     order: Optional[float] = Field(
-        None,
+        default=None,
         description="(Optional) Order of the item *within* its group. Note, order is "
         "not part of the plugin schema, plugins may provide it using the group key "
         "and the syntax 'group@order'.  If not provided, items are sorted by title.",
@@ -90,7 +90,7 @@ class MenuItem(MenuItemBase):
         description="CommandRule to execute when this menu item is selected.",
     )
     alt: Optional[CommandRule] = Field(
-        None,
+        default=None,
         description="(Optional) Alternate command to execute when this menu item is "
         "selected, (e.g. when the Alt-key is held when opening the menu)",
     )
@@ -108,7 +108,7 @@ class SubmenuItem(MenuItemBase):
     submenu: str = Field(..., description="Menu to insert as a submenu.")
     title: str = Field(..., description="Title of this submenu, shown in the UI.")
     icon: Optional[Icon] = Field(
-        None,
+        default=None,
         description="(Optional) Icon used to represent this submenu. "
         "These may be [iconify keys](https://icon-sets.iconify.design), "
         "such as `fa6-solid:arrow-down`, or "
@@ -116,7 +116,7 @@ class SubmenuItem(MenuItemBase):
         " keys, such as `fa6s.arrow_down`",
     )
     enablement: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition which must be true to enable the submenu. "
         "Disabled submenus appear grayed out in the UI, and cannot be selected. By "
         "default, submenus are enabled.",

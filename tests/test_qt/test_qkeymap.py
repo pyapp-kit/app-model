@@ -1,3 +1,5 @@
+# mypy: disable-error-code="operator"
+# pyright: reportOperatorIssue=false
 from unittest.mock import patch
 
 from qtpy.QtCore import Qt

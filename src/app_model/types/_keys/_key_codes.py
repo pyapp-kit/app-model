@@ -750,7 +750,7 @@ class KeyMod(IntFlag):
     @overload
     def __or__(self, other: int) -> int: ...
 
-    def __or__(
+    def __or__(  # pyright: ignore[reportIncompatibleMethodOverride]
         self, other: Union["KeyMod", KeyCode, int]
     ) -> Union["KeyMod", "KeyCombo", int]:
         if isinstance(other, self.__class__):

@@ -1,6 +1,7 @@
 # Copyright (C) 2013 Riverbank Computing Limited.
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+# pyright: reportOptionalMemberAccess=false
 
 from fonticon_fa6 import FA6S
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
@@ -204,7 +205,7 @@ class MainWindow(QMainWindow):
             return
 
         inf = QTextStream(file)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self._text_edit.setPlainText(inf.readAll())
         QApplication.restoreOverrideCursor()
 
@@ -213,11 +214,11 @@ class MainWindow(QMainWindow):
 
     def save_file(self, fileName: str) -> bool:
         error = None
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         file = QSaveFile(fileName)
         if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):
             outf = QTextStream(file)
-            outf << self._text_edit.toPlainText()
+            outf << self._text_edit.toPlainText()  # pyright: ignore
             if not file.commit():
                 reason = file.errorString()
                 error = f"Cannot write file {fileName}:\n{reason}."
@@ -255,4 +256,4 @@ if __name__ == "__main__":
     qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow()
     main_win.show()
-    qapp.exec_()
+    qapp.exec()

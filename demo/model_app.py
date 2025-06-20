@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
@@ -6,6 +7,9 @@ from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 from app_model import Application, types
 from app_model.backends.qt import QModelMainWindow
 from app_model.expressions import create_context
+
+if TYPE_CHECKING:
+    from app_model.backends.qt._qmenu import QModelMenuBar
 
 
 class MainWindow(QModelMainWindow):
@@ -21,7 +25,8 @@ class MainWindow(QModelMainWindow):
         self.addModelToolBar(MenuId.FILE, exclude={CommandId.SAVE_AS, CommandId.EXIT})
         self.addModelToolBar(MenuId.EDIT)
         self.addModelToolBar(MenuId.HELP)
-        self.statusBar().showMessage("Ready")
+        if sb := self.statusBar():
+            sb.showMessage("Ready")
 
         self.set_current_file("")
 
@@ -33,11 +38,13 @@ class MainWindow(QModelMainWindow):
         self._ctx["copyAvailable"] = available
 
     def _on_context_changed(self) -> None:
-        self.menuBar().update_from_context(self._ctx)
+        mb = cast("QModelMenuBar", self.menuBar())
+        mb.update_from_context(self._ctx)
 
     def set_current_file(self, fileName: str) -> None:
         self._cur_file = fileName
-        self._text_edit.document().setModified(False)
+        if doc := self._text_edit.document():
+            doc.setModified(False)
         self.setWindowModified(False)
 
         if self._cur_file:
@@ -58,11 +65,11 @@ class MainWindow(QModelMainWindow):
 
     def save_file(self, fileName: str) -> bool:
         error = None
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         file = QSaveFile(fileName)
         if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):  # type: ignore
             outf = QTextStream(file)
-            outf << self._text_edit.toPlainText()
+            outf << self._text_edit.toPlainText()  # pyright: ignore
             if not file.commit():
                 reason = file.errorString()
                 error = f"Cannot write file {fileName}:\n{reason}."
@@ -77,7 +84,7 @@ class MainWindow(QModelMainWindow):
         return True
 
     def maybe_save(self) -> bool:
-        if self._text_edit.document().isModified():
+        if (doc := self._text_edit.document()) and doc.isModified():
             ret = QMessageBox.warning(
                 self,
                 "Application",
@@ -113,12 +120,13 @@ class MainWindow(QModelMainWindow):
             return
 
         inf = QTextStream(file)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self._text_edit.setPlainText(inf.readAll())
         QApplication.restoreOverrideCursor()
 
         self.set_current_file(fileName)
-        self.statusBar().showMessage("File loaded", 2000)
+        if sb := self.statusBar():
+            sb.showMessage("File loaded", 2000)
 
     def about(self) -> None:
         QMessageBox.about(
@@ -255,4 +263,4 @@ if __name__ == "__main__":
 
     app.injection_store.register_provider(lambda: main_win, MainWindow)
     main_win.show()
-    qapp.exec_()
+    qapp.exec()

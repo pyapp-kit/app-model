@@ -1,3 +1,4 @@
+# mypy: disable-error-code="var-annotated"
 import pytest
 
 from app_model.registries import KeyBindingsRegistry, MenusRegistry
@@ -11,6 +12,10 @@ from app_model.types import (
     KeyMod,
     MenuItem,
 )
+
+
+def _noop() -> None:
+    pass
 
 
 def test_menus_registry() -> None:
@@ -33,7 +38,7 @@ def test_register_keybinding_rule_filter_type() -> None:
     """Check `_filter_keybinding` type checking when setting."""
     reg = KeyBindingsRegistry()
     with pytest.raises(TypeError, match="'filter_keybinding' must be a callable"):
-        reg.filter_keybinding = "string"
+        reg.filter_keybinding = "string"  # type: ignore
 
 
 def _filter_fun(kb: KeyBinding) -> str:
@@ -79,7 +84,7 @@ def test_register_keybinding_rule_filter() -> None:
         ),
     ],
 )
-def test_register_action_keybindings_filter(kb, msg) -> None:
+def test_register_action_keybindings_filter(kb: list[dict], msg: str) -> None:
     """Check `filter_keybinding` in `register_action_keybindings`."""
     reg = KeyBindingsRegistry()
     reg.filter_keybinding = _filter_fun
@@ -87,7 +92,7 @@ def test_register_action_keybindings_filter(kb, msg) -> None:
     action = Action(
         id="cmd_id1",
         title="title1",
-        callback=lambda: None,
+        callback=_noop,
         keybindings=kb,
     )
     if msg:
@@ -119,14 +124,14 @@ def test_register_action_keybindings_filter(kb, msg) -> None:
         ),
     ],
 )
-def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
+def test_register_action_keybindings_priorization(kb1: str, kb2: str, kb3: str) -> None:
     """Check `get_context_prioritized_keybinding`."""
     reg = KeyBindingsRegistry()
 
     action1 = Action(
         id="cmd_id1",
         title="title1",
-        callback=lambda: None,
+        callback=_noop,
         keybindings=kb1,
     )
     reg.register_action_keybindings(action1)
@@ -134,7 +139,7 @@ def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
     action2 = Action(
         id="cmd_id2",
         title="title2",
-        callback=lambda: None,
+        callback=_noop,
         keybindings=kb2,
     )
     reg.register_action_keybindings(action2)
@@ -142,7 +147,7 @@ def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
     action3 = Action(
         id="cmd_id3",
         title="title3",
-        callback=lambda: None,
+        callback=_noop,
         keybindings=kb3,
     )
     reg.register_action_keybindings(action3)
@@ -244,7 +249,9 @@ def test_register_action_keybindings_priorization(kb1, kb2, kb3) -> None:
         ),
     ],
 )
-def test_registered_keybinding_comparison(kb1, kb2, gt, lt, eq) -> None:
+def test_registered_keybinding_comparison(
+    kb1: dict, kb2: dict, gt: bool, lt: bool, eq: bool
+) -> None:
     rkb1 = _RegisteredKeyBinding(
         keybinding=kb1["primary"],
         command_id=kb1["command_id"],

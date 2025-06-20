@@ -7,7 +7,8 @@ def open_file() -> None:
 
 
 def close() -> None:
-    QApplication.activeWindow().close()
+    if win := QApplication.activeWindow():
+        win.close()
     print("close")
 
 

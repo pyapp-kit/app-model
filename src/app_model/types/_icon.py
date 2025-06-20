@@ -14,7 +14,7 @@ class Icon(_BaseModel):
     """
 
     dark: Optional[str] = Field(
-        None,
+        default=None,
         description="Icon path when a dark theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
         "`fa6-solid:arrow-down`, or "
@@ -22,7 +22,7 @@ class Icon(_BaseModel):
         " keys, such as `fa6s.arrow_down`",
     )
     light: Optional[str] = Field(
-        None,
+        default=None,
         description="Icon path when a light theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
         "`fa6-solid:arrow-down`, or "

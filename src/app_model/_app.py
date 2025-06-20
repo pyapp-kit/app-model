@@ -7,6 +7,7 @@ from collections.abc import Iterable, MutableMapping
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
+    Any,
     ClassVar,
     Literal,
     Optional,
@@ -28,8 +29,10 @@ from .types import (
 )
 
 if TYPE_CHECKING:
+    from typing import Callable
+
     from .expressions import Expr
-    from .registries._register import CommandCallable, CommandDecorator
+    from .registries._register import CommandDecorator
     from .types import (
         DisposeCallable,
         IconOrDict,
@@ -231,7 +234,7 @@ class Application:
         action: str,
         title: str,
         *,
-        callback: CommandCallable,
+        callback: Callable[..., Any],
         category: str | None = ...,
         tooltip: str | None = ...,
         icon: IconOrDict | None = ...,
@@ -246,7 +249,7 @@ class Application:
         action: str | Action,
         title: str | None = None,
         *,
-        callback: CommandCallable | None = None,
+        callback: Callable[..., Any] | None = None,
         category: str | None = None,
         tooltip: str | None = None,
         icon: IconOrDict | None = None,

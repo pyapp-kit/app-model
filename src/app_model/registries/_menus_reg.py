@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Final
+from typing import TYPE_CHECKING, Any, Callable, Final, cast
 
 from psygnal import Signal
 
@@ -64,7 +64,7 @@ class MenusRegistry:
         return _dispose
 
     def append_menu_items(
-        self, items: Iterable[tuple[MenuId, MenuOrSubmenu]]
+        self, items: Iterable[tuple[MenuId, MenuOrSubmenu | dict]]
     ) -> DisposeCallable:
         """Append menu items to the registry.
 
@@ -81,7 +81,7 @@ class MenusRegistry:
         changed_ids: set[str] = set()
         disposers: list[Callable[[], None]] = []
         for menu_id, item in items:
-            item = MenuItem._validate(item)  # type: ignore
+            item = cast("MenuOrSubmenu", MenuItem._validate(item))
             menu_dict = self._menu_items.setdefault(menu_id, {})
             menu_dict[item] = None
             changed_ids.add(menu_id)
