@@ -231,7 +231,9 @@ def register_action(
             menus=menus,
             keybindings=keybindings,
         )
-    raise TypeError("'id_or_action' must be a string or an Action")
+    raise TypeError(
+        f"'id_or_action' must be a string or an Action not {type(id_or_action)}"
+    )
 
 
 def _register_action_str(
