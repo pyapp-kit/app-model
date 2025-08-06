@@ -18,7 +18,8 @@ if TYPE_CHECKING:
     from conftest import FullApp
 
 
-def test_cache_qaction(qapp, full_app: "FullApp") -> None:
+@pytest.mark.usefixtures("qapp")
+def test_cache_qaction(full_app: "FullApp") -> None:
     action = next(
         i for k, items in full_app.menus for i in items if isinstance(i, MenuItem)
     )
@@ -28,7 +29,8 @@ def test_cache_qaction(qapp, full_app: "FullApp") -> None:
     assert repr(a1).startswith("QMenuItemAction")
 
 
-def test_toggle_qaction(qapp, simple_app: "Application") -> None:
+@pytest.mark.usefixtures("qapp")
+def test_toggle_qaction(simple_app: "Application") -> None:
     mock = Mock()
     x = False
 
@@ -75,6 +77,7 @@ def test_icon_visible_in_menu(qapp, simple_app: "Application") -> None:
     assert not q_action.isIconVisibleInMenu()
 
 
+@pytest.mark.usefixtures("qapp")
 @pytest.mark.parametrize(
     ("tooltip", "expected_tooltip"),
     [
@@ -83,7 +86,7 @@ def test_icon_visible_in_menu(qapp, simple_app: "Application") -> None:
     ],
 )
 def test_tooltip(
-    qapp, simple_app: "Application", tooltip: str, expected_tooltip: str
+    simple_app: "Application", tooltip: str, expected_tooltip: str
 ) -> None:
     action = Action(
         id="test.tooltip", title="Test tooltip", tooltip=tooltip, callback=lambda: None
@@ -93,6 +96,7 @@ def test_tooltip(
     assert q_action.toolTip() == expected_tooltip
 
 
+@pytest.mark.usefixtures("qapp")
 @pytest.mark.parametrize(
     ("tooltip", "tooltip_with_keybinding", "tooltip_without_keybinding"),
     [
@@ -105,7 +109,6 @@ def test_tooltip(
     ],
 )
 def test_keybinding_in_tooltip(
-    qapp,
     simple_app: "Application",
     tooltip: str,
     tooltip_with_keybinding: str,
