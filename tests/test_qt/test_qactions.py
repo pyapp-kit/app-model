@@ -130,3 +130,27 @@ def test_keybinding_in_tooltip(
     # check setting tooltip manually removes keybinding info
     q_action.setToolTip(tooltip)
     assert q_action.toolTip() == tooltip_without_keybinding
+
+
+@pytest.mark.usefixtures("qapp")
+def test_update_keybinding_in_tooltip(
+    simple_app: "Application",
+) -> None:
+    action = Action(
+        id="test.update.keybinding.tooltip",
+        title="Test update keybinding tooltip",
+        callback=lambda: None,
+        tooltip="Initial tooltip",
+        keybindings=[KeyBindingRule(primary=KeyCode.KeyK)],
+    )
+    simple_app.register_action(action)
+
+    q_action = QCommandRuleAction(action, simple_app)
+    assert q_action.toolTip() == "Initial tooltip (K)"
+
+    # Update the keybinding
+    simple_app.keybindings.register_keybinding_rule(
+        "test.update.keybinding.tooltip", KeyBindingRule(primary=KeyCode.KeyL)
+    )
+    q_action._update_keybinding()
+    assert q_action.toolTip() == "Initial tooltip (L)"
