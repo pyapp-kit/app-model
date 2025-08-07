@@ -103,7 +103,8 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
-        self.setToolTip(self._tooltip)
+        if self._tooltip:
+            self.setToolTip(self._tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
@@ -111,6 +112,10 @@ class QCommandRuleAction(QCommandAction):
             self._refresh()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+
+    def setText(self, text: str) -> None:
+        super().setText(text)
+        self._tooltip = self._tooltip or text
 
     def _update_keybinding(self) -> None:
         super()._update_keybinding()
