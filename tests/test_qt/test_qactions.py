@@ -144,15 +144,23 @@ def test_update_keybinding_in_tooltip(
         tooltip="Initial tooltip",
         keybindings=[KeyBindingRule(primary=KeyCode.KeyK)],
     )
-    simple_app.register_action(action)
+    dispose1 = simple_app.register_action(action)
 
     q_action = QCommandRuleAction(action, simple_app)
     assert q_action.toolTip() == "Initial tooltip (K)"
 
     # Update the keybinding
-    simple_app.keybindings.register_keybinding_rule(
+    dispose2 = simple_app.keybindings.register_keybinding_rule(
         "test.update.keybinding.tooltip",
         KeyBindingRule(primary=KeyCode.KeyL, source=KeyBindingSource.USER),
     )
     q_action._update_keybinding()
     assert q_action.toolTip() == "Initial tooltip (L)"
+
+    dispose2()
+    q_action._update_keybinding()
+    assert q_action.toolTip() == "Initial tooltip (K)"
+
+    dispose1()
+    q_action._update_keybinding()
+    assert q_action.toolTip() == "Initial tooltip"
