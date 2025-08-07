@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from bisect import insort_left
 from collections import defaultdict
+from operator import attrgetter
 from typing import TYPE_CHECKING, Callable, NamedTuple
 
 from psygnal import Signal
@@ -195,7 +196,17 @@ class KeyBindingsRegistry:
         """Return the first keybinding that matches the given command ID."""
         # TODO: improve me.
         return next(
-            (entry for entry in self._keybindings if entry.command_id == command_id),
+            iter(
+                sorted(
+                    (
+                        entry
+                        for entry in self._keybindings
+                        if entry.command_id == command_id
+                    ),
+                    key=attrgetter("source"),
+                    reverse=True,
+                )
+            ),
             None,
         )
 

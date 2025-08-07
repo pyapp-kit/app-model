@@ -8,6 +8,7 @@ from app_model.types import (
     Action,
     CommandRule,
     KeyBindingRule,
+    KeyBindingSource,
     KeyCode,
     MenuItem,
     ToggleRule,
@@ -150,7 +151,8 @@ def test_update_keybinding_in_tooltip(
 
     # Update the keybinding
     simple_app.keybindings.register_keybinding_rule(
-        "test.update.keybinding.tooltip", KeyBindingRule(primary=KeyCode.KeyL)
+        "test.update.keybinding.tooltip",
+        KeyBindingRule(primary=KeyCode.KeyL, source=KeyBindingSource.USER),
     )
     q_action._update_keybinding()
     assert q_action.toolTip() == "Initial tooltip (L)"

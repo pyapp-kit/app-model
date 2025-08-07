@@ -95,6 +95,7 @@ class QCommandRuleAction(QCommandAction):
     ) -> None:
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
+        self._tooltip = command_rule.tooltip or ""
         if use_short_title and command_rule.short_title:
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
@@ -102,23 +103,18 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
-        if command_rule.tooltip:
-            self.setToolTip(command_rule.tooltip)
+        self.setToolTip(self._tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
             self.setCheckable(True)
             self._refresh()
-        tooltip_with_keybinding = (
-            f"{self.toolTip()} {self._keybinding_tooltip}".rstrip()
-        )
+        tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
 
     def _update_keybinding(self) -> None:
         super()._update_keybinding()
-        tooltip_with_keybinding = (
-            f"{self.toolTip()} {self._keybinding_tooltip}".rstrip()
-        )
+        tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
