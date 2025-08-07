@@ -113,9 +113,9 @@ class QCommandRuleAction(QCommandAction):
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
 
-    def setText(self, text: str) -> None:
+    def setText(self, text: str | None) -> None:
         super().setText(text)
-        self._tooltip = self._tooltip or text
+        self._tooltip = self._tooltip or text or ""
 
     def _update_keybinding(self) -> None:
         super()._update_keybinding()
