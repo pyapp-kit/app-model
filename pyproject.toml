@@ -67,7 +67,8 @@ test = ["pytest>=7.0", "pytest-cov >=6.1"]
 test-qt = [
     { include-group = "test" },
     "app-model[qt]",
-    "pytest-qt >=4.3.0",
+    "pytest-qt >=4.3.0; python_version > '3.10'",
+    "pytest-qt ==4.4.0; python_version <= '3.10'",
     "fonticon-fontawesome6 >=6.4.0",
 ]
 dev = [
