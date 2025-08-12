@@ -103,8 +103,6 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
-        if self._tooltip:
-            self.setToolTip(self._tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
