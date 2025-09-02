@@ -199,9 +199,6 @@ class KeyCode(IntEnum):
         """
         return _EVENTCODE_TO_KEYCODE.get(event_code, KeyCode.UNKNOWN)
 
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., 'KeyCode'], None, None]:
-        yield cls.validate
 
     @classmethod
     def __get_pydantic_core_schema__(

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, ClassVar
 
-from pydantic_compat import BaseModel
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from pydantic import ConfigDict

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Generic, Optional, TypeVar, Union
 
-from pydantic_compat import Field, field_validator
+from pydantic import Field, field_validator
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule

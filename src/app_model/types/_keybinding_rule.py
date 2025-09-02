@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional, TypedDict, TypeVar, Union
 
-from pydantic_compat import PYDANTIC2, Field, model_validator
+from pydantic import Field, model_validator
 
 from app_model import expressions
 
@@ -63,30 +63,14 @@ class KeyBindingRule(_BaseModel):
             return self.linux
         return self.primary
 
-    # These methods are here to make KeyBindingRule work as a field
-    # there are better ways to do this now with pydantic v2... but it still
-    # feels a bit in flux.  pydantic_compat might not yet work for this (or
-    # at least in my playing around i couldn't get it)
-    # so sticking with this one conditional method here...
-    if PYDANTIC2:
-        # for v2
-        @model_validator(mode="wrap")
-        @classmethod
-        def _model_val(
-            cls: type[M], v: Any, handler: Callable[[Any], M]
-        ) -> "KeyBindingRule":
-            if isinstance(v, StandardKeyBinding):
-                return v.to_keybinding_rule()
-            return handler(v)  # type: ignore
-
-    else:
-
-        @classmethod
-        def validate(cls, value: Any) -> "KeyBindingRule":
-            """Validate keybinding rule."""
-            if isinstance(value, StandardKeyBinding):
-                return value.to_keybinding_rule()
-            return super().validate(value)
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(
+        cls: type[M], v: Any, handler: Callable[[Any], M]
+    ) -> "KeyBindingRule":
+        if isinstance(v, StandardKeyBinding):
+            return v.to_keybinding_rule()
+        return handler(v)  # type: ignore
 
 
 class KeyBindingRuleDict(TypedDict, total=False):

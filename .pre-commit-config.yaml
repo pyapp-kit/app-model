@@ -28,8 +28,7 @@ repos:
       - id: mypy
         files: "^src/"
         additional_dependencies:
-          - pydantic >2
-          - pydantic-compat
+          - pydantic >2.8
           - in-n-out
 
   - repo: local
