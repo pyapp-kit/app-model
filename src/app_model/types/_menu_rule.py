@@ -1,7 +1,5 @@
-from collections.abc import Generator
 from typing import (
     Any,
-    Callable,
     Optional,
     TypedDict,
     Union,
@@ -36,10 +34,6 @@ class MenuItemBase(_BaseModel):
         "not part of the plugin schema, plugins may provide it using the group key "
         "and the syntax 'group@order'.  If not provided, items are sorted by title.",
     )
-
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls._validate
 
     @classmethod
     def _validate(cls: type["MenuItemBase"], v: Any) -> "MenuItemBase":

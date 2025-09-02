@@ -1,6 +1,5 @@
 import re
-from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -276,10 +275,6 @@ class KeyBinding:
 
     def __hash__(self) -> int:
         return hash(tuple(self.parts))
-
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate  # pragma: no cover
 
     @classmethod
     def __get_pydantic_core_schema__(
