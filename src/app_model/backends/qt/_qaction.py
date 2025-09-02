@@ -4,6 +4,8 @@ import contextlib
 from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakValueDictionary
 
+from qtpy.QtGui import QKeySequence
+
 from app_model import Application
 from app_model.expressions import Expr
 from app_model.types import ToggleRule
@@ -52,6 +54,15 @@ class QCommandAction(QAction):
             self._keybinding_tooltip = f"({kb.keybinding.to_text()})"
         self.triggered.connect(self._on_triggered)
 
+    def _update_keybinding(self) -> None:
+        shortcut = self.shortcut()
+        if kb := self._app.keybindings.get_keybinding(self._command_id):
+            self.setShortcut(QKeyBindingSequence(kb.keybinding))
+            self._keybinding_tooltip = f"({kb.keybinding.to_text()})"
+        elif not shortcut.isEmpty():
+            self.setShortcut(QKeySequence())
+            self._keybinding_tooltip = ""
+
     def _on_triggered(self, checked: bool) -> None:
         # execute_command returns a Future, for the sake of eventually being
         # asynchronous without breaking the API.  For now, we call result()
@@ -84,6 +95,7 @@ class QCommandRuleAction(QCommandAction):
     ) -> None:
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
+        self._tooltip = command_rule.tooltip or ""
         if use_short_title and command_rule.short_title:
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
@@ -91,16 +103,21 @@ class QCommandRuleAction(QCommandAction):
         if command_rule.icon:
             self.setIcon(to_qicon(command_rule.icon))
         self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
-        if command_rule.tooltip:
-            self.setToolTip(command_rule.tooltip)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
             self.setCheckable(True)
             self._refresh()
-        tooltip_with_keybinding = (
-            f"{self.toolTip()} {self._keybinding_tooltip}".rstrip()
-        )
+        tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
+        self.setToolTip(tooltip_with_keybinding)
+
+    def setText(self, text: str | None) -> None:
+        super().setText(text)
+        self._tooltip = self._tooltip or text or ""
+
+    def _update_keybinding(self) -> None:
+        super()._update_keybinding()
+        tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
@@ -176,6 +193,7 @@ class QMenuItemAction(QCommandRuleAction):
         cache_key = QMenuItemAction._cache_key(app, menu_item)
         if cache_key in cls._cache:
             res = cls._cache[cache_key]
+            res._update_keybinding()
             res.setParent(parent)
             return res
 
