@@ -1,7 +1,7 @@
 from collections.abc import Generator
 from typing import Any, Callable, Optional, TypedDict, Union
 
-from pydantic_compat import Field, model_validator
+from pydantic import Field, model_validator
 
 from ._base import _BaseModel
 

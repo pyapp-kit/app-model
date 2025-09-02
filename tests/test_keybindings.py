@@ -1,9 +1,8 @@
 import itertools
 import sys
-from typing import ClassVar
 
 import pytest
-from pydantic_compat import PYDANTIC2, BaseModel
+from pydantic import BaseModel
 
 from app_model.types import (
     KeyBinding,
@@ -179,14 +178,8 @@ def test_in_model() -> None:
     class M(BaseModel):
         key: KeyBinding
 
-        if not PYDANTIC2:
-
-            class Config:
-                json_encoders: ClassVar[dict] = {KeyBinding: str}
-
     m = M(key="Shift+A B")
-    # pydantic v1 and v2 have slightly different json outputs
-    assert m.model_dump_json().replace('": "', '":"') == '{"key":"Shift+A B"}'
+    assert m.model_dump_json() == '{"key":"Shift+A B"}'
 
 
 def test_standard_keybindings() -> None:

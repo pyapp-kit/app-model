@@ -2,7 +2,7 @@ import re
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
-from pydantic_compat import PYDANTIC2, BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app_model.types._constants import OperatingSystem
 
@@ -166,7 +166,7 @@ class SimpleKeyBinding(BaseModel):
         return cls._parse_input(instance)
 
 
-MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
+MIN1 = {"min_length": 1}
 
 
 class KeyBinding:
