@@ -1,13 +1,11 @@
-from collections.abc import Generator
 from typing import (
     Any,
-    Callable,
     Optional,
     TypedDict,
     Union,
 )
 
-from pydantic_compat import Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from app_model import expressions
 
@@ -38,10 +36,6 @@ class MenuItemBase(_BaseModel):
     )
 
     @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls._validate
-
-    @classmethod
     def _validate(cls: type["MenuItemBase"], v: Any) -> "MenuItemBase":
         """Validate icon."""
         if isinstance(v, MenuItemBase):
@@ -64,15 +58,8 @@ class MenuRule(MenuItemBase):
 
     id: str = Field(..., description="Menu in which to place this item.")
 
-    # for v1
-    @classmethod
-    def _validate(cls: type["MenuRule"], v: Any) -> Any:
-        if isinstance(v, str):
-            v = {"id": v}
-        return super()._validate(v)
-
-    # for v2
     @model_validator(mode="before")
+    @classmethod
     def _validate_model(cls, v: Any) -> Any:
         """If a single string is provided, convert to a dict with `id` key."""
         return {"id": v} if isinstance(v, str) else v
