@@ -1,7 +1,6 @@
-from collections.abc import Generator
-from typing import Any, Callable, Optional, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
 
-from pydantic_compat import Field, model_validator
+from pydantic import Field, model_validator
 
 from ._base import _BaseModel
 
@@ -29,10 +28,6 @@ class Icon(_BaseModel):
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
-
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls._validate
 
     @classmethod
     def _validate(cls, v: Any) -> "Icon":

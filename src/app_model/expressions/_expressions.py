@@ -6,7 +6,6 @@ import ast
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     SupportsIndex,
     TypeVar,
@@ -341,11 +340,6 @@ class Expr(ast.AST, Generic[T]):
         rv: list[Any] = list(super().__reduce_ex__(protocol))
         rv[1] = tuple(getattr(self, f) for f in self._fields)
         return tuple(rv)
-
-    @classmethod
-    def __get_validators__(cls) -> Iterator[Callable[[Any], Expr]]:
-        """Pydantic validators for this class."""
-        yield cls._validate
 
     @classmethod
     def __get_pydantic_core_schema__(
