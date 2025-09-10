@@ -26,18 +26,18 @@ class OperatingSystem(Enum):
 
     @property
     def is_windows(self) -> bool:
-        """Returns True if the current operating system is Windows."""
-        return _CURRENT == OperatingSystem.WINDOWS
+        """Returns True if this enum instance is Windows."""
+        return self == OperatingSystem.WINDOWS  # pragma: no cover
 
     @property
     def is_linux(self) -> bool:
-        """Returns True if the current operating system is Linux."""
-        return _CURRENT == OperatingSystem.LINUX
+        """Returns True if this enum instance is Linux."""
+        return self == OperatingSystem.LINUX  # pragma: no cover
 
     @property
     def is_mac(self) -> bool:
-        """Returns True if the current operating system is MacOS."""
-        return _CURRENT == OperatingSystem.MACOS
+        """Returns True if this enum instance is MacOS."""
+        return self == OperatingSystem.MACOS
 
 
 _CURRENT = OperatingSystem.UNKNOWN

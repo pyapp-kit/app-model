@@ -79,15 +79,19 @@ class SimpleKeyBinding(BaseModel):
         cls, key_int: int, os: Optional[OperatingSystem] = None
     ) -> "SimpleKeyBinding":
         """Create a SimpleKeyBinding from an integer."""
-        ctrl_cmd = bool(key_int & KeyMod.CtrlCmd)
-        win_ctrl = bool(key_int & KeyMod.WinCtrl)
+        if os is None:
+            os = OperatingSystem.current()
+
         shift = bool(key_int & KeyMod.Shift)
         alt = bool(key_int & KeyMod.Alt)
-
-        os = OperatingSystem.current() if os is None else os
-        ctrl = win_ctrl if os.is_mac else ctrl_cmd
-        meta = ctrl_cmd if os.is_mac else win_ctrl
         key = key_int & 0x000000FF  # keycode mask
+
+        if os.is_mac:
+            ctrl = bool(key_int & KeyMod.WinCtrl) or bool(key_int & KeyMod.Ctrl)
+            meta = bool(key_int & KeyMod.CtrlCmd) or bool(key_int & KeyMod.Meta)
+        else:
+            ctrl = bool(key_int & KeyMod.CtrlCmd) or bool(key_int & KeyMod.Ctrl)
+            meta = bool(key_int & KeyMod.WinCtrl) or bool(key_int & KeyMod.Meta)
 
         return cls(ctrl=ctrl, shift=shift, alt=alt, meta=meta, key=key)
 
@@ -101,14 +105,15 @@ class SimpleKeyBinding(BaseModel):
         """Convert this SimpleKeyBinding to an integer representation."""
         os = OperatingSystem.current() if os is None else os
         mods: KeyMod = KeyMod.NONE
+        is_mac = os == OperatingSystem.MACOS
         if self.ctrl:
-            mods |= KeyMod.WinCtrl if os.is_mac else KeyMod.CtrlCmd
+            mods |= KeyMod.WinCtrl if is_mac else KeyMod.CtrlCmd
         if self.shift:
             mods |= KeyMod.Shift
         if self.alt:
             mods |= KeyMod.Alt
         if self.meta:
-            mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
+            mods |= KeyMod.CtrlCmd if is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
     def _mods2keycodes(self) -> list[KeyCode]:

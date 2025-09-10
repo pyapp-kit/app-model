@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Callable, NamedTuple
 
 from psygnal import Signal
 
-from app_model.types import KeyBinding
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
     from typing import TypeVar
@@ -16,6 +14,7 @@ if TYPE_CHECKING:
     from app_model.types import (
         Action,
         DisposeCallable,
+        KeyBinding,
         KeyBindingRule,
         KeyBindingSource,
     )
@@ -150,36 +149,34 @@ class KeyBindingsRegistry:
         Optional[DisposeCallable]
             A callable that can be used to unregister the keybinding
         """
-        if plat_keybinding := rule._bind_to_current_platform():
-            # list registry
-            keybinding = KeyBinding.validate(plat_keybinding)
-            if self._filter_keybinding:
-                msg = self._filter_keybinding(keybinding)
-                if msg:
-                    raise ValueError(f"{keybinding}: {msg}")
-            entry = _RegisteredKeyBinding(
-                keybinding=keybinding,
-                command_id=id,
-                weight=rule.weight,
-                when=rule.when,
-                source=rule.source,
-            )
+        if (keybinding := rule.to_keybinding()) is None:
+            return None  # pragma: no cover
 
-            # inverse map registry
-            entries = self._keymap[keybinding.to_int()]
-            insort_left(entries, entry)
+        if self._filter_keybinding and (msg := self._filter_keybinding(keybinding)):
+            raise ValueError(f"{keybinding}: {msg}")
 
-            self.registered.emit()
+        entry = _RegisteredKeyBinding(
+            keybinding=keybinding,
+            command_id=id,
+            weight=rule.weight,
+            when=rule.when,
+            source=rule.source,
+        )
 
-            def _dispose() -> None:
-                # inverse map registry remove
-                entries.remove(entry)
-                self.unregistered.emit()
-                if len(entries) == 0:
-                    del self._keymap[keybinding.to_int()]
+        # inverse map registry
+        entries = self._keymap[keybinding.to_int()]
+        insort_left(entries, entry)
 
-            return _dispose
-        return None  # pragma: no cover
+        self.registered.emit()
+
+        def _dispose() -> None:
+            # inverse map registry remove
+            entries.remove(entry)
+            self.unregistered.emit()
+            if len(entries) == 0:
+                del self._keymap[keybinding.to_int()]
+
+        return _dispose
 
     def __iter__(self) -> Iterator[_RegisteredKeyBinding]:
         yield from self._keybindings

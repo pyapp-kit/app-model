@@ -3,6 +3,7 @@ from typing import Any, Callable, Optional, TypedDict, TypeVar, Union
 from pydantic import Field, model_validator
 
 from app_model import expressions
+from app_model.types._keys._keybindings import KeyBinding
 
 from ._base import _BaseModel
 from ._constants import KeyBindingSource, OperatingSystem
@@ -10,11 +11,6 @@ from ._keys import StandardKeyBinding
 
 KeyEncoding = Union[int, str]
 M = TypeVar("M")
-
-_OS = OperatingSystem.current()
-_WIN = _OS.is_windows
-_MAC = _OS.is_mac
-_LINUX = _OS.is_linux
 
 
 class KeyBindingRule(_BaseModel):
@@ -54,14 +50,31 @@ class KeyBindingRule(_BaseModel):
         description="Who registered the keybinding. Used to sort keybindings.",
     )
 
-    def _bind_to_current_platform(self) -> Optional[KeyEncoding]:
-        if _WIN and self.win:
-            return self.win
-        if _MAC and self.mac:
-            return self.mac
-        if _LINUX and self.linux:
-            return self.linux
-        return self.primary
+    def to_keybinding(
+        self, os: Optional[OperatingSystem] = None
+    ) -> "Optional[KeyBinding]":
+        """Return a keybinding for the given OS, or current OS if not specified."""
+        if (enc := self.for_os(os)) is not None:
+            if isinstance(enc, int):
+                return KeyBinding.from_int(enc, os=os)
+            elif isinstance(enc, str):
+                return KeyBinding.from_str(enc)
+            else:
+                raise TypeError("invalid keybinding")  # pragma: no cover
+        raise ValueError("No keybinding for platform")  # pragma: no cover
+
+    def for_os(self, os: Optional[OperatingSystem] = None) -> Optional[KeyEncoding]:
+        """Select the encoding for the given OS, or current OS if not specified."""
+        if os is None:
+            os = OperatingSystem.current()
+        enc = {
+            OperatingSystem.WINDOWS: self.win,
+            OperatingSystem.MACOS: self.mac,
+            OperatingSystem.LINUX: self.linux,
+        }[os]
+        if enc is None:
+            return self.primary
+        return enc
 
     @model_validator(mode="wrap")
     @classmethod
