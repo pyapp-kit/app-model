@@ -194,10 +194,9 @@ class KeyBindingsRegistry:
     def get_keybinding(self, command_id: str) -> _RegisteredKeyBinding | None:
         """Return the first keybinding that matches the given command ID."""
         # TODO: improve me.
-        return next(
-            (entry for entry in self._keybindings if entry.command_id == command_id),
-            None,
-        )
+        matches = (kb for kb in self._keybindings if kb.command_id == command_id)
+        sorted_matches = sorted(matches, key=lambda x: x.source, reverse=True)
+        return next(iter(sorted_matches), None)
 
     def get_context_prioritized_keybinding(
         self, key: int, context: Mapping[str, object]
