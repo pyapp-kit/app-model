@@ -1,8 +1,30 @@
 # Changelog
 
+## [v0.5.0](https://github.com/pyapp-kit/app-model/tree/v0.5.0) (2025-09-10)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.4.0...v0.5.0)
+
+**Implemented enhancements:**
+
+- feat: Update of shortcuts on menu rebuild [\#258](https://github.com/pyapp-kit/app-model/pull/258) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- build!: drop pydantic 1 [\#263](https://github.com/pyapp-kit/app-model/pull/263) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#262](https://github.com/pyapp-kit/app-model/pull/262) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump actions/checkout from 4 to 5 [\#261](https://github.com/pyapp-kit/app-model/pull/261) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/download-artifact from 4 to 5 [\#260](https://github.com/pyapp-kit/app-model/pull/260) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: Pin `pytest-qt` on python 3.10 to fix pyside2 tests [\#259](https://github.com/pyapp-kit/app-model/pull/259) ([Czaki](https://github.com/Czaki))
+- chore: improve error message in `register_action` [\#257](https://github.com/pyapp-kit/app-model/pull/257) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#255](https://github.com/pyapp-kit/app-model/pull/255) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.4.0](https://github.com/pyapp-kit/app-model/tree/v0.4.0) (2025-06-20)
 
-[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.1...v0.4.0)
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.2...v0.4.0)
+
+## [v0.3.2](https://github.com/pyapp-kit/app-model/tree/v0.3.2) (2025-06-20)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.1...v0.3.2)
 
 **Implemented enhancements:**
 
