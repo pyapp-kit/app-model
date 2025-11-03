@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
 
     def open(self) -> None:
         if self.maybe_save():
-            fileName, filtr = QFileDialog.getOpenFileName(self)
+            fileName, _filtr = QFileDialog.getOpenFileName(self)
             if fileName:
                 self.load_file(fileName)
 
@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         return self.save_file(self._cur_file) if self._cur_file else self.save_as()
 
     def save_as(self) -> bool:
-        fileName, filtr = QFileDialog.getSaveFileName(self)
+        fileName, _filtr = QFileDialog.getSaveFileName(self)
         if fileName:
             return self.save_file(fileName)
 
