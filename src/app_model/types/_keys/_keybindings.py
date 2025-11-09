@@ -159,10 +159,12 @@ class SimpleKeyBinding(BaseModel):
             return cls.from_int(v)
         raise TypeError(f"invalid type: {type(v)}")
 
-    @model_validator(mode="after")  # type: ignore
+    @model_validator(mode="before")
     @classmethod
-    def _model_val(cls, instance: "SimpleKeyBinding") -> "SimpleKeyBinding":
-        return cls._parse_input(instance)
+    def _model_val(cls, val: "SimpleKeyBinding") -> "SimpleKeyBinding":
+        if not isinstance(val, (SimpleKeyBinding, dict)):
+            return cls._parse_input(val)
+        return val
 
 
 MIN1 = {"min_length": 1}

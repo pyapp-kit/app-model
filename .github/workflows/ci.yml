@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v7
-      - run: uv run pyright
+      - run: uv run --with pyqt6 pyright
 
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
@@ -152,11 +152,11 @@ jobs:
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
       pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
-      python-version: "3.10"
+      python-version: "3.11"
     strategy:
       fail-fast: false
       matrix:
-        qt: ["pyqt5", "pyside2"]
+        qt: ["pyqt5", "pyside6"]
 
   build-and-inspect-package:
     name: Build & inspect package.

@@ -7,7 +7,6 @@ import operator
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from qtpy import API, QT_VERSION  # pyright: ignore[reportAttributeAccessIssue]
 from qtpy.QtCore import QCoreApplication, Qt
 from qtpy.QtGui import QKeySequence
 
@@ -86,8 +85,9 @@ else:
         return int(out)
 
 
-if QT6 and not (API == "pyside6" and int(QT_VERSION[2]) < 4):
-
+if QT6:
+    # note: this doesn't work on pyside6 < 6.5 ...
+    # but we don't support that anymore
     def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
         return key.keyboardModifiers()
 
