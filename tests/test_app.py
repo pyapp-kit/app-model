@@ -74,7 +74,7 @@ def test_action_import_by_string(full_app: FullApp) -> None:
     # tests what happens when the object is not callable cannot be found
     with pytest.raises(
         TypeError,
-        match="Command 'not.callable' did not resolve to a callble object",
+        match=r"Command 'not\.callable' did not resolve to a callble object",
     ):
         full_app.commands.execute_command(full_app.Commands.NOT_CALLABLE)
     # the second time we try within a session, nothing should happen

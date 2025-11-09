@@ -124,7 +124,9 @@ def test_register_action_keybindings_filter(kb: list[dict], msg: str) -> None:
         ),
     ],
 )
-def test_register_action_keybindings_priorization(kb1: str, kb2: str, kb3: str) -> None:
+def test_register_action_keybindings_prioritization(
+    kb1: str, kb2: str, kb3: str
+) -> None:
     """Check `get_context_prioritized_keybinding`."""
     reg = KeyBindingsRegistry()
 
