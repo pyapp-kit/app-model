@@ -55,7 +55,7 @@ pyqt5 = [
     "pyqt5-qt5==5.15.2; sys_platform == 'win32'",
     "pyqt5-qt5>=5.15.4; sys_platform != 'win32'",
 ]
-pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0"]
+pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0", "pyqt6-qt6>=6.4.0"]
 pyside2 = ["app-model[qt]", "PySide2>=5.15.2.1"]
 pyside6 = ["app-model[qt]", "PySide6>=6.6.0"]
 
