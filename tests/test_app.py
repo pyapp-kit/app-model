@@ -45,7 +45,7 @@ def test_app(full_app: FullApp) -> None:
 def test_sorting(full_app: FullApp) -> None:
     groups = list(full_app.menus.iter_menu_groups(full_app.Menus.EDIT))
     assert len(groups) == 3
-    [g0, g1, g2] = groups
+    [_g0, g1, g2] = groups
     assert all(i.group == "1_undo_redo" for i in g1)
     assert all(i.group == "2_copy_paste" for i in g2)
 
@@ -74,7 +74,7 @@ def test_action_import_by_string(full_app: FullApp) -> None:
     # tests what happens when the object is not callable cannot be found
     with pytest.raises(
         TypeError,
-        match="Command 'not.callable' did not resolve to a callble object",
+        match=r"Command 'not\.callable' did not resolve to a callble object",
     ):
         full_app.commands.execute_command(full_app.Commands.NOT_CALLABLE)
     # the second time we try within a session, nothing should happen
