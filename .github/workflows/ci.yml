@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v7
-      - run: uv run pyright
+      - run: uv run --with pyqt6 pyright
 
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
