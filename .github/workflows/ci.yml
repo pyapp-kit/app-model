@@ -152,7 +152,7 @@ jobs:
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
       pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
-      python-version: "3.10"
+      python-version: "3.11"
     strategy:
       fail-fast: false
       matrix:
