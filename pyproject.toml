@@ -77,7 +77,7 @@ dev = [
     "mypy>=1.13.0",
     "pdbpp>=0.11.6; sys_platform != 'win32'",
     "pre-commit-uv>=4",
-    "pyqt6>=6.8.0",
+    # "pyqt6>=6.8.0",
     "rich>=13.9.4",
     "pyright>=1.1.402",
 ]
