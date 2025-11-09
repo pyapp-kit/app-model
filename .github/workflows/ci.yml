@@ -156,7 +156,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        qt: ["pyqt5", "pyside2"]
+        qt: ["pyqt5", "pyside6"]
 
   build-and-inspect-package:
     name: Build & inspect package.
