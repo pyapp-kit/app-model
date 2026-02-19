@@ -15,7 +15,7 @@ def to_qicon(icon: Icon, theme: Literal["dark", "light"] = "dark") -> QIcon:
     """Create QIcon from Icon."""
     from superqt import QIconifyIcon, fonticon
 
-    color = 'white' if theme == 'dark' else 'black'
+    color = "white" if theme == "dark" else "black"
     if icn := getattr(icon, theme, ""):
         if icn.startswith("file://"):
             return QIcon(QUrl(icn).toLocalFile())
