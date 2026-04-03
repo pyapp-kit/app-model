@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from qtpy.QtCore import QUrl
 from qtpy.QtGui import QIcon, QPalette
 from qtpy.QtWidgets import QApplication
-from qtpy.QtCore import QUrl
 
 if TYPE_CHECKING:
     from typing import Literal
