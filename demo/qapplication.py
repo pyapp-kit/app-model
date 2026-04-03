@@ -1,6 +1,7 @@
 # Copyright (C) 2013 Riverbank Computing Limited.
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+# pyright: reportOptionalMemberAccess=false
 
 from fonticon_fa6 import FA6S
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
@@ -17,7 +18,7 @@ from superqt import fonticon
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._cur_file = ""
@@ -32,28 +33,28 @@ class MainWindow(QMainWindow):
 
         self.set_current_file("")
 
-    def new_file(self):
+    def new_file(self) -> None:
         if self.maybe_save():
             self._text_edit.clear()
             self.set_current_file("")
 
-    def open(self):
+    def open(self) -> None:
         if self.maybe_save():
-            fileName, filtr = QFileDialog.getOpenFileName(self)
+            fileName, _filtr = QFileDialog.getOpenFileName(self)
             if fileName:
                 self.load_file(fileName)
 
-    def save(self):
+    def save(self) -> bool:
         return self.save_file(self._cur_file) if self._cur_file else self.save_as()
 
-    def save_as(self):
-        fileName, filtr = QFileDialog.getSaveFileName(self)
+    def save_as(self) -> bool:
+        fileName, _filtr = QFileDialog.getSaveFileName(self)
         if fileName:
             return self.save_file(fileName)
 
         return False
 
-    def about(self):
+    def about(self) -> None:
         QMessageBox.about(
             self,
             "About Application",
@@ -62,7 +63,7 @@ class MainWindow(QMainWindow):
             "toolbars, and a status bar.",
         )
 
-    def create_actions(self):
+    def create_actions(self) -> None:
         self._new_act = QAction(
             fonticon.icon(FA6S.file_circle_plus),
             "&New",
@@ -145,7 +146,7 @@ class MainWindow(QMainWindow):
         self._text_edit.copyAvailable.connect(self._cut_act.setEnabled)
         self._text_edit.copyAvailable.connect(self._copy_act.setEnabled)
 
-    def create_menus(self):
+    def create_menus(self) -> None:
         self._file_menu = self.menuBar().addMenu("&File")
         self._file_menu.addAction(self._new_act)
         self._file_menu.addAction(self._open_act)
@@ -164,7 +165,7 @@ class MainWindow(QMainWindow):
         self._help_menu = self.menuBar().addMenu("&Help")
         self._help_menu.addAction(self._about_act)
 
-    def create_tool_bars(self):
+    def create_tool_bars(self) -> None:
         self._file_tool_bar = self.addToolBar("File")
         self._file_tool_bar.addAction(self._new_act)
         self._file_tool_bar.addAction(self._open_act)
@@ -175,15 +176,15 @@ class MainWindow(QMainWindow):
         self._edit_tool_bar.addAction(self._copy_act)
         self._edit_tool_bar.addAction(self._paste_act)
 
-    def create_status_bar(self):
+    def create_status_bar(self) -> None:
         self.statusBar().showMessage("Ready")
 
-    def maybe_save(self):
+    def maybe_save(self) -> bool:
         if self._text_edit.document().isModified():
             ret = QMessageBox.warning(
                 self,
                 "Application",
-                "The document has been modified.\nDo you want to save " "your changes?",
+                "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox.StandardButton.Save
                 | QMessageBox.StandardButton.Discard
                 | QMessageBox.StandardButton.Cancel,
@@ -194,7 +195,7 @@ class MainWindow(QMainWindow):
                 return False
         return True
 
-    def load_file(self, fileName):
+    def load_file(self, fileName: str) -> None:
         file = QFile(fileName)
         if not file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
             reason = file.errorString()
@@ -204,20 +205,20 @@ class MainWindow(QMainWindow):
             return
 
         inf = QTextStream(file)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self._text_edit.setPlainText(inf.readAll())
         QApplication.restoreOverrideCursor()
 
         self.set_current_file(fileName)
         self.statusBar().showMessage("File loaded", 2000)
 
-    def save_file(self, fileName):
+    def save_file(self, fileName: str) -> bool:
         error = None
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         file = QSaveFile(fileName)
         if file.open(QFile.OpenModeFlag.WriteOnly | QFile.OpenModeFlag.Text):
             outf = QTextStream(file)
-            outf << self._text_edit.toPlainText()
+            outf << self._text_edit.toPlainText()  # pyright: ignore
             if not file.commit():
                 reason = file.errorString()
                 error = f"Cannot write file {fileName}:\n{reason}."
@@ -234,7 +235,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("File saved", 2000)
         return True
 
-    def set_current_file(self, fileName: str):
+    def set_current_file(self, fileName: str) -> None:
         self._cur_file = fileName
         self._text_edit.document().setModified(False)
         self.setWindowModified(False)
@@ -246,7 +247,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(f"{shown_name}[*] - Application")
 
-    def stripped_name(self, fullFileName: str):
+    def stripped_name(self, fullFileName: str) -> str:
         return QFileInfo(fullFileName).fileName()
 
 
@@ -255,4 +256,4 @@ if __name__ == "__main__":
     qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow()
     main_win.show()
-    qapp.exec_()
+    qapp.exec()

@@ -2,12 +2,13 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*"
-  pull_request: {}
+    branches: [main]
+    tags: [v*]
+  pull_request:
   workflow_dispatch:
+  schedule:
+    # run every week (for --pre release tests)
+    - cron: "0 0 * * 0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,173 +16,176 @@ concurrency:
 
 jobs:
   check-manifest:
-    name: Check Manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-      - run: pip install check-manifest && check-manifest
+      - uses: actions/checkout@v5
+      - run: pipx run check-manifest
+
+  pyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+      - run: uv run --with pyqt6 pyright
 
   test:
-    name: ${{ matrix.platform }} (${{ matrix.python-version }})
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
+    env:
+      UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
+      UV_NO_SYNC: 1
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.10", "3.11"]
+        python-version: ["3.9", "3.11", "3.13"]
         platform: [ubuntu-latest, macos-latest, windows-latest]
         include:
+          - python-version: "3.10"
+            platform: "macos-latest"
           - python-version: "3.12"
+            platform: "macos-latest"
+          - python-version: "3.9"
             platform: "ubuntu-latest"
+            resolution: "lowest-direct"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[test]
+      - name: Install Dependencies
+        run: uv sync --no-dev --group test --resolution ${{ matrix.resolution || 'highest'}}
 
-      - name: Test
-        run: pytest -s --color=yes
+      - name: 🧪 Run Tests
+        run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
 
-  test-pydantic1:
-    name: pydantic1 (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.10", "3.11"]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Upload coverage
+        uses: actions/upload-artifact@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[test]
-          pip install 'pydantic<2'
-
-      - name: Test
-        run: pytest --color=yes --cov=app_model --cov-report=xml
-
-      - name: Coverage
-        uses: codecov/codecov-action@v3
+          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}
+          path: ./.coverage*
+          include-hidden-files: true
 
   test-qt:
-    name: ${{ matrix.platform }} ${{ matrix.qt-backend }} (${{ matrix.python-version }})
+    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{matrix.extra }} ${{ matrix.resolution }}
     runs-on: ${{ matrix.platform }}
+    env:
+      UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
+      UV_NO_SYNC: 1
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10"]
-        platform: [macos-latest, ubuntu-latest, windows-latest]
-        qt-backend: [PyQt5, PyQt6, PySide2, "'PySide6<6.5.1'"]
-        include:
-          - python-version: "3.8"
-            platform: "ubuntu-latest"
-            qt-backend: "PyQt5==5.12"
+        python-version: ["3.10", "3.12"]
+        platform: [macos-latest, windows-latest]
+        extra: [pyqt5, pyside2, pyside6, pyqt6]
+        resolution: [highest, lowest-direct]
+        exclude:
+          - platform: "macos-latest"
+            extra: "pyside2"
+          - python-version: "3.12"
+            extra: "pyside2"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
 
-      - uses: tlambert03/setup-qt-libs@v1
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e .[qt,test,test-qt]
-          python -m pip install ${{ matrix.qt-backend }}
-
-      - name: Test
-        uses: aganders3/headless-gui@v1
+      - uses: pyvista/setup-headless-display-action@v4
         with:
-          run: python -m pytest -s --cov=app_model --cov-report=xml --cov-report=term-missing --color=yes
+          qt: true
 
-      - name: Coverage
-        uses: codecov/codecov-action@v3
+      - name: Install Dependencies
+        run: uv sync --no-dev --group test-qt --extra ${{ matrix.extra }} --resolution ${{ matrix.resolution }}
+
+      - name: 🧪 Run Tests
+        run: uv run coverage run -p -m pytest -v
+        env:
+          PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
+
+      # If something goes wrong with --pre tests, we can open an issue in the repo
+      - name: 📝 Report --pre Failures
+        if: failure() && github.event_name == 'schedule'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLATFORM: ${{ matrix.platform }}
+          PYTHON: ${{ matrix.python-version }}
+          RUN_ID: ${{ github.run_id }}
+          TITLE: "[test-bot] pip install --pre is failing"
+        with:
+          filename: .github/TEST_FAIL_TEMPLATE.md
+          update_existing: true
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v5
+        with:
+          name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}-${{ matrix.extra }}-${{ matrix.resolution }}
+          path: ./.coverage*
+          include-hidden-files: true
+
+  upload_coverage:
+    if: always()
+    needs: [test, test-qt]
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
+    secrets: inherit
 
   test_napari:
-    name: napari (${{ matrix.napari-version }}, ${{ matrix.qt-backend }})
-    runs-on: ubuntu-latest
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
+    with:
+      dependency-repo: napari/napari
+      dependency-extras: "testing"
+      qt: ${{ matrix.qt }}
+      pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
+      python-version: "3.11"
     strategy:
+      fail-fast: false
       matrix:
-        napari-version: [""] # "" is HEAD
-        qt-backend: [pyqt5, pyside2]
+        qt: ["pyqt5", "pyside6"]
 
+  build-and-inspect-package:
+    name: Build & inspect package.
+    needs: [check-manifest, test]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          path: app-model
-
-      - uses: actions/checkout@v4
-        with:
-          repository: napari/napari
-          path: napari
           fetch-depth: 0
-          ref: ${{ matrix.napari-version }}
+      - uses: hynek/build-and-inspect-python-package@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - uses: tlambert03/setup-qt-libs@v1
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -e app-model
-          python -m pip install -e napari[testing,${{ matrix.qt-backend }}]
-
-      - name: Test
-        uses: aganders3/headless-gui@v1
-        with:
-          working-directory: napari
-          run: python -m pytest napari/_qt napari/_app_model --color=yes -x
-
-  deploy:
-    name: Deploy
-    needs: [check-manifest, test, test-qt, test_napari]
-    if: "success() && startsWith(github.ref, 'refs/tags/')"
+  upload-to-pypi:
+    name: Upload package to PyPI
+    needs: build-and-inspect-package
+    if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: write
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Download built artifact to dist/
+        uses: actions/download-artifact@v6
         with:
-          python-version: "3.x"
-
-      - name: 👷 Build
-        run: |
-          python -m pip install build
-          python -m build
-
+          name: Packages
+          path: dist
       - name: 🚢 Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           files: "./dist/*"

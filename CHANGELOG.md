@@ -1,5 +1,185 @@
 # Changelog
 
+## [v0.5.0](https://github.com/pyapp-kit/app-model/tree/v0.5.0) (2025-09-10)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.4.0...v0.5.0)
+
+**Implemented enhancements:**
+
+- feat: Update of shortcuts on menu rebuild [\#258](https://github.com/pyapp-kit/app-model/pull/258) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- build!: drop pydantic 1 [\#263](https://github.com/pyapp-kit/app-model/pull/263) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#262](https://github.com/pyapp-kit/app-model/pull/262) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump actions/checkout from 4 to 5 [\#261](https://github.com/pyapp-kit/app-model/pull/261) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/download-artifact from 4 to 5 [\#260](https://github.com/pyapp-kit/app-model/pull/260) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: Pin `pytest-qt` on python 3.10 to fix pyside2 tests [\#259](https://github.com/pyapp-kit/app-model/pull/259) ([Czaki](https://github.com/Czaki))
+- chore: improve error message in `register_action` [\#257](https://github.com/pyapp-kit/app-model/pull/257) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#255](https://github.com/pyapp-kit/app-model/pull/255) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.4.0](https://github.com/pyapp-kit/app-model/tree/v0.4.0) (2025-06-20)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.2...v0.4.0)
+
+## [v0.3.2](https://github.com/pyapp-kit/app-model/tree/v0.3.2) (2025-06-20)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.1...v0.3.2)
+
+**Implemented enhancements:**
+
+- feat: add `registered_actions` to Application [\#242](https://github.com/pyapp-kit/app-model/pull/242) ([tlambert03](https://github.com/tlambert03))
+- feat: allow explicit variable bound to be passed to Name [\#241](https://github.com/pyapp-kit/app-model/pull/241) ([tlambert03](https://github.com/tlambert03))
+- feat: initial exploration for keybinding source addition and inverse map for keybinding registry [\#226](https://github.com/pyapp-kit/app-model/pull/226) ([dalthviz](https://github.com/dalthviz))
+
+**Fixed bugs:**
+
+- fix: order of menu registration to come after keybindings registration [\#249](https://github.com/pyapp-kit/app-model/pull/249) ([tlambert03](https://github.com/tlambert03))
+- fix: Use QApplication instance as a parent of global actions [\#246](https://github.com/pyapp-kit/app-model/pull/246) ([Czaki](https://github.com/Czaki))
+- fix: Fix recursion check in Qt6 [\#232](https://github.com/pyapp-kit/app-model/pull/232) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: fix small typo in Getting Started doc [\#236](https://github.com/pyapp-kit/app-model/pull/236) ([kevinyamauchi](https://github.com/kevinyamauchi))
+
+**Merged pull requests:**
+
+- chore: bunch of typing fixes, run pyright on ci [\#252](https://github.com/pyapp-kit/app-model/pull/252) ([tlambert03](https://github.com/tlambert03))
+- chore: add ANN rule to ruff [\#251](https://github.com/pyapp-kit/app-model/pull/251) ([tlambert03](https://github.com/tlambert03))
+- build: update for uv project management [\#250](https://github.com/pyapp-kit/app-model/pull/250) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#240](https://github.com/pyapp-kit/app-model/pull/240) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- chore: Filter out \_\_get\_validators\_\_ warning [\#239](https://github.com/pyapp-kit/app-model/pull/239) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#237](https://github.com/pyapp-kit/app-model/pull/237) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: \[pre-commit.ci\] autoupdate [\#233](https://github.com/pyapp-kit/app-model/pull/233) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: \[pre-commit.ci\] autoupdate [\#227](https://github.com/pyapp-kit/app-model/pull/227) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.3.1](https://github.com/pyapp-kit/app-model/tree/v0.3.1) (2024-11-22)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.3.0...v0.3.1)
+
+**Merged pull requests:**
+
+- build: drop 3.8 and add 3.13 [\#224](https://github.com/pyapp-kit/app-model/pull/224) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#222](https://github.com/pyapp-kit/app-model/pull/222) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.3.0](https://github.com/pyapp-kit/app-model/tree/v0.3.0) (2024-09-17)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.8...v0.3.0)
+
+**Implemented enhancements:**
+
+- feat: Include command/control-0 for OriginalSize in StandardKeyBindings [\#220](https://github.com/pyapp-kit/app-model/pull/220) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
+- feat: add support for `.svg` file paths as `Action` icon [\#219](https://github.com/pyapp-kit/app-model/pull/219) ([dalthviz](https://github.com/dalthviz))
+- feat: add action keybinding info over tooltip [\#218](https://github.com/pyapp-kit/app-model/pull/218) ([dalthviz](https://github.com/dalthviz))
+
+## [v0.2.8](https://github.com/pyapp-kit/app-model/tree/v0.2.8) (2024-07-19)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.7...v0.2.8)
+
+**Implemented enhancements:**
+
+- feat: more flexible keybinding parser [\#213](https://github.com/pyapp-kit/app-model/pull/213) ([tlambert03](https://github.com/tlambert03))
+- feat: Add `filter_keybinding` to `KeyBindingRegistry` [\#212](https://github.com/pyapp-kit/app-model/pull/212) ([lucyleeow](https://github.com/lucyleeow))
+- feat: add a way to get a user-facing string representation of keybindings [\#211](https://github.com/pyapp-kit/app-model/pull/211) ([dalthviz](https://github.com/dalthviz))
+- feat: add Sequences to expressions [\#202](https://github.com/pyapp-kit/app-model/pull/202) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- perf: faster `Expr.eval` by precompiling expressions [\#197](https://github.com/pyapp-kit/app-model/pull/197) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.7](https://github.com/pyapp-kit/app-model/tree/v0.2.7) (2024-05-08)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.6...v0.2.7)
+
+**Implemented enhancements:**
+
+- feat: give registries more control over registration of actions [\#194](https://github.com/pyapp-kit/app-model/pull/194) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.6](https://github.com/pyapp-kit/app-model/tree/v0.2.6) (2024-03-25)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.5...v0.2.6)
+
+**Fixed bugs:**
+
+- fix: Do not use lambda in QMenuItemAction.destroyed callback [\#183](https://github.com/pyapp-kit/app-model/pull/183) ([Czaki](https://github.com/Czaki))
+
+## [v0.2.5](https://github.com/pyapp-kit/app-model/tree/v0.2.5) (2024-03-18)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.4...v0.2.5)
+
+**Fixed bugs:**
+
+- fix: handle qmods like QT5 for pyside6 not 6.4 [\#179](https://github.com/pyapp-kit/app-model/pull/179) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
+
+**Merged pull requests:**
+
+- chore: add format to pre-commit [\#182](https://github.com/pyapp-kit/app-model/pull/182) ([tlambert03](https://github.com/tlambert03))
+- chore: use ruff format instead of black [\#181](https://github.com/pyapp-kit/app-model/pull/181) ([tlambert03](https://github.com/tlambert03))
+- ci: change test suite to cover more qt versions [\#180](https://github.com/pyapp-kit/app-model/pull/180) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump softprops/action-gh-release from 1 to 2 [\#178](https://github.com/pyapp-kit/app-model/pull/178) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: Add testing of napari/utils/\_tests/test\_key\_bindings.py [\#173](https://github.com/pyapp-kit/app-model/pull/173) ([Czaki](https://github.com/Czaki))
+- ci: \[pre-commit.ci\] autoupdate [\#172](https://github.com/pyapp-kit/app-model/pull/172) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.2.4](https://github.com/pyapp-kit/app-model/tree/v0.2.4) (2023-12-21)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.3...v0.2.4)
+
+**Implemented enhancements:**
+
+- feat: export register\_action function at top level [\#170](https://github.com/pyapp-kit/app-model/pull/170) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- Fix doc typo for `register_action` [\#168](https://github.com/pyapp-kit/app-model/pull/168) ([aganders3](https://github.com/aganders3))
+- docs: Add ref to in n out getting started [\#167](https://github.com/pyapp-kit/app-model/pull/167) ([lucyleeow](https://github.com/lucyleeow))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump aganders3/headless-gui from 1 to 2 [\#165](https://github.com/pyapp-kit/app-model/pull/165) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/setup-python from 4 to 5 [\#164](https://github.com/pyapp-kit/app-model/pull/164) ([dependabot[bot]](https://github.com/apps/dependabot))
+- refactor: remove comparison between Keybinding and string [\#146](https://github.com/pyapp-kit/app-model/pull/146) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.3](https://github.com/pyapp-kit/app-model/tree/v0.2.3) (2023-12-12)
+
+[Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.2...v0.2.3)
+
+**Implemented enhancements:**
+
+- feat: add top level Application.context [\#145](https://github.com/pyapp-kit/app-model/pull/145) ([tlambert03](https://github.com/tlambert03))
+- feat: add `CommandRule.icon_visible_in_menu` [\#135](https://github.com/pyapp-kit/app-model/pull/135) ([tlambert03](https://github.com/tlambert03))
+- feat: return QModelToolBar from call to QModelMainWindow.addModelToolBar [\#134](https://github.com/pyapp-kit/app-model/pull/134) ([tlambert03](https://github.com/tlambert03))
+- feat: accept single string id as menu key in Actions.menus [\#133](https://github.com/pyapp-kit/app-model/pull/133) ([tlambert03](https://github.com/tlambert03))
+- feat: support iconify icon keys [\#130](https://github.com/pyapp-kit/app-model/pull/130) ([tlambert03](https://github.com/tlambert03))
+- feat: Show shortcut in `KeyBinding.__repr__` [\#126](https://github.com/pyapp-kit/app-model/pull/126) ([Czaki](https://github.com/Czaki))
+- feat: support py312 [\#124](https://github.com/pyapp-kit/app-model/pull/124) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: catch runtime error on QModelSubmenu cleanup [\#151](https://github.com/pyapp-kit/app-model/pull/151) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- test: add test for mult\_file [\#140](https://github.com/pyapp-kit/app-model/pull/140) ([tlambert03](https://github.com/tlambert03))
+- test: enforce 100 percent test coverage on project [\#136](https://github.com/pyapp-kit/app-model/pull/136) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: remove minify plugin [\#154](https://github.com/pyapp-kit/app-model/pull/154) ([tlambert03](https://github.com/tlambert03))
+- docs: use griffe-fieldz instead of builtin-extension [\#149](https://github.com/pyapp-kit/app-model/pull/149) ([tlambert03](https://github.com/tlambert03))
+- docs: documentation overhaul [\#142](https://github.com/pyapp-kit/app-model/pull/142) ([tlambert03](https://github.com/tlambert03))
+- docs: Fix bullet points in `Exp` [\#125](https://github.com/pyapp-kit/app-model/pull/125) ([lucyleeow](https://github.com/lucyleeow))
+
+**Merged pull requests:**
+
+- chore: Provide information about callback registered [\#166](https://github.com/pyapp-kit/app-model/pull/166) ([Czaki](https://github.com/Czaki))
+- style: type cleanup/modernization [\#156](https://github.com/pyapp-kit/app-model/pull/156) ([tlambert03](https://github.com/tlambert03))
+- ci: \[pre-commit.ci\] autoupdate [\#152](https://github.com/pyapp-kit/app-model/pull/152) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci: Update CI workflow to include reusable test [\#150](https://github.com/pyapp-kit/app-model/pull/150) ([tlambert03](https://github.com/tlambert03))
+- style: better qt typing [\#141](https://github.com/pyapp-kit/app-model/pull/141) ([tlambert03](https://github.com/tlambert03))
+- ci: Unpin pyside6 in tests [\#138](https://github.com/pyapp-kit/app-model/pull/138) ([tlambert03](https://github.com/tlambert03))
+- chore: remove setup.py, update ruff [\#131](https://github.com/pyapp-kit/app-model/pull/131) ([tlambert03](https://github.com/tlambert03))
+- refactor: use pydantic-compat [\#128](https://github.com/pyapp-kit/app-model/pull/128) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.2](https://github.com/pyapp-kit/app-model/tree/v0.2.2) (2023-09-25)
 
 [Full Changelog](https://github.com/pyapp-kit/app-model/compare/v0.2.1...v0.2.2)

@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Generic, Optional, TypeVar, Union
 
-from pydantic_compat import Field, field_validator
+from pydantic import Field, field_validator
 
 from ._command_rule import CommandRule
 from ._keybinding_rule import KeyBindingRule
@@ -23,7 +23,7 @@ R = TypeVar("R")
 
 
 class Action(CommandRule, Generic[P, R]):
-    """Callable object along with specific context, menu, keybindings logic.
+    """An Action is a callable object with menu placement, keybindings, and metadata.
 
     This is the "complete" representation of a command.  Including a pointer to the
     actual callable object, as well as any additional menu and keybinding rules.
@@ -39,16 +39,18 @@ class Action(CommandRule, Generic[P, R]):
         "`{obj.__module__}:{obj.__qualname__}` "
         "(e.g. `my_package.a_module:some_function`)",
     )
-    menus: Optional[List[MenuRule]] = Field(
-        None,
-        description="(Optional) Menus to which this action should be added.",
+    menus: Optional[list[MenuRule]] = Field(
+        default=None,
+        description="(Optional) Menus to which this action should be added.  Note that "
+        "menu items in the sequence may be supplied as a plain string, which will "
+        "be converted to a `MenuRule` with the string as the `id` field.",
     )
-    keybindings: Optional[List[KeyBindingRule]] = Field(
-        None,
+    keybindings: Optional[list[KeyBindingRule]] = Field(
+        default=None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )
     palette: bool = Field(
-        True,
+        default=True,
         description="Whether to add this command to the global Command Palette "
         "during registration.",
     )

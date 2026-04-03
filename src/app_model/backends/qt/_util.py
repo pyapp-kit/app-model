@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtGui import QIcon, QPalette
 from qtpy.QtWidgets import QApplication
+from qtpy.QtCore import QUrl
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -59,7 +60,9 @@ def to_qicon(
         )
 
     if icn := getattr(icon, theme, ""):
-        if ":" in icn:
+        if icn.startswith("file://"):
+            return QIcon(QUrl(icn).toLocalFile())
+        elif ":" in icn:
             return QIconifyIcon(icn, color=color)
         else:
             return fonticon.icon(icn, color=color)

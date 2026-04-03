@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict
+from typing_extensions import Final
 
 from ._key_codes import KeyCode, KeyMod
 
@@ -70,6 +71,7 @@ class StandardKeyBinding(Enum):
     Underline = auto()
     Undo = auto()
     WhatsThis = auto()
+    OriginalSize = auto()
     ZoomIn = auto()
     ZoomOut = auto()
 
@@ -80,7 +82,7 @@ class StandardKeyBinding(Enum):
         return KeyBindingRule(**_STANDARD_KEY_MAP[self])
 
 
-_ = None
+_: Final[None] = None
 SK = namedtuple("SK", "sk, primary, win, mac, gnome", defaults=(_, _, _, _, _))
 
 # fmt: off
@@ -148,6 +150,7 @@ _STANDARD_KEYS = [
     SK(StandardKeyBinding.Underline, KeyMod.CtrlCmd | KeyCode.KeyU),
     SK(StandardKeyBinding.Undo, KeyMod.CtrlCmd | KeyCode.KeyZ),
     SK(StandardKeyBinding.WhatsThis, KeyMod.Shift | KeyCode.F1),
+    SK(StandardKeyBinding.OriginalSize, KeyMod.CtrlCmd | KeyCode.Digit0),
     SK(StandardKeyBinding.ZoomIn, KeyMod.CtrlCmd | KeyCode.Equal),
     SK(StandardKeyBinding.ZoomOut, KeyMod.CtrlCmd | KeyCode.Minus),
 ]

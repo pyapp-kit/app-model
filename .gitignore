@@ -106,3 +106,5 @@ ENV/
 
 app_model/_version.py
 src/app_model/_version.py
+
+uv.lock

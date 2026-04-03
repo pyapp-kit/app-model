@@ -1,0 +1,170 @@
+/* Increase logo size */
+.md-header__button.md-logo {
+    padding-bottom: 0.2rem;
+    padding-right: 0;
+}
+.md-header__button.md-logo img {
+    height: 1.5rem;
+}
+
+/* Mark external links as such (also in nav) */
+a.external:hover::after, a.md-nav__link[href^="https:"]:hover::after {
+  /* https://primer.style/octicons/link-external-16 */
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="rgb(233, 235, 252)" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path></svg>');
+  height: 0.8em;
+  width: 0.8em;
+  margin-left: 0.2em;
+  content: ' ';
+  display: inline-block;
+}
+
+/* More space at the bottom of the page */
+.md-main__inner {
+  margin-bottom: 1.5rem;
+}
+
+/* ------------------------------- */
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: .05rem solid var(--md-typeset-table-color);
+}
+
+/* Mark external links as such. */
+a.external::after,
+a.autorefs-external::after {
+  /* https://primer.style/octicons/arrow-up-right-24 */
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.25 15.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75h-9a.75.75 0 000 1.5h7.19L6.22 16.72a.75.75 0 101.06 1.06L17.5 7.56v7.19c0 .414.336.75.75.75z"></path></svg>');
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.25 15.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75h-9a.75.75 0 000 1.5h7.19L6.22 16.72a.75.75 0 101.06 1.06L17.5 7.56v7.19c0 .414.336.75.75.75z"></path></svg>');
+  content: ' ';
+
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+
+  height: 1em;
+  width: 1em;
+  background-color: var(--md-typeset-a-color);
+}
+
+a.external:hover::after,
+a.autorefs-external:hover::after {
+  background-color: var(--md-accent-fg-color);
+}
+
+/* Avoid breaking parameters name, etc. in table cells. */
+td code {
+  word-break: normal !important;
+}
+
+/* ------------------------------- */
+
+/* Avoid breaking parameter names, etc. in table cells. */
+.doc-contents td code {
+  word-break: normal !important;
+}
+
+/* No line break before first paragraph of descriptions. */
+.doc-md-description,
+.doc-md-description>p:first-child {
+  display: inline;
+}
+
+/* Max width for docstring sections tables. */
+.doc .md-typeset__table,
+.doc .md-typeset__table table {
+  display: table !important;
+  width: 100%;
+}
+
+.doc .md-typeset__table tr {
+  display: table-row;
+}
+
+/* Defaults in Spacy table style. */
+.doc-param-default {
+  float: right;
+}
+
+/* Symbols in Navigation and ToC. */
+:root,
+[data-md-color-scheme="default"] {
+  --doc-symbol-attribute-fg-color: #953800;
+  --doc-symbol-function-fg-color: #8250df;
+  --doc-symbol-method-fg-color: #8250df;
+  --doc-symbol-class-fg-color: #0550ae;
+  --doc-symbol-module-fg-color: #5cad0f;
+
+  --doc-symbol-attribute-bg-color: #9538001a;
+  --doc-symbol-function-bg-color: #8250df1a;
+  --doc-symbol-method-bg-color: #8250df1a;
+  --doc-symbol-class-bg-color: #0550ae1a;
+  --doc-symbol-module-bg-color: #5cad0f1a;
+}
+
+[data-md-color-scheme="slate"] {
+  --doc-symbol-attribute-fg-color: #ffa657;
+  --doc-symbol-function-fg-color: #d2a8ff;
+  --doc-symbol-method-fg-color: #d2a8ff;
+  --doc-symbol-class-fg-color: #79c0ff;
+  --doc-symbol-module-fg-color: #baff79;
+
+  --doc-symbol-attribute-bg-color: #ffa6571a;
+  --doc-symbol-function-bg-color: #d2a8ff1a;
+  --doc-symbol-method-bg-color: #d2a8ff1a;
+  --doc-symbol-class-bg-color: #79c0ff1a;
+  --doc-symbol-module-bg-color: #baff791a;
+}
+
+code.doc-symbol {
+  border-radius: .1rem;
+  font-size: .85em;
+  padding: 0 .3em;
+  font-weight: bold;
+}
+
+code.doc-symbol-attribute {
+  color: var(--doc-symbol-attribute-fg-color);
+  background-color: var(--doc-symbol-attribute-bg-color);
+}
+
+code.doc-symbol-attribute::after {
+  content: "attr";
+}
+
+code.doc-symbol-function {
+  color: var(--doc-symbol-function-fg-color);
+  background-color: var(--doc-symbol-function-bg-color);
+}
+
+code.doc-symbol-function::after {
+  content: "func";
+}
+
+code.doc-symbol-method {
+  color: var(--doc-symbol-method-fg-color);
+  background-color: var(--doc-symbol-method-bg-color);
+}
+
+code.doc-symbol-method::after {
+  content: "meth";
+}
+
+code.doc-symbol-class {
+  color: var(--doc-symbol-class-fg-color);
+  background-color: var(--doc-symbol-class-bg-color);
+}
+
+code.doc-symbol-class::after {
+  content: "class";
+}
+
+code.doc-symbol-module {
+  color: var(--doc-symbol-module-fg-color);
+  background-color: var(--doc-symbol-module-bg-color);
+}
+
+code.doc-symbol-module::after {
+  content: "mod";
+}

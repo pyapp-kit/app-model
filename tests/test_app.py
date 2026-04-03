@@ -1,17 +1,21 @@
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
 from app_model import Application
+from app_model.expressions import Context
+from app_model.types import Action
+from app_model.types._menu_rule import MenuRule
 
 if TYPE_CHECKING:
     from conftest import FullApp
 
 
-def test_app_create():
+def test_app_create() -> None:
     assert Application.get_app("my_app") is None
     app = Application("my_app")
     assert Application.get_app("my_app") is app
@@ -27,7 +31,7 @@ def test_app_create():
     Application.destroy("my_app")
 
 
-def test_app(full_app: FullApp):
+def test_app(full_app: FullApp) -> None:
     app = full_app
 
     app.commands.execute_command(app.Commands.OPEN)
@@ -38,10 +42,10 @@ def test_app(full_app: FullApp):
     app.mocks.paste.assert_called_once()
 
 
-def test_sorting(full_app: FullApp):
+def test_sorting(full_app: FullApp) -> None:
     groups = list(full_app.menus.iter_menu_groups(full_app.Menus.EDIT))
     assert len(groups) == 3
-    [g0, g1, g2] = groups
+    [_g0, g1, g2] = groups
     assert all(i.group == "1_undo_redo" for i in g1)
     assert all(i.group == "2_copy_paste" for i in g2)
 
@@ -49,7 +53,7 @@ def test_sorting(full_app: FullApp):
     assert [i.command.title for i in g2] == ["Copy", "Paste"]
 
 
-def test_action_import_by_string(full_app: FullApp):
+def test_action_import_by_string(full_app: FullApp) -> None:
     """the REDO command is declared as a string in the conftest.py file
 
     This tests that it can be lazily imported at callback runtime and executed
@@ -70,14 +74,14 @@ def test_action_import_by_string(full_app: FullApp):
     # tests what happens when the object is not callable cannot be found
     with pytest.raises(
         TypeError,
-        match="Command 'not.callable' did not resolve to a callble object",
+        match=r"Command 'not\.callable' did not resolve to a callble object",
     ):
         full_app.commands.execute_command(full_app.Commands.NOT_CALLABLE)
     # the second time we try within a session, nothing should happen
     full_app.commands.execute_command(full_app.Commands.NOT_CALLABLE)
 
 
-def test_action_raises_exception(full_app: FullApp):
+def test_action_raises_exception(full_app: FullApp) -> None:
     result = full_app.commands.execute_command(full_app.Commands.RAISES)
     with pytest.raises(ValueError):
         result.result()
@@ -91,3 +95,40 @@ def test_action_raises_exception(full_app: FullApp):
 
     with pytest.raises(ValueError):
         full_app.commands.execute_command(full_app.Commands.RAISES)
+
+
+def test_app_context() -> None:
+    app = Application("app1")
+    assert isinstance(app.context, Context)
+    Application.destroy("app1")
+    assert app.context["is_windows"] == (os.name == "nt")
+    assert "is_mac" in app.context
+    assert "is_linux" in app.context
+
+    app = Application("app2", context={"a": 1})
+    assert isinstance(app.context, Context)
+    assert app.context["a"] == 1
+    Application.destroy("app2")
+
+    app = Application("app3", context=Context({"a": 1}))
+    assert isinstance(app.context, Context)
+    assert app.context["a"] == 1
+    Application.destroy("app3")
+
+    with pytest.raises(TypeError, match="context must be a Context or MutableMapping"):
+        Application("app4", context=1)  # type: ignore[arg-type]
+
+
+def test_register_actions() -> None:
+    app = Application("app5")
+    actions = app.registered_actions
+    assert not actions
+    dispose = app.register_action(
+        "my_action", title="My Action", callback=lambda: None, menus=["Window"]
+    )
+    assert "my_action" in actions
+    assert isinstance(action := actions["my_action"], Action)
+    assert action.menus == [MenuRule(id="Window")]
+    dispose()
+    assert "my_action" not in actions
+    assert not actions

@@ -1,32 +1,27 @@
 import re
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic_compat import PYDANTIC2, BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app_model.types._constants import OperatingSystem
 
 from ._key_codes import KeyChord, KeyCode, KeyMod
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler
+    from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
-
-_re_ctrl = re.compile(r"ctrl[\+|\-]")
-_re_shift = re.compile(r"shift[\+|\-]")
-_re_alt = re.compile(r"alt[\+|\-]")
-_re_meta = re.compile(r"meta[\+|\-]")
-_re_win = re.compile(r"win[\+|\-]")
-_re_cmd = re.compile(r"cmd[\+|\-]")
 
 
 class SimpleKeyBinding(BaseModel):
     """Represent a simple combination modifier(s) and a key, e.g. Ctrl+A."""
 
-    ctrl: bool = False
-    shift: bool = False
-    alt: bool = False
-    meta: bool = False
-    key: Optional[KeyCode] = None
+    ctrl: bool = Field(False, description='Whether the "Ctrl" modifier is active.')
+    shift: bool = Field(False, description='Whether the "Shift" modifier is active.')
+    alt: bool = Field(False, description='Whether the "Alt" modifier is active.')
+    meta: bool = Field(False, description='Whether the "Meta" modifier is active.')
+    key: Optional[KeyCode] = Field(
+        None, description="The key that is pressed (e.g. `KeyCode.A`)"
+    )
 
     # def hash_code(self) -> str:
     # used by vscode for caching during keybinding resolution
@@ -42,6 +37,7 @@ class SimpleKeyBinding(BaseModel):
         )
 
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this SimpleKeyBinding."""
         out = ""
         if self.ctrl:
             out += "Ctrl+"
@@ -115,6 +111,44 @@ class SimpleKeyBinding(BaseModel):
             mods |= KeyMod.CtrlCmd if os.is_mac else KeyMod.WinCtrl
         return mods | (self.key or 0)
 
+    def _mods2keycodes(self) -> list[KeyCode]:
+        """Create KeyCode instances list of modifiers from this SimpleKeyBinding."""
+        mods = []
+        if self.ctrl:
+            mods.append(KeyCode.Ctrl)
+        if self.shift:
+            mods.append(KeyCode.Shift)
+        if self.alt:
+            mods.append(KeyCode.Alt)
+        if self.meta:
+            mods.append(KeyCode.Meta)
+        return mods
+
+    def to_text(
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
+    ) -> str:
+        """Get a user-facing string representation of this SimpleKeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
+        """
+        os = OperatingSystem.current() if os is None else os
+        keybinding_elements = [*self._mods2keycodes()]
+        if self.key:
+            keybinding_elements.append(self.key)
+
+        return joinchar.join(
+            kbe.os_symbol(os=os) if use_symbols else kbe.os_name(os=os)
+            for kbe in keybinding_elements
+        )
+
     @classmethod
     def _parse_input(cls, v: Any) -> "SimpleKeyBinding":
         if isinstance(v, SimpleKeyBinding):
@@ -125,44 +159,50 @@ class SimpleKeyBinding(BaseModel):
             return cls.from_int(v)
         raise TypeError(f"invalid type: {type(v)}")
 
-    @model_validator(mode="after")  # type: ignore
+    @model_validator(mode="before")
     @classmethod
-    def _model_val(cls, instance: "SimpleKeyBinding") -> "SimpleKeyBinding":
-        return cls._parse_input(instance)
+    def _model_val(cls, val: "SimpleKeyBinding") -> "SimpleKeyBinding":
+        if not isinstance(val, (SimpleKeyBinding, dict)):
+            return cls._parse_input(val)
+        return val
 
 
-MIN1 = {"min_length": 1} if PYDANTIC2 else {"min_items": 1}
+MIN1 = {"min_length": 1}
 
 
 class KeyBinding:
     """KeyBinding.  May be a multi-part "Chord" (e.g. 'Ctrl+K Ctrl+C').
 
     This is the primary representation of a fully resolved keybinding. For consistency
-    in the downstream API, it should  be preferred to :class:`SimplyKeyBinding`, even
+    in the downstream API, it should be preferred to
+    [`SimpleKeyBinding`][app_model.types.SimpleKeyBinding], even
     when there is only a single part in the keybinding (i.e. when it is not a chord.)
 
     Chords (two separate keypress actions) are expressed as a string by separating
     the two keypress codes with a space. For example, 'Ctrl+K Ctrl+C'.
+
+    Parameters
+    ----------
+    parts : List[SimpleKeyBinding]
+        The parts of the keybinding.  There must be at least one part.
     """
 
-    def __init__(self, *, parts: List[SimpleKeyBinding]):
+    parts: list[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
+
+    def __init__(self, *, parts: list[SimpleKeyBinding]) -> None:
         self.parts = parts
 
-    parts: List[SimpleKeyBinding] = Field(..., **MIN1)  # type: ignore
-
     def __str__(self) -> str:
+        """Get a normalized string representation (constant to all OSes) of this KeyBinding."""
         return " ".join(str(part) for part in self.parts)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} at {hex(id(self))}: {self}>"
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, KeyBinding):
-            try:
-                other = KeyBinding.validate(other)
-            except Exception:  # pragma: no cover
-                return NotImplemented
-        return bool(self.parts == other.parts)
+        if isinstance(other, KeyBinding):
+            return self.parts == other.parts
+        return NotImplemented
 
     def __len__(self) -> int:
         return len(self.parts)
@@ -201,7 +241,7 @@ class KeyBinding:
         return cls(parts=[SimpleKeyBinding.from_int(first_part, os)])
 
     def to_int(self, os: Optional[OperatingSystem] = None) -> int:
-        """Convert this SimpleKeyBinding to an integer representation."""
+        """Convert this KeyBinding to an integer representation."""
         if len(self.parts) > 2:  # pragma: no cover
             raise NotImplementedError(
                 "Cannot represent chords with more than 2 parts as int"
@@ -212,15 +252,31 @@ class KeyBinding:
             return KeyChord(*parts)
         return parts[0]
 
+    def to_text(
+        self,
+        os: Optional[OperatingSystem] = None,
+        use_symbols: bool = False,
+        joinchar: str = "+",
+    ) -> str:
+        """Get a text representation of this KeyBinding.
+
+        Optionally, the string representation can be constructed with symbols
+        like ↵ for Enter or OS specific ones like ⌘ for Meta on MacOS. If no symbols
+        should be used, the string representation will use the OS specific names
+        for the keys like `Cmd` for Meta or `Option` for Ctrl on MacOS.
+
+        Also, a join character can be defined. By default `+` is used.
+        """
+        return " ".join(
+            part.to_text(os=os, use_symbols=use_symbols, joinchar=joinchar)
+            for part in self.parts
+        )
+
     def __int__(self) -> int:
         return int(self.to_int())
 
     def __hash__(self) -> int:
         return hash(tuple(self.parts))
-
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls.validate  # pragma: no cover
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -246,7 +302,13 @@ class KeyBinding:
         raise TypeError("invalid keybinding")  # pragma: no cover
 
 
-def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
+_re_ctrl = re.compile(r"(ctrl|control|ctl|⌃|\^)[\+|\-]")
+_re_shift = re.compile(r"(shift|⇧)[\+|\-]")
+_re_alt = re.compile(r"(alt|opt|option|⌥)[\+|\-]")
+_re_meta = re.compile(r"(meta|super|win|windows|⊞|cmd|command|⌘)[\+|\-]")
+
+
+def _parse_modifiers(input: str) -> tuple[dict[str, bool], str]:
     """Parse modifiers from a string (case insensitive).
 
     modifiers must start at the beginning of the string, and be separated by
@@ -254,38 +316,17 @@ def _parse_modifiers(input: str) -> Tuple[Dict[str, bool], str]:
     """
     remainder = input.lower()
 
-    ctrl = False
-    shift = False
-    alt = False
-    meta = False
-
+    patterns = {"ctrl": _re_ctrl, "shift": _re_shift, "alt": _re_alt, "meta": _re_meta}
+    mods = dict.fromkeys(patterns, False)
     while True:
         saw_modifier = False
-        if _re_ctrl.match(remainder):
-            remainder = remainder[5:]
-            ctrl = True
-            saw_modifier = True
-        if _re_shift.match(remainder):
-            remainder = remainder[6:]
-            shift = True
-            saw_modifier = True
-        if _re_alt.match(remainder):
-            remainder = remainder[4:]
-            alt = True
-            saw_modifier = True
-        if _re_meta.match(remainder):
-            remainder = remainder[5:]
-            meta = True
-            saw_modifier = True
-        if _re_win.match(remainder):
-            remainder = remainder[4:]
-            meta = True
-            saw_modifier = True
-        if _re_cmd.match(remainder):
-            remainder = remainder[4:]
-            meta = True
-            saw_modifier = True
+        for key, ptrn in patterns.items():
+            if m := ptrn.match(remainder):
+                remainder = remainder[m.span()[1] :]
+                mods[key] = True
+                saw_modifier = True
+                break
         if not saw_modifier:
             break
 
-    return {"ctrl": ctrl, "shift": shift, "alt": alt, "meta": meta}, remainder
+    return mods, remainder

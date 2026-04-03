@@ -1,21 +1,13 @@
-"""Provides the  :class:`Expr` and its subclasses."""
+"""Provides `Expr` and its subclasses."""
+
 from __future__ import annotations
 
 import ast
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Dict,
     Generic,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
     SupportsIndex,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -32,19 +24,34 @@ T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
 V = TypeVar("V", bound=ConstType)
 
 if TYPE_CHECKING:
-    from pydantic.annotated import GetCoreSchemaHandler
+    from collections.abc import Iterator, Mapping, Sequence
+    from types import CodeType
+
+    from pydantic.annotated_handlers import GetCoreSchemaHandler
     from pydantic_core import core_schema
+    from typing_extensions import TypedDict, Unpack
 
     from ._context_keys import ContextKey
 
+    # Used for node end positions in constructor keyword arguments
+    _EndPositionT = TypeVar("_EndPositionT", int, None)
 
-def parse_expression(expr: Union[str, Expr]) -> Expr:
-    """Parse string expression into an :class:`Expr` instance.
+    # Corresponds to the names in the `_attributes`
+    # class variable which is non-empty in certain AST nodes
+    class _Attributes(TypedDict, Generic[_EndPositionT], total=False):
+        lineno: int
+        col_offset: int
+        end_lineno: _EndPositionT
+        end_col_offset: _EndPositionT
+
+
+def parse_expression(expr: Expr | str) -> Expr:
+    """Parse string expression into an [`Expr`][app_model.expressions.Expr] instance.
 
     Parameters
     ----------
-    expr : Union[str, Expr]
-        Expression to parse.  (If already an :class:`Expr`, it is returned)
+    expr : Expr | str
+        Expression to parse.  (If already an `Expr`, it is returned)
 
     Returns
     -------
@@ -71,7 +78,7 @@ def parse_expression(expr: Union[str, Expr]) -> Expr:
         raise SyntaxError(f"{expr!r} is not a valid expression: ({e}).") from None
 
 
-def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -> Any:
+def safe_eval(expr: str | bool | Expr, context: Mapping | None = None) -> Any:
     """Safely evaluate `expr` string given `context` dict.
 
     This lets you evaluate a string expression with broader expression
@@ -81,15 +88,15 @@ def safe_eval(expr: Union[str, bool, Expr], context: Optional[Mapping] = None) -
 
     Parameters
     ----------
-    expr : Union[str, bool, Expr]
+    expr : str | bool | Expr
         Expression to evaluate. If `expr` is a string, it is parsed into an
-        :class:`Expr` instance. If a `bool`, it is returned directly.
-    context : Optional[Mapping]
+        `Expr` instance. If a `bool`, it is returned directly.
+    context : Mapping | None
         Context (mapping of names to objects) to evaluate the expression in.
     """
     if isinstance(expr, bool):
         return expr
-    return parse_expression(expr).eval(context or {})
+    return parse_expression(expr).eval(context)
 
 
 class Expr(ast.AST, Generic[T]):
@@ -132,10 +139,10 @@ class Expr(ast.AST, Generic[T]):
 
     Examples
     --------
-    >>> expr = parse_expression('myvar > 5')
+    >>> expr = parse_expression("myvar > 5")
 
     combine expressions with operators
-    >>> new_expr = expr & parse_expression('v2')
+    >>> new_expr = expr & parse_expression("v2")
 
     nice `repr`
     >>> new_expr
@@ -151,8 +158,11 @@ class Expr(ast.AST, Generic[T]):
             Name(id='v2', ctx=Load())])
 
     evaluate in some context
-    >>> new_expr.eval(dict(v2='hello!', myvar=8))
+    >>> new_expr.eval(dict(v2="hello!", myvar=8))
     'hello!'
+
+    you can also use keyword arguments.  This is *slightly* slower
+    >>> new_expr.eval(v2="hello!", myvar=4)
 
     serialize
     >>> str(new_expr)
@@ -162,34 +172,45 @@ class Expr(ast.AST, Generic[T]):
     that can be evaluated repeatedly as some underlying context changes.
 
     ```python
-    light_is_green = Name[bool]('light_is_green')
-    count = Name[int]('count')
+    light_is_green = Name[bool]("light_is_green")
+    count = Name[int]("count")
     is_ready = light_is_green & count > 5
 
-    assert is_ready.eval({'count': 4, 'light_is_green': True}) == False
-    assert is_ready.eval({'count': 7, 'light_is_green': False}) == False
-    assert is_ready.eval({'count': 7, 'light_is_green': True}) == True
+    assert is_ready.eval({"count": 4, "light_is_green": True}) == False
+    assert is_ready.eval({"count": 7, "light_is_green": False}) == False
+    assert is_ready.eval({"count": 7, "light_is_green": True}) == True
     ```
 
     this will also preserve type information:
     >>> reveal_type(is_ready())  # revealed type is `bool`
     """
 
+    _names: set[str]
+    _code: CodeType
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if type(self).__name__ == "Expr":
             raise RuntimeError("Don't instantiate Expr. Use `Expr.parse`")
         super().__init__(*args, **kwargs)
-        ast.fix_missing_locations(self)
+        self._recompile()
 
-    def eval(self, context: Optional[Mapping[str, object]] = None) -> T:
+    def _recompile(self) -> None:
+        ast.fix_missing_locations(self)
+        self._code = compile(ast.Expression(body=self), "<Expr>", "eval")  # type: ignore [arg-type]
+        self._names = set(self._iter_names())
+
+    def eval(
+        self, context: Mapping[str, object] | None = None, **ctx_kwargs: object
+    ) -> T:
         """Evaluate this expression with names in `context`."""
         if context is None:
-            context = {}
-        code = compile(ast.Expression(body=self), "<Expr>", "eval")
+            context = ctx_kwargs
+        elif ctx_kwargs:
+            context = {**context, **ctx_kwargs}
         try:
-            return cast(T, eval(code, {}, context))
+            return eval(self._code, {}, context)  # type: ignore
         except NameError as e:
-            miss = {k for k in _iter_names(self) if k not in context}
+            miss = {k for k in self._names if k not in context}
             raise NameError(
                 f"Names required to eval this expression are missing: {miss}"
             ) from e
@@ -225,13 +246,11 @@ class Expr(ast.AST, Generic[T]):
     # if you want the binary operators, use Expr.bitand, and Expr.bitor
 
     def __and__(
-        self, other: Union[Expr[T2], Expr[T], ConstType, Compare]
-    ) -> BoolOp[Union[T, T2]]:
+        self, other: Expr[T2] | Expr[T] | ConstType | Compare
+    ) -> BoolOp[T | T2]:
         return BoolOp(ast.And(), [self, other])
 
-    def __or__(
-        self, other: Union[Expr[T2], Expr[T], ConstType, Compare]
-    ) -> BoolOp[Union[T, T2]]:
+    def __or__(self, other: Expr[T2] | Expr[T] | ConstType | Compare) -> BoolOp[T | T2]:
         return BoolOp(ast.Or(), [self, other])
 
     # comparisons
@@ -269,38 +288,38 @@ class Expr(ast.AST, Generic[T]):
     # binary operators
     # (note that __and__ and __or__ are reserved for boolean operators.)
 
-    def __add__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __add__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Add(), other)
 
-    def __sub__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __sub__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Sub(), other)
 
-    def __mul__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __mul__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Mult(), other)
 
-    def __truediv__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __truediv__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Div(), other)
 
-    def __floordiv__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __floordiv__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.FloorDiv(), other)
 
-    def __mod__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __mod__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Mod(), other)
 
-    def __matmul__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __matmul__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.MatMult(), other)  # pragma: no cover
 
-    def __pow__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __pow__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.Pow(), other)
 
-    def __xor__(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def __xor__(self, other: T | Expr[T]) -> BinOp[T]:
         return BinOp(self, ast.BitXor(), other)
 
-    def bitand(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def bitand(self, other: T | Expr[T]) -> BinOp[T]:
         """Return bitwise self & other."""
         return BinOp(self, ast.BitAnd(), other)
 
-    def bitor(self, other: Union[T, Expr[T]]) -> BinOp[T]:
+    def bitor(self, other: T | Expr[T]) -> BinOp[T]:
         """Return bitwise self | other."""
         return BinOp(self, ast.BitOr(), other)
 
@@ -317,15 +336,10 @@ class Expr(ast.AST, Generic[T]):
         # note: we're using the invert operator `~` to mean "not ___"
         return UnaryOp(ast.Not(), self)
 
-    def __reduce_ex__(self, protocol: SupportsIndex) -> Tuple[Any, ...]:
-        rv = list(super().__reduce_ex__(protocol))
+    def __reduce_ex__(self, protocol: SupportsIndex) -> tuple[Any, ...]:
+        rv: list[Any] = list(super().__reduce_ex__(protocol))
         rv[1] = tuple(getattr(self, f) for f in self._fields)
         return tuple(rv)
-
-    @classmethod
-    def __get_validators__(cls) -> Iterator[Callable[[Any], Expr]]:
-        """Pydantic validators for this class."""
-        yield cls._validate
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -350,6 +364,9 @@ class Expr(ast.AST, Generic[T]):
             _hash += hash(field)
         return _hash
 
+    def _iter_names(self) -> Iterator[str]:
+        yield from _iter_names(self)
+
 
 LOAD = ast.Load()
 
@@ -357,30 +374,45 @@ LOAD = ast.Load()
 class Name(Expr[T], ast.Name):
     """A variable name.
 
-    `id` holds the name as a string.
+    Parameters
+    ----------
+    id : str
+        The name of the variable.
+    bound : Any | None
+        The type of the variable represented by this name (i.e. the type to which this
+        name evaluates to when used in an expression). This is used to provide type
+        hints when evaluating the expression. If `None`, the type is not known.
     """
 
-    def __init__(self, id: str, ctx: ast.expr_context = LOAD, **kwargs: Any) -> None:
-        kwargs["ctx"] = LOAD
-        super().__init__(id, **kwargs)
-
-    def eval(self, context: Optional[Mapping] = None) -> T:
-        """Evaluate this expression with names in `context`."""
-        if context is None:
-            context = {}
-        return super().eval(context=context)
+    def __init__(
+        self,
+        id: str,
+        ctx: ast.expr_context = LOAD,
+        *,
+        bound: type[T] | None = None,
+        **kwargs: Unpack[_Attributes],
+    ) -> None:
+        super().__init__(id, ctx=ctx, **kwargs)
+        self.bound = bound
 
 
 class Constant(Expr[V], ast.Constant):
     """A constant value.
 
-    The `value` attribute contains the Python object it represents.
-    types supported: NoneType, str, bytes, bool, int, float
+    Parameters
+    ----------
+    value : V
+        the Python object this constant represents.
+        Types supported: NoneType, str, bytes, bool, int, float
+    kind : str | None
+        The kind of constant.  This is used to provide type hints when
     """
 
-    value: V
+    value: V  # pyright: ignore[reportIncompatibleVariableOverride]
 
-    def __init__(self, value: V, kind: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(
+        self, value: V, kind: str | None = None, **kwargs: Unpack[_Attributes]
+    ) -> None:
         _valid_type = (type(None), str, bytes, bool, int, float)
         if not isinstance(value, _valid_type):
             raise TypeError(f"Constants must be type: {_valid_type!r}")
@@ -400,13 +432,10 @@ class Compare(Expr[bool], ast.Compare):
         left: Expr,
         ops: Sequence[ast.cmpop],
         comparators: Sequence[Expr],
-        **kwargs: Any,
+        **kwargs: Unpack[_Attributes],
     ) -> None:
         super().__init__(
-            Expr._cast(left),
-            ops,
-            [Expr._cast(c) for c in comparators],
-            **kwargs,
+            Expr._cast(left), ops, [Expr._cast(c) for c in comparators], **kwargs
         )
 
 
@@ -418,12 +447,12 @@ class BinOp(Expr[T], ast.BinOp):
 
     def __init__(
         self,
-        left: Union[T, Expr[T]],
+        left: T | Expr[T],
         op: ast.operator,
-        right: Union[T, Expr[T]],
-        **k: Any,
+        right: T | Expr[T],
+        **kwargs: Unpack[_Attributes],
     ) -> None:
-        super().__init__(Expr._cast(left), op, Expr._cast(right), **k)
+        super().__init__(Expr._cast(left), op, Expr._cast(right), **kwargs)
 
 
 class BoolOp(Expr[T], ast.BoolOp):
@@ -433,15 +462,15 @@ class BoolOp(Expr[T], ast.BoolOp):
     with the same operator, such as a or b or c, are collapsed into one node
     with several values.
 
-    This doesn't include `not`, which is a :class:`UnaryOp`.
+    This doesn't include `not`, which is a `UnaryOp`.
     """
 
     def __init__(
         self,
         op: ast.boolop,
-        values: Sequence[Union[ConstType, Expr]],
-        **kwargs: Any,
-    ):
+        values: Sequence[ConstType | Expr],
+        **kwargs: Unpack[_Attributes],
+    ) -> None:
         super().__init__(op, [Expr._cast(v) for v in values], **kwargs)
 
 
@@ -451,7 +480,9 @@ class UnaryOp(Expr[T], ast.UnaryOp):
     `op` is the operator, and `operand` any expression node.
     """
 
-    def __init__(self, op: ast.unaryop, operand: Expr, **kwargs: Any) -> None:
+    def __init__(
+        self, op: ast.unaryop, operand: Expr, **kwargs: Unpack[_Attributes]
+    ) -> None:
         super().__init__(op, Expr._cast(operand), **kwargs)
 
 
@@ -461,18 +492,60 @@ class IfExp(Expr, ast.IfExp):
     `body` if `test` else `orelse`
     """
 
-    def __init__(self, test: Expr, body: Expr, orelse: Expr, **kwargs: Any) -> None:
+    def __init__(
+        self, test: Expr, body: Expr, orelse: Expr, **kwargs: Unpack[_Attributes]
+    ) -> None:
         super().__init__(
             Expr._cast(test), Expr._cast(body), Expr._cast(orelse), **kwargs
         )
 
 
+class Tuple(Expr, ast.Tuple):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(
+        self,
+        elts: Sequence[Expr],
+        ctx: ast.expr_context = LOAD,
+        **kwargs: Unpack[_Attributes],
+    ) -> None:
+        super().__init__(elts=[Expr._cast(e) for e in elts], ctx=ctx, **kwargs)
+
+
+class List(Expr, ast.List):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(
+        self,
+        elts: Sequence[Expr],
+        ctx: ast.expr_context = LOAD,
+        **kwargs: Unpack[_Attributes],
+    ) -> None:
+        super().__init__(elts=[Expr._cast(e) for e in elts], ctx=ctx, **kwargs)
+
+
+class Set(Expr, ast.Set):
+    """A tuple expression.
+
+    `elts` is a list of expressions.
+    """
+
+    def __init__(self, elts: Sequence[Expr], **kwargs: Unpack[_Attributes]) -> None:
+        super().__init__(elts=[Expr._cast(e) for e in elts], **kwargs)
+
+
 class ExprTransformer(ast.NodeTransformer):
-    """Transformer that converts an ast.expr into an :class:`Expr`.
+    """Transformer that converts an ast.expr into an `Expr`.
 
     Examples
     --------
-    >>> tree = ast.parse('my_var > 11', mode='eval')
+    >>> tree = ast.parse("my_var > 11", mode="eval")
     >>> tree = ExprTransformer().visit(tree)  # transformed
     """
 
@@ -486,8 +559,7 @@ class ExprTransformer(ast.NodeTransformer):
     @overload
     def visit(self, node: PassedType) -> PassedType: ...
     # fmt: on
-
-    def visit(self, node: ast.AST) -> Optional[ast.AST]:
+    def visit(self, node: ast.AST) -> ast.AST | None:
         """Visit a node in the tree, transforming into Expr."""
         if isinstance(
             node,
@@ -510,7 +582,7 @@ class ExprTransformer(ast.NodeTransformer):
 
         # providing fake lineno and col_offset here rather than using
         # ast.fill_missing_locations for typing purposes
-        kwargs: Dict[str, Any] = {"lineno": 1, "col_offset": 0}
+        kwargs: dict[str, Any] = {"lineno": 1, "col_offset": 0}
 
         for name, field in ast.iter_fields(node):
             if isinstance(field, ast.expr):
@@ -521,15 +593,15 @@ class ExprTransformer(ast.NodeTransformer):
                 kwargs[name] = field
 
         # return instance of Expr from this module corresponding to the node type
-        return cast(Expr, globals()[type_](**kwargs))
+        return cast("Expr", globals()[type_](**kwargs))
 
 
 class _ExprSerializer(ast.NodeVisitor):
-    """Serializes an :class:`Expr` into a string.
+    """Serializes an `Expr` into a string.
 
     Examples
     --------
-    >>> expr = Expr.parse('a + b == c')
+    >>> expr = Expr.parse("a + b == c")
     >>> print(expr)
     'a + b == c'
 
@@ -540,10 +612,10 @@ class _ExprSerializer(ast.NodeVisitor):
     >>> out = "".join(serializer.result)
     """
 
-    def __init__(self, node: Optional[Expr] = None) -> None:
-        self._result: List[str] = []
+    def __init__(self, node: Expr | None = None) -> None:
+        self._result: list[str] = []
 
-        def write(*params: Union[ast.AST, str]) -> None:
+        def write(*params: ast.AST | str) -> None:
             for item in params:
                 if isinstance(item, ast.AST):
                     self.visit(item)
@@ -561,6 +633,15 @@ class _ExprSerializer(ast.NodeVisitor):
     def visit_Name(self, node: ast.Name) -> None:
         self.write(node.id)
 
+    def visit_Tuple(self, node: ast.Tuple) -> None:
+        self.write(f"({', '.join(map(str, node.elts))})")
+
+    def visit_Set(self, node: ast.Set) -> None:
+        self.write("{" + ", ".join(map(str, node.elts)) + "}")
+
+    def visit_List(self, node: ast.List) -> None:
+        self.write(f"[{', '.join(map(str, node.elts))}]")
+
     def visit_ContextKey(self, node: ContextKey) -> None:
         return self.visit_Name(node)
 
@@ -570,7 +651,7 @@ class _ExprSerializer(ast.NodeVisitor):
     def visit_BoolOp(self, node: ast.BoolOp) -> Any:
         op = f" {_OPS[type(node.op)]} "
         for idx, value in enumerate(node.values):
-            self.write(idx and op or "", value)
+            self.write((idx and op) or "", value)
 
     def visit_Compare(self, node: ast.Compare) -> None:
         self.visit(node.left)
@@ -588,8 +669,8 @@ class _ExprSerializer(ast.NodeVisitor):
         self.write(node.body, " if ", node.test, " else ", node.orelse)
 
 
-OpType = Union[Type[ast.operator], Type[ast.cmpop], Type[ast.boolop], Type[ast.unaryop]]
-_OPS: Dict[OpType, str] = {
+OpType = Union[type[ast.operator], type[ast.cmpop], type[ast.boolop], type[ast.unaryop]]
+_OPS: dict[OpType, str] = {
     # ast.boolop
     ast.Or: "or",
     ast.And: "and",

@@ -1,11 +1,11 @@
-from typing import Any, Callable, Optional, Type, TypedDict, TypeVar, Union
+from typing import Any, Callable, Optional, TypedDict, TypeVar, Union
 
-from pydantic_compat import PYDANTIC2, Field, model_validator
+from pydantic import Field, model_validator
 
 from app_model import expressions
 
 from ._base import _BaseModel
-from ._constants import OperatingSystem
+from ._constants import KeyBindingSource, OperatingSystem
 from ._keys import StandardKeyBinding
 
 KeyEncoding = Union[int, str]
@@ -29,25 +29,29 @@ class KeyBindingRule(_BaseModel):
     """
 
     primary: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Key combo, (e.g. Ctrl+O)."
+        default=None, description="(Optional) Key combo, (e.g. Ctrl+O)."
     )
     win: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Windows specific key combo."
+        default=None, description="(Optional) Windows specific key combo."
     )
     mac: Optional[KeyEncoding] = Field(
-        None, description="(Optional) MacOS specific key combo."
+        default=None, description="(Optional) MacOS specific key combo."
     )
     linux: Optional[KeyEncoding] = Field(
-        None, description="(Optional) Linux specific key combo."
+        default=None, description="(Optional) Linux specific key combo."
     )
     when: Optional[expressions.Expr] = Field(
-        None,
+        default=None,
         description="(Optional) Condition when the keybingding is active.",
     )
     weight: int = Field(
-        0,
+        default=0,
         description="Internal weight used to sort keybindings. "
         "This is not part of the plugin schema",
+    )
+    source: KeyBindingSource = Field(
+        default=KeyBindingSource.APP,
+        description="Who registered the keybinding. Used to sort keybindings.",
     )
 
     def _bind_to_current_platform(self) -> Optional[KeyEncoding]:
@@ -59,30 +63,14 @@ class KeyBindingRule(_BaseModel):
             return self.linux
         return self.primary
 
-    # These methods are here to make KeyBindingRule work as a field
-    # there are better ways to do this now with pydantic v2... but it still
-    # feels a bit in flux.  pydantic_compat might not yet work for this (or
-    # at least in my playing around i couldn't get it)
-    # so sticking with this one conditional method here...
-    if PYDANTIC2:
-        # for v2
-        @model_validator(mode="wrap")  # type: ignore
-        @classmethod
-        def _model_val(
-            cls: Type[M], v: Any, handler: Callable[[Any], M]
-        ) -> "KeyBindingRule":
-            if isinstance(v, StandardKeyBinding):
-                return v.to_keybinding_rule()
-            return handler(v)  # type: ignore
-
-    else:
-
-        @classmethod
-        def validate(cls, value: Any) -> "KeyBindingRule":
-            """Validate keybinding rule."""
-            if isinstance(value, StandardKeyBinding):
-                return value.to_keybinding_rule()
-            return super().validate(value)
+    @model_validator(mode="wrap")
+    @classmethod
+    def _model_val(
+        cls: type[M], v: Any, handler: Callable[[Any], M]
+    ) -> "KeyBindingRule":
+        if isinstance(v, StandardKeyBinding):
+            return v.to_keybinding_rule()
+        return handler(v)  # type: ignore
 
 
 class KeyBindingRuleDict(TypedDict, total=False):

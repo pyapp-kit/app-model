@@ -1,30 +1,44 @@
 from __future__ import annotations
 
 import contextlib
+import os
+import sys
+from collections.abc import Iterable, MutableMapping
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
+    Any,
     ClassVar,
-    Dict,
-    Iterable,
-    List,
+    Literal,
     Optional,
-    Tuple,
-    Type,
+    overload,
 )
 
 import in_n_out as ino
 from psygnal import Signal
 
+from .expressions import Context, app_model_context
 from .registries import (
     CommandsRegistry,
     KeyBindingsRegistry,
     MenusRegistry,
     register_action,
 )
+from .types import (
+    Action,
+)
 
 if TYPE_CHECKING:
-    from .types import Action
-    from .types._constants import DisposeCallable
+    from typing import Callable
+
+    from .expressions import Expr
+    from .registries._register import CommandDecorator
+    from .types import (
+        DisposeCallable,
+        IconOrDict,
+        KeyBindingRuleOrDict,
+        MenuRuleOrDict,
+    )
 
 
 class Application:
@@ -50,36 +64,43 @@ class Application:
         (Optionally) override the class to use when creating the KeyBindingsRegistry
     injection_store_class : Type[ino.Store]
         (Optionally) override the class to use when creating the injection Store
-
-    Attributes
-    ----------
-    - commands : CommandsRegistry
-        The Commands Registry for this application.
-    - menus : MenusRegistry
-        The Menus Registry for this application.
-    - keybindings : KeyBindingsRegistry
-        The KeyBindings Registry for this application.
-    - injection_store : in_n_out.Store
-        The Injection Store for this application.
-    - theme_mode : Literal["dark", "light"] | None
+    context : Context | MutableMapping | None
+        (Optionally) provide a context to use for this application. If a
+        `MutableMapping` is provided, it will be used to create a `Context` instance.
+        If `None` (the default), a new `Context` instance will be created.
+    theme_mode : Literal["dark", "light"] | None
         Theme mode to use when picking the color of icons. Must be one of "dark",
         "light", or None.  When `Application.theme_mode` is "dark", icons will be
         generated using their "color_dark" color (which should be a light color),
         and vice versa. If not provided, backends may guess the current theme mode.
+
+    Attributes
+    ----------
+    commands : CommandsRegistry
+        The Commands Registry for this application.
+    menus : MenusRegistry
+        The Menus Registry for this application.
+    keybindings : KeyBindingsRegistry
+        The KeyBindings Registry for this application.
+    injection_store : in_n_out.Store
+        The Injection Store for this application.
+    context : Context
+        The Context for this application.
     """
 
     destroyed = Signal(str)
-    _instances: ClassVar[Dict[str, Application]] = {}
+    _instances: ClassVar[dict[str, Application]] = {}
 
     def __init__(
         self,
         name: str,
         *,
         raise_synchronous_exceptions: bool = False,
-        commands_reg_class: Type[CommandsRegistry] = CommandsRegistry,
-        menus_reg_class: Type[MenusRegistry] = MenusRegistry,
-        keybindings_reg_class: Type[KeyBindingsRegistry] = KeyBindingsRegistry,
-        injection_store_class: Type[ino.Store] = ino.Store,
+        commands_reg_class: type[CommandsRegistry] = CommandsRegistry,
+        menus_reg_class: type[MenusRegistry] = MenusRegistry,
+        keybindings_reg_class: type[KeyBindingsRegistry] = KeyBindingsRegistry,
+        injection_store_class: type[ino.Store] = ino.Store,
+        context: Context | MutableMapping | None = None,
     ) -> None:
         self._name = name
         if name in Application._instances:
@@ -89,6 +110,21 @@ class Application:
             )
         Application._instances[name] = self
 
+        if context is None:
+            context = Context()
+        elif isinstance(context, MutableMapping):
+            context = Context(context)
+        if not isinstance(context, Context):
+            raise TypeError(
+                f"context must be a Context or MutableMapping, got {type(context)}"
+            )
+        self._context = context
+        self._context.update(app_model_context())
+
+        self._context["is_linux"] = sys.platform.startswith("linux")
+        self._context["is_mac"] = sys.platform == "darwin"
+        self._context["is_windows"] = os.name == "nt"
+
         self._injection_store = injection_store_class.create(name)
         self._commands = commands_reg_class(
             self.injection_store,
@@ -96,11 +132,12 @@ class Application:
         )
         self._menus = menus_reg_class()
         self._keybindings = keybindings_reg_class()
-        self._theme_mode: Literal[dark, light] | None = None
+        self._theme_mode: Literal["dark", "light"] | None = None
 
         self.injection_store.on_unannotated_required_args = "ignore"
 
-        self._disposers: List[Tuple[str, DisposeCallable]] = []
+        self._registered_actions: dict[str, Action] = {}
+        self._disposers: list[tuple[str, DisposeCallable]] = []
 
     @property
     def raise_synchronous_exceptions(self) -> bool:
@@ -123,7 +160,7 @@ class Application:
 
     @property
     def keybindings(self) -> KeyBindingsRegistry:
-        """Return the [`KeyBindingsRegistry`][app_model.registries.KeyBindingsRegistry]."""  # noqa
+        """Return the [`KeyBindingsRegistry`][app_model.registries.KeyBindingsRegistry]."""  # noqa E501
         return self._keybindings
 
     @property
@@ -132,12 +169,17 @@ class Application:
         return self._injection_store
 
     @property
-    def theme_mode(self) -> Literal[dark, light] | None:
+    def context(self) -> Context:
+        """Return the [`Context`][app_model.expressions.Context] for this application."""  # noqa E501
+        return self._context
+
+    @property
+    def theme_mode(self) -> Literal["dark", "light"] | None:
         """Return the theme mode for this `Application`."""
         return self._theme_mode
 
     @theme_mode.setter
-    def theme_mode(self, value: Literal[dark, light] | None) -> None:
+    def theme_mode(self, value: Literal["dark", "light"] | None) -> None:
         """Set the theme mode for this `Application`.
 
         Must be one of "dark", "light", or None.
@@ -191,16 +233,80 @@ class Application:
             with contextlib.suppress(Exception):
                 self._disposers.pop()[1]()
 
-    def register_action(self, action: Action) -> DisposeCallable:
+    @overload
+    def register_action(self, action: Action) -> DisposeCallable: ...
+
+    @overload
+    def register_action(
+        self,
+        action: str,
+        title: str,
+        *,
+        callback: Literal[None] = ...,
+        category: str | None = ...,
+        tooltip: str | None = ...,
+        icon: IconOrDict | None = ...,
+        enablement: Expr | None = ...,
+        menus: list[MenuRuleOrDict] | None = ...,
+        keybindings: list[KeyBindingRuleOrDict] | None = ...,
+        palette: bool = True,
+    ) -> CommandDecorator: ...
+
+    @overload
+    def register_action(
+        self,
+        action: str,
+        title: str,
+        *,
+        callback: Callable[..., Any],
+        category: str | None = ...,
+        tooltip: str | None = ...,
+        icon: IconOrDict | None = ...,
+        enablement: Expr | None = ...,
+        menus: list[MenuRuleOrDict] | None = ...,
+        keybindings: list[KeyBindingRuleOrDict] | None = ...,
+        palette: bool = True,
+    ) -> DisposeCallable: ...
+
+    def register_action(
+        self,
+        action: str | Action,
+        title: str | None = None,
+        *,
+        callback: Callable[..., Any] | None = None,
+        category: str | None = None,
+        tooltip: str | None = None,
+        icon: IconOrDict | None = None,
+        enablement: Expr | None = None,
+        menus: list[MenuRuleOrDict] | None = None,
+        keybindings: list[KeyBindingRuleOrDict] | None = None,
+        palette: bool = True,
+    ) -> CommandDecorator | DisposeCallable:
         """Register [`Action`][app_model.Action] instance with this application.
 
         An [`Action`][app_model.Action] is the complete representation of a command,
         including information about where and whether it appears in menus and optional
         keybinding rules.
 
-        This returns a function that may be called to undo the registration of `action`.
+        See [`register_action`][app_model.register_action] for complete
+        details on this function.
         """
-        return register_action(self, id_or_action=action)
+        if isinstance(action, Action):
+            return register_action(self, action)
+
+        return register_action(
+            self,
+            id_or_action=action,
+            title=title,  # type: ignore
+            callback=callback,  # type: ignore
+            category=category,
+            tooltip=tooltip,
+            icon=icon,
+            enablement=enablement,
+            menus=menus,
+            keybindings=keybindings,
+            palette=palette,
+        )
 
     def register_actions(self, actions: Iterable[Action]) -> DisposeCallable:
         """Register multiple [`Action`][app_model.Action] instances with this app.
@@ -213,4 +319,43 @@ class Application:
             while d:
                 d.pop()()
 
+        return _dispose
+
+    @property
+    def registered_actions(self) -> MappingProxyType[str, Action]:
+        """Return a Mapping of id->Action object for all registered actions.
+
+        Note that this only includes actions that were registered using
+        `register_action`.  Commands registered directly via
+        `Application.commands.register_action` will not be included in this mapping.
+        """
+        return MappingProxyType(self._registered_actions)
+
+    def _register_action_obj(self, action: Action) -> DisposeCallable:
+        """Register an Action object. Return a function that unregisters the action.
+
+        Helper for `register_action()`.
+        """
+        # register commands
+        disposers = [self.commands.register_action(action)]
+        # register keybindings
+        if dk := self.keybindings.register_action_keybindings(action):
+            disposers.append(dk)
+        # register menus
+        if dm := self.menus.append_action_menus(action):
+            disposers.append(dm)
+
+        # remember the action object as a whole.
+        # note that commands.register_action will have raised an exception
+        # if the action.id is already registered, so we can assume that
+        # the keys are unique.
+        self._registered_actions[action.id] = action
+
+        # create a function that will dispose of all the disposers
+        def _dispose() -> None:
+            self._registered_actions.pop(action.id, None)
+            for d in disposers:
+                d()
+
+        self._disposers.append((action.id, _dispose))
         return _dispose

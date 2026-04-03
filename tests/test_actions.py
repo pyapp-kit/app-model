@@ -1,10 +1,8 @@
-from typing import List
-
 import pytest
 
 from app_model import Application
 from app_model.registries import register_action
-from app_model.types import Action
+from app_model.types import Action, KeyBinding
 
 PRIMARY_KEY = "ctrl+a"
 OS_KEY = "ctrl+b"
@@ -27,7 +25,9 @@ KWARGS = [
 
 @pytest.mark.parametrize("kwargs", KWARGS)
 @pytest.mark.parametrize("mode", ["str", "decorator", "action"])
-def test_register_action_decorator(kwargs, simple_app: Application, mode):
+def test_register_action_decorator(
+    kwargs: dict, simple_app: Application, mode: str
+) -> None:
     # make sure mocks are working
     app = simple_app
     assert not list(app.commands)
@@ -41,14 +41,14 @@ def test_register_action_decorator(kwargs, simple_app: Application, mode):
     if mode == "decorator":
 
         @register_action(app=app, id_or_action=cmd_id, **kwargs)
-        def f1():
+        def f1() -> str:
             return "hi"
 
         assert f1() == "hi"  # decorator returns the function
 
     else:
 
-        def f2():
+        def f2() -> str:
             return "hi"
 
         if mode == "str":
@@ -86,6 +86,7 @@ def test_register_action_decorator(kwargs, simple_app: Application, mode):
     if keybindings := kwargs.get("keybindings"):
         for entry in keybindings:
             key = PRIMARY_KEY if len(entry) == 1 else OS_KEY  # see KWARGS[5]
+            key = KeyBinding.from_str(key)
             assert any(i.keybinding == key for i in app.keybindings)
             app.keybindings_changed.assert_called()  # type: ignore
     else:
@@ -98,15 +99,15 @@ def test_register_action_decorator(kwargs, simple_app: Application, mode):
     assert not list(app.menus)
 
 
-def test_errors(simple_app: Application):
+def test_errors(simple_app: Application) -> None:
     with pytest.raises(ValueError, match="'title' is required"):
         simple_app.register_action("cmd_id")  # type: ignore
     with pytest.raises(TypeError, match="must be a string or an Action"):
         simple_app.register_action(None)  # type: ignore
 
 
-def test_register_multiple_actions(simple_app: Application):
-    actions: List[Action] = [
+def test_register_multiple_actions(simple_app: Application) -> None:
+    actions: list[Action] = [
         Action(id="cmd_id1", title="title1", callback=lambda: None),
         Action(id="cmd_id2", title="title2", callback=lambda: None),
     ]

@@ -3,36 +3,41 @@ ci:
   autofix_commit_msg: "style: [pre-commit.ci] auto fixes [...]"
   autoupdate_commit_msg: "ci: [pre-commit.ci] autoupdate"
 
-default_install_hook_types: [pre-commit, commit-msg]
-
 repos:
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.16.21
-    hooks:
-      - id: typos
-
-  - repo: https://github.com/psf/black
-    rev: 23.10.1
-    hooks:
-      - id: black
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.3
-    hooks:
-      - id: ruff
-        args: ["--fix"]
-
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.15
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
 
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.39.0
+    hooks:
+      - id: typos
+        args: [--force-exclude]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.4
+    hooks:
+      - id: ruff-check
+        args: ["--fix", "--unsafe-fixes"]
+      - id: ruff-format
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.1
+    rev: v1.18.2
     hooks:
       - id: mypy
         files: "^src/"
         additional_dependencies:
-          - pydantic >2
-          - pydantic-compat
+          - pydantic >2.8
           - in-n-out
+
+  - repo: local
+    hooks:
+      - id: pyright
+        stages: [manual]
+        name: pyright
+        language: system
+        exclude: "^tests/.*|^demo/.*|^docs/.*"
+        types_or: [python, pyi]
+        require_serial: true
+        entry: uv run pyright

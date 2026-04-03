@@ -1,6 +1,6 @@
-from typing import Any, Callable, Generator, Optional, TypedDict, Union
+from typing import Any, Optional, TypedDict, Union
 
-from pydantic_compat import Field, model_validator
+from pydantic import Field, model_validator
 
 from ._base import _BaseModel
 
@@ -13,7 +13,7 @@ class Icon(_BaseModel):
     """
 
     dark: Optional[str] = Field(
-        None,
+        default=None,
         description="Icon path when a dark theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
         "`fa6-solid:arrow-down`, or "
@@ -26,7 +26,7 @@ class Icon(_BaseModel):
         "If not provided, a default is used.",
     )
     light: Optional[str] = Field(
-        None,
+        default=None,
         description="Icon path when a light theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
         "`fa6-solid:arrow-down`, or "
@@ -38,10 +38,6 @@ class Icon(_BaseModel):
         description="(Dark) icon color to use for themes with light backgrounds. "
         "If not provided, a default is used",
     )
-
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable[..., Any], None, None]:
-        yield cls._validate
 
     @classmethod
     def _validate(cls, v: Any) -> "Icon":

@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Collection,
-    Iterable,
-    Mapping,
-    Optional,
-    Sequence,
-    Set,
-    Union,
-    cast,
-)
+import contextlib
+from collections.abc import Collection, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, cast
 
-from qtpy.QtWidgets import QMenu, QMenuBar, QToolBar
+from qtpy.QtWidgets import QApplication, QMenu, QMenuBar, QToolBar
 
 from app_model import Application
 from app_model.types import SubmenuItem
@@ -36,21 +28,21 @@ class QModelMenu(QMenu):
     ----------
     menu_id : str
         Menu ID to look up in the registry.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    title : Optional[str]
+    title : str | None
         Optional title for the menu, by default None
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menu_id: str,
-        app: Union[str, Application],
-        title: Optional[str] = None,
-        parent: Optional[QWidget] = None,
-    ):
+        app: Application | str,
+        title: str | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
         QMenu.__init__(self, parent)
 
         # NOTE: code duplication with QModelToolBar, but Qt mixins and multiple
@@ -68,7 +60,7 @@ class QModelMenu(QMenu):
             self.setTitle(title)
         self.aboutToShow.connect(self._on_about_to_show)
 
-    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+    def findAction(self, object_name: str) -> QAction | QModelMenu | None:
         """Find an action by its ObjectName.
 
         Parameters
@@ -79,9 +71,7 @@ class QModelMenu(QMenu):
         """
         return _find_action(self.actions(), object_name)
 
-    def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
-    ) -> None:
+    def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
         See `app_model.expressions` for details on expressions.
@@ -93,13 +83,11 @@ class QModelMenu(QMenu):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
-            recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx)
 
     def rebuild(
-        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+        self, include_submenus: bool = True, exclude: Collection[str] | None = None
     ) -> None:
         """Rebuild menu by looking up self._menu_id in menu_registry."""
         _rebuild(
@@ -111,7 +99,6 @@ class QModelMenu(QMenu):
         )
 
     def _on_about_to_show(self) -> None:
-        # this would also be a reasonable place to call
         for action in self.actions():
             if isinstance(action, QCommandRuleAction):
                 action._refresh()
@@ -119,9 +106,12 @@ class QModelMenu(QMenu):
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+    def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
-            self.rebuild()
+            # if this (sub)menu has been removed from the registry,
+            # we may hit a RuntimeError when trying to rebuild it.
+            with contextlib.suppress(RuntimeError):
+                self.rebuild()
 
 
 class QModelSubmenu(QModelMenu):
@@ -131,18 +121,18 @@ class QModelSubmenu(QModelMenu):
     ----------
     submenu : SubmenuItem
         SubmenuItem for which to create a QMenu.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         submenu: SubmenuItem,
-        app: Union[str, Application],
-        parent: Optional[QWidget] = None,
-    ):
+        app: Application | str,
+        parent: QWidget | None = None,
+    ) -> None:
         assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
         self._submenu = submenu
         super().__init__(
@@ -153,11 +143,9 @@ class QModelSubmenu(QModelMenu):
                 to_qicon(submenu.icon, theme=self._app.theme_mode, parent=self)
             )
 
-    def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
-    ) -> None:
+    def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
-        super().update_from_context(ctx, _recurse=_recurse)
+        super().update_from_context(ctx)
         self.setEnabled(expr.eval(ctx) if (expr := self._submenu.enablement) else True)
         # TODO: ... visibility needs to be controlled at the level of placement
         # in the submenu.  consider only using the `when` expression
@@ -171,24 +159,24 @@ class QModelToolBar(QToolBar):
     ----------
     menu_id : str
         Menu ID to look up in the registry.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    exclude : Optional[Collection[str]]
+    exclude : Collection[str] | None
         Optional list of menu ids to exclude from the toolbar, by default None
-    title : Optional[str]
+    title : str | None
         Optional title for the menu, by default None
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menu_id: str,
-        app: Union[str, Application],
+        app: Application | str,
         *,
-        exclude: Optional[Collection[str]] = None,
-        title: Optional[str] = None,
-        parent: Optional[QWidget] = None,
+        exclude: Collection[str] | None = None,
+        title: str | None = None,
+        parent: QWidget | None = None,
     ) -> None:
         self._exclude = exclude
         QToolBar.__init__(self, parent)
@@ -210,7 +198,7 @@ class QModelToolBar(QToolBar):
     def addMenu(self, menu: QMenu) -> None:
         """No-op for toolbar."""
 
-    def findAction(self, object_name: str) -> Union[QAction, QModelMenu, None]:
+    def findAction(self, object_name: str) -> QAction | QModelMenu | None:
         """Find an action by its ObjectName.
 
         Parameters
@@ -221,9 +209,7 @@ class QModelToolBar(QToolBar):
         """
         return _find_action(self.actions(), object_name)
 
-    def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
-    ) -> None:
+    def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
         See `app_model.expressions` for details on expressions.
@@ -235,13 +221,11 @@ class QModelToolBar(QToolBar):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
-            recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx)
 
     def rebuild(
-        self, include_submenus: bool = True, exclude: Optional[Collection[str]] = None
+        self, include_submenus: bool = True, exclude: Collection[str] | None = None
     ) -> None:
         """Rebuild toolbar by looking up self._menu_id in menu_registry."""
         _rebuild(
@@ -255,7 +239,7 @@ class QModelToolBar(QToolBar):
     def _disconnect(self) -> None:
         self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
-    def _on_registry_changed(self, changed_ids: Set[str]) -> None:
+    def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
             self.rebuild()
 
@@ -267,17 +251,17 @@ class QModelMenuBar(QMenuBar):
     ----------
     menus : Mapping[str, str] | Sequence[str | tuple[str, str]]
         A mapping of menu ids to menu titles or a sequence of menu ids.
-    app : Union[str, Application]
+    app : Application | str
         Application instance or name of application instance.
-    parent : Optional[QWidget]
+    parent : QWidget | None
         Optional parent widget, by default None
     """
 
     def __init__(
         self,
         menus: Mapping[str, str] | Sequence[str | tuple[str, str]],
-        app: Union[str, Application],
-        parent: Optional[QWidget] = None,
+        app: Application | str,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
 
@@ -286,9 +270,7 @@ class QModelMenuBar(QMenuBar):
             id_, title = item if isinstance(item, tuple) else (item, item.title())
             self.addMenu(QModelMenu(id_, app, title, self))
 
-    def update_from_context(
-        self, ctx: Mapping[str, object], _recurse: bool = True
-    ) -> None:
+    def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled/visible state of each menu item with `ctx`.
 
         See `app_model.expressions` for details on expressions.
@@ -300,10 +282,8 @@ class QModelMenuBar(QMenuBar):
             `'when'` expressions provided for each action in the menu.
             *ALL variables used in these expressions must either be present in
             the `ctx` dict, or be builtins*.
-        _recurse : bool
-            recursion check, internal use only
         """
-        _update_from_context(self.actions(), ctx, _recurse=_recurse)
+        _update_from_context(self.actions(), ctx)
 
 
 def _rebuild(
@@ -311,14 +291,18 @@ def _rebuild(
     app: Application,
     menu_id: str,
     include_submenus: bool = True,
-    exclude: Optional[Collection[str]] = None,
+    exclude: Collection[str] | None = None,
 ) -> None:
     """Rebuild menu by looking up `menu` in `Application`'s menu_registry."""
-    menu.clear()
+    actions = menu.actions()
+    for action in actions:
+        menu.removeAction(action)
+
     _exclude = exclude or set()
 
     groups = list(app.menus.iter_menu_groups(menu_id))
     n_groups = len(groups)
+    qapp = QApplication.instance()
     for n, group in enumerate(groups):
         for item in group:
             if isinstance(item, SubmenuItem):
@@ -326,15 +310,16 @@ def _rebuild(
                     submenu = QModelSubmenu(item, app, parent=menu)
                     cast("QMenu", menu).addMenu(submenu)
             elif item.command.id not in _exclude:
-                action = QMenuItemAction(item, app=app, parent=menu)
+                # use QApplication instance as parent for actions
+                # because we use action singleton, and actions
+                # are not related to any window.
+                action = QMenuItemAction.create(item, app=app, parent=qapp)
                 menu.addAction(action)
         if n < n_groups - 1:
             menu.addSeparator()
 
 
-def _update_from_context(
-    actions: Iterable[QAction], ctx: Mapping[str, object], _recurse: bool = True
-) -> None:
+def _update_from_context(actions: Iterable[QAction], ctx: Mapping[str, object]) -> None:
     """Update the enabled/visible state of each menu item with `ctx`.
 
     See `app_model.expressions` for details on expressions.
@@ -348,24 +333,16 @@ def _update_from_context(
         `'when'` expressions provided for each action in the menu.
         *ALL variables used in these expressions must either be present in
         the `ctx` dict, or be builtins*.
-    _recurse : bool
-        recursion check, internal use only
     """
-    for action in actions:
-        if isinstance(action, QMenuItemAction):
-            action.update_from_context(ctx)
-        elif not QT6 and isinstance(menu := action.menu(), QModelMenu):
-            menu.update_from_context(ctx)
-        elif isinstance(parent := action.parent(), QModelMenu):
-            # FIXME: this is a hack for Qt6 that I don't entirely understand.
-            # QAction has lost the `.menu()` method, and it's a bit hard to find
-            # how to get to the parent menu now. Checking parent() seems to work,
-            # but I'm not sure if it's the right thing to do, and it leads to a
-            # recursion error.  I stop it with the _recurse flag here, but I wonder
-            # whether that will cause other problems.
-            if _recurse:
-                parent.update_from_context(ctx, _recurse=False)
+    try:
+        for action in actions:
+            if isinstance(action, QMenuItemAction):
+                action.update_from_context(ctx)
+            elif isinstance(menu := action.menu(), QModelMenu):
+                menu.update_from_context(ctx)
+    except AttributeError as e:  # pragma: no cover
+        raise AttributeError(f"This version of Qt is not supported: {e}") from e
 
 
-def _find_action(actions: Iterable[QAction], object_name: str) -> Union[QAction, None]:
+def _find_action(actions: Iterable[QAction], object_name: str) -> QAction | None:
     return next((a for a in actions if a.objectName() == object_name), None)
