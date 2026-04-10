@@ -182,6 +182,13 @@ def test_in_model() -> None:
     assert m.model_dump_json() == '{"key":"Shift+A B"}'
 
 
+def test_eq() -> None:
+    kb = KeyBinding.from_str("A")
+    assert kb == "A"
+    assert kb == kb.to_int()
+    assert kb == SimpleKeyBinding.from_str("A")
+
+
 def test_standard_keybindings() -> None:
     class M(BaseModel):
         key: KeyBindingRule

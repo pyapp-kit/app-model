@@ -200,8 +200,11 @@ class KeyBinding:
         return f"<{self.__class__.__name__} at {hex(id(self))}: {self}>"
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, KeyBinding):
-            return self.parts == other.parts
+        try:
+            other_kb = self.validate(other)
+            return self.parts == other_kb.parts
+        except TypeError:
+            pass
         return NotImplemented
 
     def __len__(self) -> int:
