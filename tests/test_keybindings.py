@@ -186,6 +186,7 @@ def test_eq() -> None:
     kb = KeyBinding.from_str("A")
     assert kb == "A"
     assert kb == kb.to_int()
+    assert kb == KeyCode.KeyA
     assert kb == SimpleKeyBinding.from_str("A")
 
 
