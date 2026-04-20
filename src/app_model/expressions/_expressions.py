@@ -8,16 +8,17 @@ from typing import (
     Any,
     Generic,
     SupportsIndex,
+    TypeAlias,
     TypeVar,
     Union,
     cast,
     overload,
 )
 
-ConstType = Union[None, str, bytes, bool, int, float]
+ConstType: TypeAlias = None | str | bytes | bool | int | float
 PassedType = TypeVar(
     "PassedType",
-    bound=Union[ast.cmpop, ast.operator, ast.boolop, ast.unaryop, ast.expr_context],
+    bound=ast.cmpop | ast.operator | ast.boolop | ast.unaryop | ast.expr_context,
 )
 T = TypeVar("T")
 T2 = TypeVar("T2", bound=Union[ConstType, "Expr"])
@@ -655,7 +656,7 @@ class _ExprSerializer(ast.NodeVisitor):
 
     def visit_Compare(self, node: ast.Compare) -> None:
         self.visit(node.left)
-        for op, right in zip(node.ops, node.comparators):
+        for op, right in zip(node.ops, node.comparators, strict=False):
             self.write(f" {_OPS[type(op)]} ", right)
 
     def visit_BinOp(self, node: ast.BinOp) -> None:
@@ -669,7 +670,9 @@ class _ExprSerializer(ast.NodeVisitor):
         self.write(node.body, " if ", node.test, " else ", node.orelse)
 
 
-OpType = Union[type[ast.operator], type[ast.cmpop], type[ast.boolop], type[ast.unaryop]]
+OpType: TypeAlias = (
+    type[ast.operator] | type[ast.cmpop] | type[ast.boolop] | type[ast.unaryop]
+)
 _OPS: dict[OpType, str] = {
     # ast.boolop
     ast.Or: "or",

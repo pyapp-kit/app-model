@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union
+from collections.abc import Callable
 
 from pydantic import Field
 
@@ -11,12 +11,12 @@ from ._icon import Icon
 class ToggleRule(_BaseModel):
     """More detailed description of a toggle rule."""
 
-    condition: Optional[expressions.Expr] = Field(
+    condition: expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",
     )
-    get_current: Optional[Callable[[], bool]] = Field(
+    get_current: Callable[[], bool] | None = Field(
         default=None,
         description="Function that returns the current state of the toggle.",
     )
@@ -37,20 +37,20 @@ class CommandRule(_BaseModel):
         ...,
         description="Title by which the command is represented in the UI.",
     )
-    category: Optional[str] = Field(
+    category: str | None = Field(
         default=None,
         description="(Optional) Category string by which the command may be grouped "
         "in the UI",
     )
-    tooltip: Optional[str] = Field(
+    tooltip: str | None = Field(
         default=None, description="(Optional) Tooltip to show when hovered."
     )
-    status_tip: Optional[str] = Field(
+    status_tip: str | None = Field(
         default=None,
         description="(Optional) Help message to show in the status bar when a "
         "button representing this command is hovered (for backends that support it).",
     )
-    icon: Optional[Icon] = Field(
+    icon: Icon | None = Field(
         default=None,
         description="(Optional) Icon used to represent this command, e.g. on buttons "
         "or in menus. These may be [iconify keys](https://icon-sets.iconify.design), "
@@ -66,19 +66,19 @@ class CommandRule(_BaseModel):
         description="Whether to show the icon in menus (for backends that support it). "
         "If `False`, only the title will be shown. By default, `True`.",
     )
-    enablement: Optional[expressions.Expr] = Field(
+    enablement: expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition which must be true to enable the command in "
         "the UI (menu and keybindings). Does not prevent executing the command by "
         "other means, like the `execute_command` API.",
     )
-    short_title: Optional[str] = Field(
+    short_title: str | None = Field(
         default=None,
         description="(Optional) Short title by which the command is represented in "
         "the UI. Menus pick either `title` or `short_title` depending on the context "
         "in which they show commands.",
     )
-    toggled: Union[ToggleRule, expressions.Expr, None] = Field(
+    toggled: ToggleRule | expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition under which the command should appear "
         "checked/toggled in any GUI representation (like a menu or button).",
