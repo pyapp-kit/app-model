@@ -7,18 +7,12 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
-# read more about configuring hatch at:
-# https://hatch.pypa.io/latest/config/build/
-[tool.hatch.build.targets.wheel]
-only-include = ["src"]
-sources = ["src"]
-
 # https://peps.python.org/pep-0621/
 [project]
 name = "app-model"
 description = "Generic application schema implemented in python"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "BSD 3-Clause License" }
 authors = [{ email = "talley.lambert@gmail.com" }, { name = "Talley Lambert" }]
 classifiers = [
@@ -26,11 +20,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Desktop Environment",
     "Topic :: Software Development",
     "Topic :: Software Development :: User Interfaces",
@@ -49,14 +43,7 @@ repository = "https://github.com/pyapp-kit/app-model"
 
 [project.optional-dependencies]
 qt = ["qtpy>=2.4.0", "superqt[iconify]>=0.7.2"]
-pyqt5 = [
-    "app-model[qt]",
-    "PyQt5>=5.15.10",
-    "pyqt5-qt5==5.15.2; sys_platform == 'win32'",
-    "pyqt5-qt5>=5.15.4; sys_platform != 'win32'",
-]
 pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0", "pyqt6-qt6>=6.4.0"]
-pyside2 = ["app-model[qt]", "PySide2>=5.15.2.1"]
 pyside6 = ["app-model[qt]", "PySide6>=6.6.0"]
 
 # https://peps.python.org/pep-0735/
@@ -66,8 +53,7 @@ test = ["pytest>=7.0", "pytest-cov >=6.1"]
 test-qt = [
     { include-group = "test" },
     "app-model[qt]",
-    "pytest-qt >=4.3.0; python_version > '3.10'",
-    "pytest-qt ==4.4.0; python_version <= '3.10'",
+    "pytest-qt >=4.3.0",
     "fonticon-fontawesome6 >=6.4.0",
 ]
 dev = [
@@ -76,10 +62,10 @@ dev = [
     "ipython>=8.18.0",
     "mypy>=1.13.0",
     "pdbpp>=0.11.6; sys_platform != 'win32'",
-    "pre-commit-uv>=4",
     # "pyqt6>=6.8.0",
     "rich>=13.9.4",
     "pyright>=1.1.402",
+    "prek>=0.3.9",
 ]
 docs = [
     "griffe-fieldz>=0.1.0",
@@ -100,10 +86,10 @@ app-model = { workspace = true }
 # https://docs.astral.sh/ruff
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 src = ["src", "tests"]
 fix = true
-# unsafe-fixes = true
+unsafe-fixes = true
 
 [tool.ruff.lint]
 pydocstyle = { convention = "numpy" }
