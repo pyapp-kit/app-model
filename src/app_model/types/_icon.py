@@ -1,4 +1,4 @@
-from typing import Any, Optional, TypedDict, Union
+from typing import Any, TypeAlias, TypedDict
 
 from pydantic import Field, model_validator
 
@@ -12,7 +12,7 @@ class Icon(_BaseModel):
     in all theme types.
     """
 
-    dark: Optional[str] = Field(
+    dark: str | None = Field(
         default=None,
         description="Icon path when a dark theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
@@ -20,7 +20,7 @@ class Icon(_BaseModel):
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
-    light: Optional[str] = Field(
+    light: str | None = Field(
         default=None,
         description="Icon path when a light theme is used. These may be "
         "[iconify keys](https://icon-sets.iconify.design), such as "
@@ -51,8 +51,8 @@ class Icon(_BaseModel):
 class IconDict(TypedDict):
     """Icon dictionary."""
 
-    dark: Optional[str]
-    light: Optional[str]
+    dark: str | None
+    light: str | None
 
 
-IconOrDict = Union[Icon, IconDict]
+IconOrDict: TypeAlias = Icon | IconDict

@@ -1,4 +1,5 @@
-from typing import Any, Callable, Optional, TypedDict, TypeVar, Union
+from collections.abc import Callable
+from typing import Any, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, model_validator
 
@@ -8,7 +9,7 @@ from ._base import _BaseModel
 from ._constants import KeyBindingSource, OperatingSystem
 from ._keys import StandardKeyBinding
 
-KeyEncoding = Union[int, str]
+KeyEncoding: TypeAlias = int | str
 M = TypeVar("M")
 
 _OS = OperatingSystem.current()
@@ -28,19 +29,19 @@ class KeyBindingRule(_BaseModel):
     [`KeyCode`][app_model.types.KeyCode], (e.g. `KeyMod.CtrlCmd | KeyCode.KeyO`).
     """
 
-    primary: Optional[KeyEncoding] = Field(
+    primary: KeyEncoding | None = Field(
         default=None, description="(Optional) Key combo, (e.g. Ctrl+O)."
     )
-    win: Optional[KeyEncoding] = Field(
+    win: KeyEncoding | None = Field(
         default=None, description="(Optional) Windows specific key combo."
     )
-    mac: Optional[KeyEncoding] = Field(
+    mac: KeyEncoding | None = Field(
         default=None, description="(Optional) MacOS specific key combo."
     )
-    linux: Optional[KeyEncoding] = Field(
+    linux: KeyEncoding | None = Field(
         default=None, description="(Optional) Linux specific key combo."
     )
-    when: Optional[expressions.Expr] = Field(
+    when: expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition when the keybingding is active.",
     )
@@ -54,7 +55,7 @@ class KeyBindingRule(_BaseModel):
         description="Who registered the keybinding. Used to sort keybindings.",
     )
 
-    def _bind_to_current_platform(self) -> Optional[KeyEncoding]:
+    def _bind_to_current_platform(self) -> KeyEncoding | None:
         if _WIN and self.win:
             return self.win
         if _MAC and self.mac:
@@ -76,12 +77,12 @@ class KeyBindingRule(_BaseModel):
 class KeyBindingRuleDict(TypedDict, total=False):
     """Typed dict for KeyBindingRule kwargs."""
 
-    primary: Optional[str]
-    win: Optional[str]
-    linux: Optional[str]
-    mac: Optional[str]
+    primary: str | None
+    win: str | None
+    linux: str | None
+    mac: str | None
     weight: int
-    when: Optional[expressions.Expr]
+    when: expressions.Expr | None
 
 
-KeyBindingRuleOrDict = Union[KeyBindingRule, KeyBindingRuleDict]
+KeyBindingRuleOrDict: TypeAlias = KeyBindingRule | KeyBindingRuleDict

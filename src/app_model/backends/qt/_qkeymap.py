@@ -7,7 +7,7 @@ import operator
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from qtpy.QtCore import QCoreApplication, Qt
+from qtpy.QtCore import QCoreApplication, QKeyCombination, Qt
 from qtpy.QtGui import QKeySequence
 
 from app_model.types import (
@@ -22,12 +22,6 @@ from app_model.types._constants import OperatingSystem
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping
 
-    from qtpy.QtCore import QKeyCombination
-
-try:
-    from qtpy import QT6
-except ImportError:
-    QT6 = False
 
 QCTRL = Qt.KeyboardModifier.ControlModifier
 QSHIFT = Qt.KeyboardModifier.ShiftModifier
@@ -57,50 +51,15 @@ def _mac_ctrl_meta_swapped() -> bool:
     )
 
 
-if QT6:
-    from qtpy.QtCore import QKeyCombination
-
-    def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
-        """Create Qt Key integer from a SimpleKeyBinding."""
-        lookup = (
-            _SWAPPED_QMOD_LOOKUP if MAC and _mac_ctrl_meta_swapped() else _QMOD_LOOKUP
-        )
-        key = modelkey2qkey(skb.key) if skb.key else Qt.Key.Key_unknown
-        mods = (v for k, v in lookup.items() if getattr(skb, k))
-        combo = QKeyCombination(
-            reduce(operator.or_, mods, Qt.KeyboardModifier.NoModifier), key
-        )
-        return int(combo.toCombined())
-
-else:
-
-    def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
-        """Create Qt Key integer from a SimpleKeyBinding."""
-        lookup = (
-            _SWAPPED_QMOD_LOOKUP if MAC and _mac_ctrl_meta_swapped() else _QMOD_LOOKUP
-        )
-        out = modelkey2qkey(skb.key) if skb.key else 0
-        mods = (v for k, v in lookup.items() if getattr(skb, k))
-        out = reduce(operator.or_, mods, out)
-        return int(out)
-
-
-if QT6:
-    # note: this doesn't work on pyside6 < 6.5 ...
-    # but we don't support that anymore
-    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
-        return key.keyboardModifiers()
-
-    def _get_qkey(key: QKeyCombination) -> Qt.Key:
-        return key.key()
-
-else:
-
-    def _get_qmods(key: QKeyCombination) -> Qt.KeyboardModifier:
-        return Qt.KeyboardModifier(key & Qt.KeyboardModifier.KeyboardModifierMask)
-
-    def _get_qkey(key: QKeyCombination) -> Qt.Key:
-        return Qt.Key(key & ~Qt.KeyboardModifier.KeyboardModifierMask)
+def simple_keybinding_to_qint(skb: SimpleKeyBinding) -> int:
+    """Create Qt Key integer from a SimpleKeyBinding."""
+    lookup = _SWAPPED_QMOD_LOOKUP if MAC and _mac_ctrl_meta_swapped() else _QMOD_LOOKUP
+    key = modelkey2qkey(skb.key) if skb.key else Qt.Key.Key_unknown
+    mods = (v for k, v in lookup.items() if getattr(skb, k))
+    combo = QKeyCombination(
+        reduce(operator.or_, mods, Qt.KeyboardModifier.NoModifier), key
+    )
+    return int(combo.toCombined())
 
 
 # maybe ~ 1.5x faster than:
@@ -239,7 +198,6 @@ KEYMOD_TO_QT = {
 
 MAC_KEYMOD_TO_QT = {**KEYMOD_TO_QT, KeyMod.WinCtrl: QCTRL, KeyMod.CtrlCmd: QMETA}
 
-
 KEY_FROM_QT: MutableMapping[Qt.Key, KeyCode | KeyCombo] = {
     v.toCombined() if hasattr(v, "toCombined") else int(v): k  # pyright: ignore
     for k, v in KEY_TO_QT.items()
@@ -312,8 +270,8 @@ def qkeycombo2modelkey(key: QKeyCombination) -> KeyCode | KeyCombo:
     if key in KEY_FROM_QT:
         # type ignore because in qt5, key may actually just be int ... but it's fine.
         return KEY_FROM_QT[key]
-    qmods = _get_qmods(key)
-    qkey = _get_qkey(key)
+    qmods = key.keyboardModifiers()
+    qkey = key.key()
     return qmods2modelmods(qmods) | qkey2modelkey(qkey)  # type: ignore [return-value]
 
 

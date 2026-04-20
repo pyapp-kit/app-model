@@ -18,13 +18,13 @@ jobs:
   check-manifest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: pipx run check-manifest
 
   pyright:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - run: uv run --with pyqt6 pyright
 
@@ -37,19 +37,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.11", "3.13"]
+        python-version: ["3.10", "3.12", "3.14"]
         platform: [ubuntu-latest, macos-latest, windows-latest]
         include:
+          - python-version: "3.11"
+            platform: "macos-latest"
+          - python-version: "3.13"
+            platform: "macos-latest"
           - python-version: "3.10"
-            platform: "macos-latest"
-          - python-version: "3.12"
-            platform: "macos-latest"
-          - python-version: "3.9"
             platform: "ubuntu-latest"
             resolution: "lowest-direct"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -69,7 +69,7 @@ jobs:
           PYTEST_ADDOPTS: ${{ matrix.resolution == 'lowest-direct' && '-W ignore' || '' }}
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}
           path: ./.coverage*
@@ -84,18 +84,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.10", "3.14"]
         platform: [macos-latest, windows-latest]
-        extra: [pyqt5, pyside2, pyside6, pyqt6]
+        extra: [pyside6, pyqt6]
         resolution: [highest, lowest-direct]
-        exclude:
-          - platform: "macos-latest"
-            extra: "pyside2"
-          - python-version: "3.12"
-            extra: "pyside2"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -133,7 +128,7 @@ jobs:
           update_existing: true
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: covreport-${{ matrix.platform }}-py${{ matrix.python-version }}-${{ matrix.extra }}-${{ matrix.resolution }}
           path: ./.coverage*
@@ -152,18 +147,18 @@ jobs:
       dependency-extras: "testing"
       qt: ${{ matrix.qt }}
       pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
-      python-version: "3.11"
+      python-version: "3.12"
     strategy:
       fail-fast: false
       matrix:
-        qt: ["pyqt5", "pyside6"]
+        qt: ["pyqt6", "pyside6"]
 
   build-and-inspect-package:
     name: Build & inspect package.
     needs: [check-manifest, test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: hynek/build-and-inspect-python-package@v2
@@ -179,7 +174,7 @@ jobs:
 
     steps:
       - name: Download built artifact to dist/
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: Packages
           path: dist

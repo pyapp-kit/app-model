@@ -20,9 +20,8 @@ from ._keys import (
 from ._menu_rule import MenuItem, MenuItemBase, MenuRule, SubmenuItem
 
 if TYPE_CHECKING:
-    from typing import Callable
-
-    from typing_extensions import TypeAlias
+    from collections.abc import Callable
+    from typing import TypeAlias
 
     from ._icon import IconOrDict as IconOrDict
     from ._keybinding_rule import KeyBindingRuleDict as KeyBindingRuleDict

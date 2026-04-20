@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from bisect import insort_left
 from collections import defaultdict
-from typing import TYPE_CHECKING, Callable, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from psygnal import Signal
 
 from app_model.types import KeyBinding
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping
+    from collections.abc import Callable, Iterable, Iterator, Mapping
     from typing import TypeVar
 
     from app_model import expressions
@@ -34,17 +34,17 @@ class _RegisteredKeyBinding(NamedTuple):
     when: expressions.Expr | None = None  # condition to enable keybinding
 
     def __gt__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) > (other.source, other.weight)
 
     def __lt__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) < (other.source, other.weight)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) == (other.source, other.weight)
 
