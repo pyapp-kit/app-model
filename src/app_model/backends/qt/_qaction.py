@@ -1,10 +1,10 @@
 from __future__ import annotations
-from qtpy.QtCore import QEvent
 
 import contextlib
 from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakValueDictionary
 
+from qtpy.QtCore import QEvent
 from qtpy.QtGui import QKeySequence
 
 from app_model import Application
@@ -144,7 +144,7 @@ class QCommandRuleAction(QCommandAction):
                 )
                 self.setChecked(_current())
 
-    def changeEvent(self, event):
+    def changeEvent(self, event) -> None:
         if event.type() == QEvent.PaletteChange:
             self._update_icon_theme()
         super().changeEvent(event)
