@@ -14,9 +14,9 @@ description = "Generic application schema implemented in python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD 3-Clause License" }
-authors = [{ email = "talley.lambert@gmail.com" }, { name = "Talley Lambert" }]
+authors = [{ email = "talley.lambert@gmail.com", name = "Talley Lambert" }]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
@@ -28,6 +28,7 @@ classifiers = [
     "Topic :: Desktop Environment",
     "Topic :: Software Development",
     "Topic :: Software Development :: User Interfaces",
+    "Typing :: Typed"
 ]
 dynamic = ["version"]
 dependencies = [
@@ -35,6 +36,7 @@ dependencies = [
     "pydantic>=2.8",
     "in-n-out>=0.1.5",
     "typing_extensions>=4.12",
+    "pydantic-core>=2.35; python_version >= '3.14'",
 ]
 
 [project.urls]
@@ -44,16 +46,16 @@ repository = "https://github.com/pyapp-kit/app-model"
 [project.optional-dependencies]
 qt = ["qtpy>=2.4.0", "superqt[iconify]>=0.7.2"]
 pyqt6 = ["app-model[qt]", "PyQt6>=6.4.0", "pyqt6-qt6>=6.4.0"]
-pyside6 = ["app-model[qt]", "PySide6>=6.6.0"]
+pyside6 = ["app-model[qt]", "PySide6>=6.7.0"]
 
 # https://peps.python.org/pep-0735/
 # setup with `uv sync` or `pip install -e . --group dev`
 [dependency-groups]
-test = ["pytest>=7.0", "pytest-cov >=6.1"]
+test = ["pytest>=8.0", "pytest-cov >=7.0"]
 test-qt = [
     { include-group = "test" },
     "app-model[qt]",
-    "pytest-qt >=4.3.0",
+    "pytest-qt >=4.5.0",
     "fonticon-fontawesome6 >=6.4.0",
 ]
 dev = [
