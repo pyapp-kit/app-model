@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, overload
 from app_model.types import Action
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal, TypeVar
+    from collections.abc import Callable
+    from typing import Any, Literal, TypeVar
 
     from app_model import Application, expressions
     from app_model.types import (

@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Callable, Generic, Optional, TypeVar, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from pydantic import Field, field_validator
 
@@ -31,7 +32,7 @@ class Action(CommandRule, Generic[P, R]):
     `register_action`.
     """
 
-    callback: Union[Callable[P, R], str] = Field(
+    callback: Callable[P, R] | str = Field(
         ...,
         description="A function to call when the associated command id is executed. "
         "If a string is provided, it must be a fully qualified name to a callable "
@@ -39,13 +40,13 @@ class Action(CommandRule, Generic[P, R]):
         "`{obj.__module__}:{obj.__qualname__}` "
         "(e.g. `my_package.a_module:some_function`)",
     )
-    menus: Optional[list[MenuRule]] = Field(
+    menus: list[MenuRule] | None = Field(
         default=None,
         description="(Optional) Menus to which this action should be added.  Note that "
         "menu items in the sequence may be supplied as a plain string, which will "
         "be converted to a `MenuRule` with the string as the `id` field.",
     )
-    keybindings: Optional[list[KeyBindingRule]] = Field(
+    keybindings: list[KeyBindingRule] | None = Field(
         default=None,
         description="(Optional) Default keybinding(s) that will trigger this command.",
     )
@@ -56,7 +57,7 @@ class Action(CommandRule, Generic[P, R]):
     )
 
     @field_validator("callback")
-    def _validate_callback(callback: object) -> Union[Callable, str]:
+    def _validate_callback(callback: object) -> Callable | str:
         """Assert that `callback` is a callable or valid fully qualified name."""
         if callable(callback):
             return callback

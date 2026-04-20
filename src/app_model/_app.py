@@ -10,7 +10,6 @@ from typing import (
     Any,
     ClassVar,
     Literal,
-    Optional,
     overload,
 )
 
@@ -29,7 +28,7 @@ from .types import (
 )
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from collections.abc import Callable
 
     from .expressions import Expr
     from .registries._register import CommandDecorator
@@ -173,7 +172,7 @@ class Application:
         return cls._instances[name] if name in cls._instances else cls(name)
 
     @classmethod
-    def get_app(cls, name: str) -> Optional[Application]:
+    def get_app(cls, name: str) -> Application | None:
         """Return app named `name` or None if it doesn't exist."""
         return cls._instances.get(name)
 

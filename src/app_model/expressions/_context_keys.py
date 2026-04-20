@@ -5,7 +5,6 @@ from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
     Generic,
     Literal,
@@ -18,7 +17,7 @@ from ._expressions import Name
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import MutableMapping
+    from collections.abc import Callable, MutableMapping
 
 T = TypeVar("T")
 A = TypeVar("A")

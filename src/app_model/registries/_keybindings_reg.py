@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from bisect import insort_left
 from collections import defaultdict
-from typing import TYPE_CHECKING, Callable, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from psygnal import Signal
 
 from app_model.types import KeyBinding
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping
+    from collections.abc import Callable, Iterable, Iterator, Mapping
     from typing import TypeVar
 
     from app_model import expressions

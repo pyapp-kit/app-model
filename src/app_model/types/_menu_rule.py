@@ -1,9 +1,4 @@
-from typing import (
-    Any,
-    Optional,
-    TypedDict,
-    Union,
-)
+from typing import Any, TypeAlias, TypedDict
 
 from pydantic import Field, field_validator, model_validator
 
@@ -17,18 +12,18 @@ from ._icon import Icon
 class MenuItemBase(_BaseModel):
     """Data representing where and when a menu item should be shown."""
 
-    when: Optional[expressions.Expr] = Field(
+    when: expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition which must be true to show the item.",
     )
-    group: Optional[str] = Field(
+    group: str | None = Field(
         default=None,
         description="(Optional) Menu group to which this item should be added. Menu "
         "groups are sortable strings (like `'1_cutandpaste'`). 'navigation' is a "
         "special group that always appears at the top of a menu.  If not provided, "
         "the item is added in the last group of the menu.",
     )
-    order: Optional[float] = Field(
+    order: float | None = Field(
         default=None,
         description="(Optional) Order of the item *within* its group. Note, order is "
         "not part of the plugin schema, plugins may provide it using the group key "
@@ -76,7 +71,7 @@ class MenuItem(MenuItemBase):
         ...,
         description="CommandRule to execute when this menu item is selected.",
     )
-    alt: Optional[CommandRule] = Field(
+    alt: CommandRule | None = Field(
         default=None,
         description="(Optional) Alternate command to execute when this menu item is "
         "selected, (e.g. when the Alt-key is held when opening the menu)",
@@ -94,7 +89,7 @@ class SubmenuItem(MenuItemBase):
 
     submenu: str = Field(..., description="Menu to insert as a submenu.")
     title: str = Field(..., description="Title of this submenu, shown in the UI.")
-    icon: Optional[Icon] = Field(
+    icon: Icon | None = Field(
         default=None,
         description="(Optional) Icon used to represent this submenu. "
         "These may be [iconify keys](https://icon-sets.iconify.design), "
@@ -102,7 +97,7 @@ class SubmenuItem(MenuItemBase):
         "[superqt.fonticon](https://pyapp-kit.github.io/superqt/utilities/fonticon/)"
         " keys, such as `fa6s.arrow_down`",
     )
-    enablement: Optional[expressions.Expr] = Field(
+    enablement: expressions.Expr | None = Field(
         default=None,
         description="(Optional) Condition which must be true to enable the submenu. "
         "Disabled submenus appear grayed out in the UI, and cannot be selected. By "
@@ -116,11 +111,11 @@ class MenuRuleDict(TypedDict, total=False):
     This mimics the pydantic `MenuRule` interface, but allows you to pass in a dict
     """
 
-    when: Optional[expressions.Expr]
+    when: expressions.Expr | None
     group: str
-    order: Optional[float]
+    order: float | None
     id: str
 
 
-MenuRuleOrDict = Union[MenuRule, MenuRuleDict]
-MenuOrSubmenu = Union[MenuItem, SubmenuItem]
+MenuRuleOrDict: TypeAlias = MenuRule | MenuRuleDict
+MenuOrSubmenu: TypeAlias = MenuItem | SubmenuItem

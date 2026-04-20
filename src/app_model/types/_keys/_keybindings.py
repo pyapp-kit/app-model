@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -19,7 +19,7 @@ class SimpleKeyBinding(BaseModel):
     shift: bool = Field(False, description='Whether the "Shift" modifier is active.')
     alt: bool = Field(False, description='Whether the "Alt" modifier is active.')
     meta: bool = Field(False, description='Whether the "Meta" modifier is active.')
-    key: Optional[KeyCode] = Field(
+    key: KeyCode | None = Field(
         None, description="The key that is pressed (e.g. `KeyCode.A`)"
     )
 
@@ -76,7 +76,7 @@ class SimpleKeyBinding(BaseModel):
 
     @classmethod
     def from_int(
-        cls, key_int: int, os: Optional[OperatingSystem] = None
+        cls, key_int: int, os: OperatingSystem | None = None
     ) -> "SimpleKeyBinding":
         """Create a SimpleKeyBinding from an integer."""
         ctrl_cmd = bool(key_int & KeyMod.CtrlCmd)
@@ -97,7 +97,7 @@ class SimpleKeyBinding(BaseModel):
     def __hash__(self) -> int:
         return hash((self.ctrl, self.shift, self.alt, self.meta, self.key))
 
-    def to_int(self, os: Optional[OperatingSystem] = None) -> int:
+    def to_int(self, os: OperatingSystem | None = None) -> int:
         """Convert this SimpleKeyBinding to an integer representation."""
         os = OperatingSystem.current() if os is None else os
         mods: KeyMod = KeyMod.NONE
@@ -126,7 +126,7 @@ class SimpleKeyBinding(BaseModel):
 
     def to_text(
         self,
-        os: Optional[OperatingSystem] = None,
+        os: OperatingSystem | None = None,
         use_symbols: bool = False,
         joinchar: str = "+",
     ) -> str:
@@ -222,9 +222,7 @@ class KeyBinding:
         return cls(parts=parts)
 
     @classmethod
-    def from_int(
-        cls, key_int: int, os: Optional[OperatingSystem] = None
-    ) -> "KeyBinding":
+    def from_int(cls, key_int: int, os: OperatingSystem | None = None) -> "KeyBinding":
         """Create a KeyBinding from an integer."""
         # a multi keybinding is represented as an integer
         # with the first_part in the lowest 16 bits,
@@ -240,7 +238,7 @@ class KeyBinding:
             )
         return cls(parts=[SimpleKeyBinding.from_int(first_part, os)])
 
-    def to_int(self, os: Optional[OperatingSystem] = None) -> int:
+    def to_int(self, os: OperatingSystem | None = None) -> int:
         """Convert this KeyBinding to an integer representation."""
         if len(self.parts) > 2:  # pragma: no cover
             raise NotImplementedError(
@@ -254,7 +252,7 @@ class KeyBinding:
 
     def to_text(
         self,
-        os: Optional[OperatingSystem] = None,
+        os: OperatingSystem | None = None,
         use_symbols: bool = False,
         joinchar: str = "+",
     ) -> str:
