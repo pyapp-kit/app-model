@@ -89,6 +89,7 @@ class Application:
     """
 
     destroyed = Signal(str)
+    theme_mode_changed = Signal(str)
     _instances: ClassVar[dict[str, Application]] = {}
 
     def __init__(
@@ -189,7 +190,9 @@ class Application:
             raise ValueError(
                 f"theme_mode must be one of 'dark', 'light', or None, not {value!r}"
             )
-        self._theme_mode = value
+        if value != self._theme_mode:
+            self._theme_mode = value
+            self.theme_mode_changed(value)
 
     @classmethod
     def get_or_create(cls, name: str) -> Application:

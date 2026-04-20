@@ -1,4 +1,5 @@
 from __future__ import annotations
+from qtpy.QtCore import QEvent
 
 import contextlib
 from typing import TYPE_CHECKING, ClassVar
@@ -100,11 +101,8 @@ class QCommandRuleAction(QCommandAction):
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
-        if command_rule.icon:
-            self.setIcon(
-                to_qicon(command_rule.icon, theme=self._app.theme_mode, parent=self)
-            )
-        self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
+        self._update_icon_theme()
+        self.setIconVisibleInMenu(self._cmd_rule.icon_visible_in_menu)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
@@ -112,6 +110,7 @@ class QCommandRuleAction(QCommandAction):
             self._refresh()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+        self._app.theme_mode_changed.connect(self._update_icon_theme)
 
     def setText(self, text: str | None) -> None:
         super().setText(text)
@@ -121,6 +120,12 @@ class QCommandRuleAction(QCommandAction):
         super()._update_keybinding()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+
+    def _update_icon_theme(self) -> None:
+        if self._cmd_rule.icon:
+            self.setIcon(
+                to_qicon(self._cmd_rule.icon, theme=self._app.theme_mode, parent=self)
+            )
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
@@ -138,6 +143,11 @@ class QCommandRuleAction(QCommandAction):
                     get_current, on_unresolved_required_args="ignore"
                 )
                 self.setChecked(_current())
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.PaletteChange:
+            self._update_icon_theme()
+        super().changeEvent(event)
 
 
 class QMenuItemAction(QCommandRuleAction):
