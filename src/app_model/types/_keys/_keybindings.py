@@ -55,7 +55,9 @@ class SimpleKeyBinding(BaseModel):
         # sourcery skip: remove-unnecessary-cast
         if not isinstance(other, SimpleKeyBinding):
             try:
-                if (other := SimpleKeyBinding._parse_input(other)) is None:
+                if (
+                    other := SimpleKeyBinding._parse_input(other)
+                ) is None:  # pragma: no cover
                     return NotImplemented
             except TypeError:  # pragma: no cover  # can happen with pydantic v2
                 return NotImplemented

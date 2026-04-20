@@ -12,11 +12,6 @@ from app_model.types import SubmenuItem
 from ._qaction import QCommandRuleAction, QMenuItemAction
 from ._util import to_qicon
 
-try:
-    from qtpy import QT6
-except ImportError:
-    QT6 = False
-
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QAction, QWidget
 

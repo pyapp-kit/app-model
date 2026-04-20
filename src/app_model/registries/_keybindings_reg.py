@@ -34,17 +34,17 @@ class _RegisteredKeyBinding(NamedTuple):
     when: expressions.Expr | None = None  # condition to enable keybinding
 
     def __gt__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) > (other.source, other.weight)
 
     def __lt__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) < (other.source, other.weight)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, _RegisteredKeyBinding):
+        if not isinstance(other, _RegisteredKeyBinding):  # pragma: no cover
             return NotImplemented
         return (self.source, self.weight) == (other.source, other.weight)
 
