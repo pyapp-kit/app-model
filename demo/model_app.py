@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
+from qtpy.QtGui import QPalette, QColor
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
 from app_model import Application, types
@@ -149,6 +150,28 @@ class MainWindow(QModelMainWindow):
     def close(self) -> bool:
         return super().close()
 
+    def switch_theme(self) -> None:
+        if getattr(self, '_old_palette', None):
+            new_palette, self._old_palette = self._old_palette, QApplication.palette()
+            QApplication.setPalette(new_palette)
+            return
+
+        # make the dark palette first time
+        self._old_palette = QApplication.palette()
+
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.Base, QColor(35, 35, 35))
+
+        palette.setColor(QPalette.WindowText, Qt.white)
+        palette.setColor(QPalette.Text, Qt.white)
+        palette.setColor(QPalette.ButtonText, Qt.white)
+
+        palette.setColor(QPalette.Highlight, QColor(80, 80, 80))
+        palette.setColor(QPalette.HighlightedText, Qt.white)
+        QApplication.setPalette(palette)
+
+
 
 # Actions defined declaratively outside of QMainWindow class ...
 # menus and toolbars will be made and added automatically
@@ -213,7 +236,7 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="cut",
-        icon="fa6-solid:scissors",
+        icon={"light": "fa6-solid:scissors", "color_dark": "#ff0000", "color_light": "#0000ff"},
         title="Cut",
         keybindings=[types.StandardKeyBinding.Cut],
         enablement="copyAvailable",
@@ -248,6 +271,14 @@ ACTIONS: list[types.Action] = [
         menus=[{"id": MenuId.HELP}],
         callback=MainWindow.about,
     ),
+    types.Action(
+        id="switch_theme",
+        icon="fa6-solid:circle-half-stroke",
+        title="Switch dark/light theme",
+        status_tip="Switch between dark and light theme.",
+        menus=[{"id": MenuId.HELP}],
+        callback=MainWindow.switch_theme,
+    )
 ]
 
 

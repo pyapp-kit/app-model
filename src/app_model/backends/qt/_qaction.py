@@ -144,10 +144,10 @@ class QCommandRuleAction(QCommandAction):
                 )
                 self.setChecked(_current())
 
-    def changeEvent(self, event) -> None:
-        if event.type() == QEvent.PaletteChange:
-            self._update_icon_theme()
-        super().changeEvent(event)
+    # def changeEvent(self, event) -> None:
+    #     if event.type() == QEvent.PaletteChange:
+    #         self._update_icon_theme()
+    #     super().changeEvent(event)
 
 
 class QMenuItemAction(QCommandRuleAction):
