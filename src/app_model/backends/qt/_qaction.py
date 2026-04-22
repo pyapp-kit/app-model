@@ -145,7 +145,7 @@ class QCommandRuleAction(QCommandAction):
                 )
                 self.setChecked(_current())
 
-    def eventFilter(self, obj, a0):
+    def eventFilter(self, obj, a0) -> bool:
         if a0 is not None and a0.type() in (
             QEvent.Type.ApplicationPaletteChange,
             QEvent.Type.PaletteChange,

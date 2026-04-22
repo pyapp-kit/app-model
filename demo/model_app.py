@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
-from qtpy.QtGui import QPalette, QColor
+from qtpy.QtGui import QColor, QPalette
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
 from app_model import Application, types
@@ -151,7 +151,7 @@ class MainWindow(QModelMainWindow):
         return super().close()
 
     def switch_theme(self) -> None:
-        if getattr(self, '_old_palette', None):
+        if getattr(self, "_old_palette", None):
             new_palette, self._old_palette = self._old_palette, QApplication.palette()
             QApplication.setPalette(new_palette)
             return
@@ -171,8 +171,8 @@ class MainWindow(QModelMainWindow):
         palette.setColor(QPalette.HighlightedText, Qt.white)
         QApplication.setPalette(palette)
 
-    def switch_theme_model(self):
-        self._app.theme_mode = 'light' if self._app.theme_mode == 'dark' else 'dark'
+    def switch_theme_model(self) -> None:
+        self._app.theme_mode = "light" if self._app.theme_mode == "dark" else "dark"
 
 
 # Actions defined declaratively outside of QMainWindow class ...
@@ -238,7 +238,11 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="cut",
-        icon={"light": "fa6-solid:scissors", "color_dark": "#ff0000", "color_light": "#0000ff"},
+        icon={
+            "light": "fa6-solid:scissors",
+            "color_dark": "#ff0000",
+            "color_light": "#0000ff",
+        },
         title="Cut",
         keybindings=[types.StandardKeyBinding.Cut],
         enablement="copyAvailable",
@@ -275,7 +279,11 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="switch_theme",
-        icon={"dark": "fa6-solid:circle-half-stroke", "color_dark": "#ff0000", "color_light": "#0000ff"},
+        icon={
+            "dark": "fa6-solid:circle-half-stroke",
+            "color_dark": "#ff0000",
+            "color_light": "#0000ff",
+        },
         title="Switch dark/light theme",
         status_tip="Switch between dark and light theme.",
         menus=[{"id": MenuId.HELP}],
@@ -283,12 +291,16 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="switch_theme_model",
-        icon={"dark": "fa6-solid:circle-half-stroke", "color_dark": "#ff0000", "color_light": "#0000ff"},
+        icon={
+            "dark": "fa6-solid:circle-half-stroke",
+            "color_dark": "#ff0000",
+            "color_light": "#0000ff",
+        },
         title="Switch dark/light theme",
         status_tip="Switch between dark and light theme.",
         menus=[{"id": MenuId.HELP}],
         callback=MainWindow.switch_theme_model,
-    )
+    ),
 ]
 
 
