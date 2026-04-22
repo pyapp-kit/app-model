@@ -171,6 +171,8 @@ class MainWindow(QModelMainWindow):
         palette.setColor(QPalette.HighlightedText, Qt.white)
         QApplication.setPalette(palette)
 
+    def switch_theme_model(self):
+        self._app.theme_mode = 'light' if self._app.theme_mode == 'dark' else 'dark'
 
 
 # Actions defined declaratively outside of QMainWindow class ...
@@ -273,11 +275,19 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="switch_theme",
-        icon="fa6-solid:circle-half-stroke",
+        icon={"dark": "fa6-solid:circle-half-stroke", "color_dark": "#ff0000", "color_light": "#0000ff"},
         title="Switch dark/light theme",
         status_tip="Switch between dark and light theme.",
         menus=[{"id": MenuId.HELP}],
         callback=MainWindow.switch_theme,
+    ),
+    types.Action(
+        id="switch_theme_model",
+        icon={"dark": "fa6-solid:circle-half-stroke", "color_dark": "#ff0000", "color_light": "#0000ff"},
+        title="Switch dark/light theme",
+        status_tip="Switch between dark and light theme.",
+        menus=[{"id": MenuId.HELP}],
+        callback=MainWindow.switch_theme_model,
     )
 ]
 
