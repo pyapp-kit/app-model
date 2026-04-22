@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from app_model.types import CommandRule, MenuItem
 else:
-    from qtpy.QtWidgets import QAction
+    from qtpy.QtWidgets import QAction, QApplication
 
 
 class QCommandAction(QAction):
@@ -102,6 +102,7 @@ class QCommandRuleAction(QCommandAction):
         else:
             self.setText(command_rule.title)
         self._update_icon_theme()
+        QApplication.instance().installEventFilter(self)
         self.setIconVisibleInMenu(self._cmd_rule.icon_visible_in_menu)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
@@ -144,10 +145,14 @@ class QCommandRuleAction(QCommandAction):
                 )
                 self.setChecked(_current())
 
-    # def changeEvent(self, event) -> None:
-    #     if event.type() == QEvent.PaletteChange:
-    #         self._update_icon_theme()
-    #     super().changeEvent(event)
+    def eventFilter(self, obj, a0):
+        if a0 is not None and a0.type() in (
+            QEvent.Type.ApplicationPaletteChange,
+            QEvent.Type.PaletteChange,
+            QEvent.Type.StyleChange,
+        ):
+            self._update_icon_theme()
+        return False
 
 
 class QMenuItemAction(QCommandRuleAction):
