@@ -187,7 +187,36 @@ window, a document, or a viewer.  When operations happen *inside* that
 object (or inside a child object created by it), they should see that
 object's context.
 
-[`create_context`][app_model.expressions.create_context] does this for you:
+You *could* just instantiate a `Context()` and stash it on the object
+yourself:
+
+```python
+class Window:
+    def __init__(self):
+        self.context = Context()           # an isolated root mapping
+        self.document = Document()         # has no idea about Window's context
+```
+
+…but this gives you an isolated, parentless mapping that nothing else can
+discover. If `Document` (or anything created inside `Window.__init__`)
+wants the same context, you have to thread it through manually.
+
+[`create_context`][app_model.expressions.create_context] does three extra
+things on top of `Context()` to solve this:
+
+1. **It registers the context** in a process-wide table keyed by
+   `id(obj)`, so any code can retrieve it later via
+   [`get_context(obj)`][app_model.expressions.get_context] — no need to
+   hold or pass a reference.
+2. **It cleans up the registry entry** when `obj` is garbage-collected,
+   via `weakref.finalize`, so the table doesn't leak.
+3. **It auto-discovers a parent** by walking up the call stack looking
+   for a `self` in some enclosing frame that already has a registered
+   context. The new context is then created as a `ChainMap` child of
+   that parent (falling back to a process-wide root if none is found).
+
+That last point is the magic that makes nested objects automatically share
+context without explicit wiring:
 
 ```python
 from app_model.expressions import create_context, get_context
@@ -195,24 +224,23 @@ from app_model.expressions import create_context, get_context
 class Window:
     def __init__(self):
         create_context(self)
-        self.document = Document()
+        self.document = Document()        # constructed inside Window.__init__
 
 class Document:
     def __init__(self):
-        create_context(self)
+        create_context(self)              # picks Window's context as parent
 
 w = Window()
-get_context(w)             # the Window's context
-get_context(w.document)    # the Document's context (a child of Window's)
+get_context(w)              # Window's context
+get_context(w.document)     # Document's context (a ChainMap child of Window's)
+
+get_context(w)["theme"] = "dark"
+get_context(w.document)["theme"]   # 'dark' — inherited from Window
 ```
 
-`create_context` walks up the call stack to find the nearest object that
-already has a context, and uses *that* as the parent for the new context.
-The result is an automatic, hierarchical context structure that mirrors
-your object hierarchy — without any explicit parent/child wiring.
-
-The context is held in a module-level registry keyed by object id, and is
-cleaned up automatically when the object is garbage collected.
+If `Document` had used `Context()` directly, `get_context(w.document)` would
+return `None`, the `Document`'s context would be a sibling root rather than
+a child, and `theme` would not be visible from inside the document.
 
 ### Application contexts
 

@@ -87,7 +87,24 @@ def create_context(
     root_class: type[Context] = Context,
     frame_predicate: Callable[[FrameType], bool] = _pydantic_abort,
 ) -> Context:
-    """Create context for any object.
+    """Create and register a `Context` for `obj`, scoped to its caller.
+
+    Unlike instantiating `Context()` directly (which produces an isolated,
+    parentless mapping that nothing can later look up), this function:
+
+    1. **Registers** the new context in a process-wide table keyed by
+       `id(obj)`, so that `get_context(obj)` can retrieve it from anywhere
+       later, without callers needing to hold a reference to it.
+    2. **Auto-cleans** the registry entry via `weakref.finalize` when `obj`
+       is garbage-collected, so the table does not leak.
+    3. **Discovers a parent automatically** by walking up the call stack
+       (up to `max_depth` frames) looking for a `self` local that already
+       has a registered context. The new context is created as a
+       `ChainMap` child of that parent (or of a process-wide root if none
+       is found). This is what makes nested objects inherit their
+       enclosing object's context without any explicit wiring — e.g. a
+       `Document` constructed inside a `Window.__init__` will automatically
+       become a child context of the `Window`'s context.
 
     Parameters
     ----------
