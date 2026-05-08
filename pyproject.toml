@@ -187,7 +187,6 @@ ignore = [
     "codecov.yml",
     "demo/**/*",
     "docs/**/*",
-    ".readthedocs.yaml",
     "zensical.toml",
     "CHANGELOG.md",
     ".ruff_cache/**/*",
