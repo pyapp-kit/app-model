@@ -15,6 +15,7 @@ watch:
 nav:
   - index.md
   - getting_started.md
+  - expressions_and_contexts.md
   # defer to gen-files + literate-nav
   - API reference: reference/
 
