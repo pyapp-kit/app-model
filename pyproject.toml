@@ -28,7 +28,7 @@ classifiers = [
     "Topic :: Desktop Environment",
     "Topic :: Software Development",
     "Topic :: Software Development :: User Interfaces",
-    "Typing :: Typed"
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = [
@@ -69,16 +69,11 @@ dev = [
     "prek>=0.3.9",
 ]
 docs = [
-    "griffe-fieldz>=0.1.0",
-    "griffe==0.36.9",
-    "mkdocs-gen-files>=0.5.0",
-    "mkdocs-literate-nav>=0.6.2",
-    "mkdocs-macros-plugin==1.0.5",
-    "mkdocs-material==9.4.1",
-    "mkdocs==1.5.3",
-    "mkdocstrings-python==1.7.3",
-    "mkdocstrings==0.23.0",
+    "griffe-fieldz>=0.5",
+    "mkdocstrings-python>=2.0",
+    "mkdocstrings>=1.0.1",
     "typing_extensions>=4.11",
+    "zensical>=0.0.40",
 ]
 
 [tool.uv.sources]
@@ -195,7 +190,7 @@ ignore = [
     "demo/**/*",
     "docs/**/*",
     ".readthedocs.yaml",
-    "mkdocs.yml",
+    "zensical.toml",
     "CHANGELOG.md",
     ".ruff_cache/**/*",
 ]
