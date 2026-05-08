@@ -244,7 +244,7 @@ a child, and `theme` would not be visible from inside the document.
 
 ### Application contexts
 
-The [`Application`][app_model.Application] class automatically creates a
+If not provided, the [`Application`][app_model.Application] class automatically creates a
 [`Context`][app_model.expressions.Context] for itself, available as
 `app.context`.  It is pre-populated with a few platform-detection keys via
 [`app_model_context`][app_model.expressions.app_model_context]:
@@ -301,8 +301,48 @@ expr.eval({"selected_count": 3})  # True
 expr.eval({"selected_count": 0})  # False
 ```
 
-This is much friendlier to write and refactor than `parse_expression(
-"selected_count > 0")`, and gives you static type information for free.
+This is much friendlier to write and refactor than
+`parse_expression("selected_count > 0")`.
+
+### Static typing
+
+`ContextKey` is generic in two type parameters, `ContextKey[A, T]`:
+
+- `A` is the type of the source object passed to `getter` (matching the
+  parameter on `ContextNamespace[A]`).
+- `T` is the value type of the key.
+
+By annotating the class attribute as `ContextKey[A, T]`, you give the
+type checker (mypy, pyright, …) full information about reads and writes
+through the bound namespace — so mistakes that a plain `Context`
+mapping (`ctx["selected_count"]: Any`) would never catch become static
+errors:
+
+```python
+from app_model.expressions import Context, ContextKey, ContextNamespace
+
+class SelectionKeys(ContextNamespace[list]):
+    selected_count = ContextKey[list, int](
+        default_value=0,
+        description="Number of selected items.",
+        getter=lambda sel: len(sel),
+    )
+
+ctx = Context()
+keys = SelectionKeys(ctx)
+
+reveal_type(keys.selected_count)             # int
+total: int = keys.selected_count + 1         # OK
+keys.selected_count = 3                      # OK
+
+# A static type checker flags both of the following:
+keys.selected_count.upper()                  # error: "int" has no attribute "upper"
+keys.selected_count = "three"                # error: Incompatible: str -> int
+
+```
+
+Running mypy or pyright on the snippet above produces an error on each
+of the last two lines.
 
 ### Binding a namespace to a context
 
