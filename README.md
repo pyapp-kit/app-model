@@ -5,7 +5,6 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/app-model.svg?color=green)](https://python.org)
 [![CI](https://github.com/pyapp-kit/app-model/actions/workflows/ci.yml/badge.svg)](https://github.com/pyapp-kit/app-model/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/pyapp-kit/app-model/branch/main/graph/badge.svg)](https://codecov.io/gh/pyapp-kit/app-model)
-[![Documentation Status](https://readthedocs.org/projects/app-model/badge/?version=latest)](https://app-model.readthedocs.io/en/latest/?badge=latest)
 
 Generic application schema implemented in python.
 
@@ -14,4 +13,4 @@ menus, keybindings, actions/commands, etc...
 
 Inspired by the VS-Code application model
 
-docs at https://app-model.readthedocs.io/en/latest/
+docs at https://pyapp-kit.github.io/app-model/
