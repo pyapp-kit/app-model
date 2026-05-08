@@ -64,6 +64,13 @@ class Context(ChainMap):
     def __hash__(self) -> int:
         return id(self)
 
+    # ChainMap overrides update/clear/pop/popitem/__ior__ to operate on
+    # `self.maps[0]` directly, bypassing our `__setitem__`/`__delitem__`
+    # (and therefore signal emission). We re-override them here to route
+    # through the evented dunder methods, and aggregate per-key signals
+    # into a single `changed` emission via `buffered_changes`.
+    # Hidden from type checkers so callers see the stricter inherited
+    # signatures.
     if not TYPE_CHECKING:
 
         def update(self, *args: Any, **kwargs: Any) -> None:
@@ -71,11 +78,15 @@ class Context(ChainMap):
                 return super().update(*args, **kwargs)
 
         def clear(self) -> None:
+            # super().clear() would call self.maps[0].clear(), skipping
+            # __delitem__ entirely.
             with self.buffered_changes():
                 for k in list(self.maps[0]):
                     del self[k]
 
         def pop(self, key: str, *args: Any) -> Any:
+            # super().pop() goes straight to self.maps[0].pop(...), so no
+            # signal would fire. Route through __delitem__ instead.
             if key in self.maps[0]:
                 val = self.maps[0][key]
                 del self[key]
@@ -85,6 +96,9 @@ class Context(ChainMap):
             raise KeyError(f"Key not found in the first mapping: {key!r}")
 
         def popitem(self) -> tuple[str, Any]:
+            # super().popitem() also bypasses __delitem__. Pick the same
+            # entry CPython's dict.popitem would (the last-inserted key)
+            # and remove it via __delitem__ to fire a signal.
             try:
                 key = next(reversed(self.maps[0]))
             except StopIteration:
@@ -94,6 +108,9 @@ class Context(ChainMap):
             return key, val
 
         def __ior__(self, other: Any) -> Context:
+            # ChainMap.__ior__ calls self.maps[0].update(other), bypassing
+            # both __setitem__ and our update() override. Defer to our
+            # update() so the buffered single-signal behavior applies.
             self.update(other)
             return self
 
