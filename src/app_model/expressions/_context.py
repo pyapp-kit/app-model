@@ -29,6 +29,7 @@ class Context(ChainMap):
     """Evented Mapping of keys to values."""
 
     changed = Signal(set)  # Set[str]
+    """Event emitted (with a set of changed keys) whenever the context is changed."""
 
     def __init__(self, *maps: MutableMapping) -> None:
         super().__init__(*maps)
@@ -62,6 +63,39 @@ class Context(ChainMap):
 
     def __hash__(self) -> int:
         return id(self)
+
+    if not TYPE_CHECKING:
+
+        def update(self, *args: Any, **kwargs: Any) -> None:
+            with self.buffered_changes():
+                return super().update(*args, **kwargs)
+
+        def clear(self) -> None:
+            with self.buffered_changes():
+                for k in list(self.maps[0]):
+                    del self[k]
+
+        def pop(self, key: str, *args: Any) -> Any:
+            if key in self.maps[0]:
+                val = self.maps[0][key]
+                del self[key]
+                return val
+            if args:
+                return args[0]
+            raise KeyError(f"Key not found in the first mapping: {key!r}")
+
+        def popitem(self) -> tuple[str, Any]:
+            try:
+                key = next(reversed(self.maps[0]))
+            except StopIteration:
+                raise KeyError("No keys found in the first mapping.") from None
+            val = self.maps[0][key]
+            del self[key]
+            return key, val
+
+        def __ior__(self, other: Any) -> Context:
+            self.update(other)
+            return self
 
 
 # note: it seems like WeakKeyDictionary would be a nice match here, but
