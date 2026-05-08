@@ -69,9 +69,8 @@ dev = [
     "prek>=0.3.9",
 ]
 docs = [
-    "griffe-fieldz>=0.5",
-    "mkdocstrings-python>=2.0",
-    "mkdocstrings>=1.0.1",
+    "griffe-fieldz>=0.5.0",
+    "mkdocstrings-python>=2.0.3",
     "zensical>=0.0.40",
 ]
 
