@@ -1,0 +1,105 @@
+[project]
+site_name = "app-model"
+site_url = "https://pyapp-kit.github.io/app-model/"
+site_author = "Talley Lambert"
+site_description = "Generic application model implemented in python."
+repo_name = "pyapp-kit/app-model"
+repo_url = "https://github.com/pyapp-kit/app-model"
+# strict = true
+
+copyright = "Copyright &copy; 2026 Talley Lambert"
+
+watch = ["src"]
+
+nav = [
+  "index.md",
+  "getting_started.md",
+  { "API reference" = [
+    "reference/index.md",
+    { "backends" = [
+      "reference/backends/index.md",
+      { "qt" = "reference/backends/qt/index.md" },
+    ] },
+    { "expressions" = "reference/expressions/index.md" },
+    { "registries" = "reference/registries/index.md" },
+    { "types" = "reference/types/index.md" },
+  ] },
+]
+
+extra_css = ["css/style.css"]
+
+# Silence false-positive "unresolved link reference" warnings emitted for
+# mkdocstrings autorefs (see https://zensical.org/docs/setup/validation/ —
+# zensical's validator does not yet understand autoref placeholders, even
+# though they resolve correctly in the rendered HTML).
+[project.validation]
+unresolved_references = false
+
+# ----------------------------------------------------------------------------
+# Theme
+# ----------------------------------------------------------------------------
+[project.theme]
+language = "en"
+features = [
+  "navigation.instant",
+  "navigation.indexes",
+  "navigation.expand",
+  "search.highlight",
+  "search.suggest",
+]
+# font.text = "Inter"
+font.code = "Fira Code"
+
+[project.theme.icon]
+repo = "material/github"
+logo = "material/application-cog-outline"
+
+# ----------------------------------------------------------------------------
+# Markdown extensions
+# ----------------------------------------------------------------------------
+[project.markdown_extensions.tables]
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.pymdownx.details]
+
+[project.markdown_extensions.toc]
+permalink = "#"
+
+[project.markdown_extensions.pymdownx.emoji]
+emoji_index = "zensical.extensions.emoji.twemoji"
+emoji_generator = "zensical.extensions.emoji.to_svg"
+
+# ----------------------------------------------------------------------------
+# Plugins
+# ----------------------------------------------------------------------------
+[project.plugins.search]
+[project.plugins.autorefs]
+[project.plugins.mkdocstrings]
+default_handler = "python"
+
+[project.plugins.mkdocstrings.handlers.python]
+inventories = [
+  "https://docs.python.org/3/objects.inv",
+  "https://ino.readthedocs.io/en/latest/objects.inv",
+]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+extensions = ["griffe_fieldz"]
+docstring_style = "numpy"
+docstring_options = { ignore_init_summary = true }
+docstring_section_style = "list"
+show_symbol_type_toc = true
+show_symbol_type_heading = true
+filters = ["!^_"]
+heading_level = 1
+inherited_members = true
+merge_init_into_class = true
+separate_signature = true
+show_root_heading = true
+show_root_full_path = true
+show_signature_annotations = true
+show_bases = true
+show_source = true
+summary = true
