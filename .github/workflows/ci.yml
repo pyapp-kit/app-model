@@ -141,10 +141,10 @@ jobs:
     secrets: inherit
 
   test_napari:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@main
     with:
       dependency-repo: napari/napari
-      dependency-extras: "testing"
+      dependency-group: "testing"
       qt: ${{ matrix.qt }}
       pytest-args: 'src/napari/_qt/_qapp_model src/napari/_app_model src/napari/utils/_tests/test_key_bindings.py --import-mode=importlib -k "not async and not qt_dims_2"'
       python-version: "3.12"
