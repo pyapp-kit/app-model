@@ -14,6 +14,7 @@ watch = ["src"]
 nav = [
   "index.md",
   "getting_started.md",
+  "expressions_and_contexts.md",
   { "API reference" = [
     "reference/index.md",
     { "backends" = [
