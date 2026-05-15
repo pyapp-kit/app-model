@@ -4,6 +4,7 @@ import contextlib
 from typing import TYPE_CHECKING, ClassVar
 from weakref import WeakValueDictionary
 
+from qtpy.QtCore import QEvent
 from qtpy.QtGui import QKeySequence
 
 from app_model import Application
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 
     from app_model.types import CommandRule, MenuItem
 else:
-    from qtpy.QtWidgets import QAction
+    from qtpy.QtWidgets import QAction, QApplication
 
 
 class QCommandAction(QAction):
@@ -100,9 +101,9 @@ class QCommandRuleAction(QCommandAction):
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
-        if command_rule.icon:
-            self.setIcon(to_qicon(command_rule.icon))
-        self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
+        self._update_icon_theme()
+        QApplication.instance().installEventFilter(self)
+        self.setIconVisibleInMenu(self._cmd_rule.icon_visible_in_menu)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
@@ -110,6 +111,7 @@ class QCommandRuleAction(QCommandAction):
             self._refresh()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+        self._app.theme_mode_changed.connect(self._update_icon_theme)
 
     def setText(self, text: str | None) -> None:
         super().setText(text)
@@ -119,6 +121,12 @@ class QCommandRuleAction(QCommandAction):
         super()._update_keybinding()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+
+    def _update_icon_theme(self) -> None:
+        if self._cmd_rule.icon:
+            self.setIcon(
+                to_qicon(self._cmd_rule.icon, theme=self._app.theme_mode, parent=self)
+            )
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
@@ -136,6 +144,15 @@ class QCommandRuleAction(QCommandAction):
                     get_current, on_unresolved_required_args="ignore"
                 )
                 self.setChecked(_current())
+
+    def eventFilter(self, obj, a0) -> bool:
+        if a0 is not None and a0.type() in (
+            QEvent.Type.ApplicationPaletteChange,
+            QEvent.Type.PaletteChange,
+            QEvent.Type.StyleChange,
+        ):
+            self._update_icon_theme()
+        return False
 
 
 class QMenuItemAction(QCommandRuleAction):

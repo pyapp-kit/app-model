@@ -134,7 +134,9 @@ class QModelSubmenu(QModelMenu):
             menu_id=submenu.submenu, app=app, title=submenu.title, parent=parent
         )
         if submenu.icon:
-            self.setIcon(to_qicon(submenu.icon))
+            self.setIcon(
+                to_qicon(submenu.icon, theme=self._app.theme_mode, parent=self)
+            )
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
