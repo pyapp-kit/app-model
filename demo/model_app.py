@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from qtpy.QtCore import QFile, QFileInfo, QSaveFile, Qt, QTextStream
+from qtpy.QtGui import QColor, QPalette
 from qtpy.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextEdit
 
 from app_model import Application, types
@@ -149,6 +150,35 @@ class MainWindow(QModelMainWindow):
     def close(self) -> bool:
         return super().close()
 
+    def switch_palette(self) -> None:
+        if getattr(self, "_old_palette", None):
+            new_palette, self._old_palette = self._old_palette, QApplication.palette()
+            QApplication.setPalette(new_palette)
+            return
+
+        # make the dark palette first time
+        self._old_palette = QApplication.palette()
+
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.ColorRole.Base, QColor(35, 35, 35))
+
+        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+        palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+        palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+
+        palette.setColor(QPalette.ColorRole.Highlight, QColor(80, 80, 80))
+        palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+        QApplication.setPalette(palette)
+
+    def switch_theme_mode(self) -> None:
+        modes = (None, "dark", "light")
+        current = modes.index(self._app.theme_mode)
+        next_theme = modes[(current + 1) % 3]
+        self._app.theme_mode = next_theme
+        if sb := self.statusBar():
+            sb.showMessage(f"Current app theme: {next_theme}")
+
 
 # Actions defined declaratively outside of QMainWindow class ...
 # menus and toolbars will be made and added automatically
@@ -213,7 +243,11 @@ ACTIONS: list[types.Action] = [
     ),
     types.Action(
         id="cut",
-        icon="fa6-solid:scissors",
+        icon={
+            "light": "fa6-solid:scissors",
+            "color_dark": "#ff0000",
+            "color_light": "#0000ff",
+        },
         title="Cut",
         keybindings=[types.StandardKeyBinding.Cut],
         enablement="copyAvailable",
@@ -248,6 +282,33 @@ ACTIONS: list[types.Action] = [
         menus=[{"id": MenuId.HELP}],
         callback=MainWindow.about,
     ),
+    types.Action(
+        id="switch_palette",
+        icon="fa6-solid:palette",
+        title="Switch dark/light theme",
+        status_tip=(
+            "Switch between dark and light Qt Palette. This affects "
+            "icons, unless a theme has been explicitly set on the application level."
+        ),
+        menus=[{"id": MenuId.HELP}],
+        callback=MainWindow.switch_palette,
+    ),
+    types.Action(
+        id="switch_theme_mode",
+        icon={
+            "dark": "fa6-solid:sun",
+            "light": "fa6-solid:moon",
+            "color_dark": "#ff0000",
+            "color_light": "#0000ff",
+        },
+        title="Rotate between dark, light, and unset theme.",
+        status_tip=(
+            "Rotate between dark, light, and unset theme. This affects "
+            "theme icons and has precedence over the theming based on the QPalette."
+        ),
+        menus=[{"id": MenuId.HELP}],
+        callback=MainWindow.switch_theme_mode,
+    ),
 ]
 
 
@@ -257,6 +318,8 @@ if __name__ == "__main__":
     app = Application(name="my_app")
     for action in ACTIONS:
         app.register_action(action)
+    app.default_icon_colors = ("#E0E0E0", "#181818")
+
     qapp = QApplication.instance() or QApplication([])
     qapp.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
     main_win = MainWindow(app=app)

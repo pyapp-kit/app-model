@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Literal
 from weakref import WeakValueDictionary
 
 from qtpy.QtGui import QKeySequence
+from qtpy.QtWidgets import QApplication
 
 from app_model import Application
 from app_model.expressions import Expr
 from app_model.types import ToggleRule
 
 from ._qkeymap import QKeyBindingSequence
-from ._util import to_qicon
+from ._util import ThemeEventFilter, guess_theme_mode, pick_icon_color, to_qicon
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -96,13 +97,14 @@ class QCommandRuleAction(QCommandAction):
         super().__init__(command_rule.id, app, parent)
         self._cmd_rule = command_rule
         self._tooltip = command_rule.tooltip or ""
+        self._current_theme: Literal["dark", "light", None] = None
+        self._current_color: str = ""
         if use_short_title and command_rule.short_title:
             self.setText(command_rule.short_title)  # pragma: no cover
         else:
             self.setText(command_rule.title)
-        if command_rule.icon:
-            self.setIcon(to_qicon(command_rule.icon))
-        self.setIconVisibleInMenu(command_rule.icon_visible_in_menu)
+        self._update_icon()
+        self.setIconVisibleInMenu(self._cmd_rule.icon_visible_in_menu)
         if command_rule.status_tip:
             self.setStatusTip(command_rule.status_tip)
         if command_rule.toggled is not None:
@@ -110,6 +112,12 @@ class QCommandRuleAction(QCommandAction):
             self._refresh()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+        self._app.theme_changed.connect(self._update_icon)
+        if (qapp := QApplication.instance()) and not hasattr(
+            self._app, "_theme_event_filter"
+        ):
+            event_filter = ThemeEventFilter(self._app)
+            qapp.installEventFilter(event_filter)
 
     def setText(self, text: str | None) -> None:
         super().setText(text)
@@ -119,6 +127,19 @@ class QCommandRuleAction(QCommandAction):
         super()._update_keybinding()
         tooltip_with_keybinding = f"{self._tooltip} {self._keybinding_tooltip}".rstrip()
         self.setToolTip(tooltip_with_keybinding)
+
+    def _update_icon(self) -> None:
+        if self._cmd_rule.icon:
+            theme = guess_theme_mode(theme=self._app.theme_mode, parent=self)
+            color = pick_icon_color(
+                self._cmd_rule.icon,
+                theme=theme,
+                default_colors=self._app.default_icon_colors,
+            )
+            if theme != self._current_theme or self._current_color != color:
+                self.setIcon(to_qicon(self._cmd_rule.icon, theme=theme, color=color))
+                self._current_theme = theme
+                self._current_color = color
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""

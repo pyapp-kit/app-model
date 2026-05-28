@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
+from qtpy.QtGui import QColor
 
 from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
 from app_model.types import (
@@ -76,6 +77,42 @@ def test_icon_visible_in_menu(qapp, simple_app: "Application") -> None:
     rule = CommandRule(id="test", title="Test", icon_visible_in_menu=False)
     q_action = QCommandRuleAction(command_rule=rule, app=simple_app)
     assert not q_action.isIconVisibleInMenu()
+
+
+def test_icon_follows_theme(qapp, simple_app: "Application") -> None:
+    rule = CommandRule(
+        id="test",
+        title="Test",
+        icon={
+            "dark": "fa6-solid:circle",
+            "light": "fa6-solid:square",
+            "color_dark": "red",
+            "color_light": "blue",
+        },
+    )
+    q_action = QCommandRuleAction(command_rule=rule, app=simple_app)
+    assert q_action.isIconVisibleInMenu()
+
+    simple_app.theme_mode = "dark"
+    ico = q_action.icon()
+    img = ico.pixmap(16, 16).toImage()
+    color_center = QColor(img.pixel(8, 8))
+    assert color_center.name() == "#ff0000"
+    # circle icon should leave some black on the corners
+    color_corner = QColor(img.pixel(1, 1))
+    assert color_corner.name() == "#000000"
+
+    simple_app.theme_mode = "light"
+    ico = q_action.icon()
+    img = ico.pixmap(16, 16).toImage()
+    color_center = QColor(img.pixel(8, 8))
+    assert color_center.name() == "#0000ff"
+    # quare icons goes to the corners and blends color, resulting in non-black
+    color_corner = QColor(img.pixel(1, 1))
+    assert color_corner.name() != "#000000"
+
+    with pytest.raises(ValueError):
+        simple_app.theme_mode = "something"
 
 
 @pytest.mark.usefixtures("qapp")

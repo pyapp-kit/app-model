@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Collection, Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 from qtpy.QtWidgets import QApplication, QMenu, QMenuBar, QToolBar
 
@@ -10,7 +10,7 @@ from app_model import Application
 from app_model.types import SubmenuItem
 
 from ._qaction import QCommandRuleAction, QMenuItemAction
-from ._util import to_qicon
+from ._util import ThemeEventFilter, guess_theme_mode, pick_icon_color, to_qicon
 
 if TYPE_CHECKING:
     from qtpy.QtWidgets import QAction, QWidget
@@ -130,11 +130,31 @@ class QModelSubmenu(QModelMenu):
     ) -> None:
         assert isinstance(submenu, SubmenuItem), f"Expected str, got {type(submenu)!r}"
         self._submenu = submenu
+        self._current_theme: Literal["dark", "light", None] = None
+        self._current_color: str = ""
         super().__init__(
             menu_id=submenu.submenu, app=app, title=submenu.title, parent=parent
         )
-        if submenu.icon:
-            self.setIcon(to_qicon(submenu.icon))
+        self._update_icon()
+        self._app.theme_changed.connect(self._update_icon)
+        if (qapp := QApplication.instance()) and not hasattr(
+            self._app, "_theme_event_filter"
+        ):
+            event_filter = ThemeEventFilter(self._app)
+            qapp.installEventFilter(event_filter)
+
+    def _update_icon(self) -> None:
+        if self._submenu.icon:
+            theme = guess_theme_mode(theme=self._app.theme_mode, parent=self)
+            color = pick_icon_color(
+                self._submenu.icon,
+                theme=theme,
+                default_colors=self._app.default_icon_colors,
+            )
+            if theme != self._current_theme or self._current_color != color:
+                self.setIcon(to_qicon(self._submenu.icon, theme=theme, color=color))
+                self._current_theme = theme
+                self._current_color = color
 
     def update_from_context(self, ctx: Mapping[str, object]) -> None:
         """Update the enabled state of this menu item from `ctx`."""
