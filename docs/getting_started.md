@@ -8,7 +8,7 @@ object.
 ```python
 from app_model import Application
 
-my_app = Application('my-app')
+my_app = Application("my-app")
 ```
 
 ## Registering Actions
@@ -27,27 +27,30 @@ and additional metadata like title, icons, tooltips, etc...
 ```python
 from app_model.types import Action, KeyBindingRule, KeyCode, KeyMod, MenuRule
 
+
 def open_file():
-    print('open file!')
+    print("open file!")
+
 
 def close_window():
-    print('close window!')
+    print("close window!")
+
 
 ACTIONS: list[Action] = [
     Action(
-        id='open',
+        id="open",
         title="Open",
         icon="fa6-solid:folder-open",
         callback=open_file,
-        menus=['File'],
+        menus=["File"],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyO)],
     ),
     Action(
-        id='close',
+        id="close",
         title="Close",
         icon="fa-solid:window-close",
         callback=close_window,
-        menus=['File'],
+        menus=["File"],
         keybindings=[KeyBindingRule(primary=KeyMod.CtrlCmd | KeyCode.KeyW)],
     ),
     # ...
@@ -105,9 +108,10 @@ You can connect callbacks to these events to handle them as needed.
 ```python
 @my_app.commands.registered.connect
 def on_command_registered(command_id: str):
-    print(f'Command {command_id!r} registered!')
+    print(f"Command {command_id!r} registered!")
 
-my_app.commands.register_command('new-id', lambda: None, title='No-op')
+
+my_app.commands.register_command("new-id", lambda: None, title="No-op")
 # Command 'new-id' registered!
 ```
 
@@ -116,7 +120,7 @@ my_app.commands.register_command('new-id', lambda: None, title='No-op')
 Registered commands may be executed on-demand using [`execute_command`][app_model.registries.CommandsRegistry.execute_command] method on the command registry:
 
 ```python
-my_app.commands.execute_command('open')
+my_app.commands.execute_command("open")
 # prints "open file!" from the `open_file` function registered above.
 ```
 
@@ -150,7 +154,7 @@ method:
 ```python
 class User:
     def name(self):
-        return 'John Doe'
+        return "John Doe"
 ```
 
 Assume the application has some way of retrieving the current user:
@@ -174,14 +178,15 @@ for callbacks in actions registered with the application.
 def print_user_name(user: User) -> None:
     print(f"Hi {user.name()}!")
 
+
 action = Action(
-    id='greet',
+    id="greet",
     title="Greet Current User",
     callback=print_user_name,
 )
 
 my_app.register_action(action)
-my_app.commands.execute_command('greet')
+my_app.commands.execute_command("greet")
 # prints "Hi John Doe!"
 ```
 
@@ -215,12 +220,12 @@ main = QModelMainWindow(my_app)
 
 # pick menus for main menu bar,
 # using menu ids from the application's MenusRegistry
-main.setModelMenuBar(['File'])
+main.setModelMenuBar(["File"])
 
 # add toolbars using menu ids from the application's MenusRegistry
 # here we re-use the File menu ... but you can have menus
 # dedicated for toolbars, or just exclude items from the menu
-main.addModelToolBar('File')
+main.addModelToolBar("File")
 main.show()
 
 app.exec()

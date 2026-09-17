@@ -96,19 +96,20 @@ def test_icon_follows_theme(qapp, simple_app: "Application") -> None:
     simple_app.theme_mode = "dark"
     ico = q_action.icon()
     img = ico.pixmap(16, 16).toImage()
-    color_center = QColor(img.pixel(8, 8))
+    dpr = int(img.devicePixelRatio())  # pixmap is scaled on HiDPI screens
+    color_center = QColor(img.pixel(8 * dpr, 8 * dpr))
     assert color_center.name() == "#ff0000"
     # circle icon should leave some black on the corners
-    color_corner = QColor(img.pixel(1, 1))
+    color_corner = QColor(img.pixel(dpr, dpr))
     assert color_corner.name() == "#000000"
 
     simple_app.theme_mode = "light"
     ico = q_action.icon()
     img = ico.pixmap(16, 16).toImage()
-    color_center = QColor(img.pixel(8, 8))
+    color_center = QColor(img.pixel(8 * dpr, 8 * dpr))
     assert color_center.name() == "#0000ff"
-    # quare icons goes to the corners and blends color, resulting in non-black
-    color_corner = QColor(img.pixel(1, 1))
+    # square icons goes to the corners and blends color, resulting in non-black
+    color_corner = QColor(img.pixel(dpr, dpr))
     assert color_corner.name() != "#000000"
 
     with pytest.raises(ValueError):

@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class CommandId(str, Enum):
+class CommandId(StrEnum):
     OPEN = "myapp.open"
     CLOSE = "myapp.close"
     SAVE = "myapp.save"
@@ -17,7 +17,7 @@ class CommandId(str, Enum):
         return self.value
 
 
-class MenuId(str, Enum):
+class MenuId(StrEnum):
     FILE = "myapp/file"
     EDIT = "myapp/edit"
 
