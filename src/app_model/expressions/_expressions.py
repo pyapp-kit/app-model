@@ -15,7 +15,7 @@ from typing import (
     overload,
 )
 
-ConstType: TypeAlias = None | str | bytes | bool | int | float
+ConstType: TypeAlias = str | bytes | bool | int | float | None
 PassedType = TypeVar(
     "PassedType",
     bound=ast.cmpop | ast.operator | ast.boolop | ast.unaryop | ast.expr_context,

@@ -5,25 +5,31 @@ ci:
 
 repos:
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.25
+    rev: "0.26"
     hooks:
       - id: validate-pyproject
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+        files: "^\\.github/workflows/.*\\.ya?ml$"
+
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.46.0
+    rev: v1.50.2
     hooks:
       - id: typos
         args: [--force-exclude]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
+    rev: v0.16.8
     hooks:
       - id: ruff-check
         args: ["--fix", "--unsafe-fixes"]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.2
+    rev: v2.3.1
     hooks:
       - id: mypy
         files: "^src/"
@@ -40,4 +46,4 @@ repos:
         exclude: "^tests/.*|^demo/.*|^docs/.*"
         types_or: [python, pyi]
         require_serial: true
-        entry: uv run pyright
+        entry: uv run --with pyqt6 pyright

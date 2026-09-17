@@ -16,10 +16,10 @@ from ._util import ThemeEventFilter, guess_theme_mode, pick_icon_color, to_qicon
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from typing import Self
 
     from PyQt6.QtGui import QAction
     from qtpy.QtCore import QObject
-    from typing_extensions import Self
 
     from app_model.types import CommandRule, MenuItem
 else:
