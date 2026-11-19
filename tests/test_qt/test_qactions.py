@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 from qtpy.QtGui import QColor
 
+from app_model import Application
 from app_model.backends.qt import QCommandRuleAction, QMenuItemAction
 from app_model.types import (
     Action,
@@ -16,7 +17,6 @@ from app_model.types import (
 )
 
 if TYPE_CHECKING:
-    from app_model import Application
     from conftest import FullApp
 
 
@@ -202,3 +202,19 @@ def test_update_keybinding_in_tooltip(
     dispose1()
     q_action._update_keybinding()
     assert q_action.toolTip() == "Initial tooltip"
+
+
+def test_clean_parent_on_app_destroyed(qapp) -> None:
+    app = Application("test_clean_parent")
+    action = Action(
+        id="test.clean.parent",
+        title="Test clean parent",
+        callback=lambda: None,
+    )
+    app.register_action(action)
+
+    q_action = QMenuItemAction.create(MenuItem(command=action), app, parent=qapp)
+    assert q_action.parent() is qapp
+
+    Application.destroy(app.name)
+    assert q_action.parent() is None
