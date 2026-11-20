@@ -48,7 +48,6 @@ class QModelMenu(QMenu):
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
-        self.destroyed.connect(self._disconnect)
         # ----------------------
 
         if title is not None:
@@ -97,9 +96,6 @@ class QModelMenu(QMenu):
         for action in self.actions():
             if isinstance(action, QCommandRuleAction):
                 action._refresh()
-
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
 
     def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
@@ -202,7 +198,6 @@ class QModelToolBar(QToolBar):
         self.setObjectName(menu_id)
         self.rebuild()
         self._app.menus.menus_changed.connect(self._on_registry_changed)
-        self.destroyed.connect(self._disconnect)
         # ----------------------
 
         if title is not None:
@@ -249,12 +244,12 @@ class QModelToolBar(QToolBar):
             exclude=self._exclude if exclude is None else exclude,
         )
 
-    def _disconnect(self) -> None:
-        self._app.menus.menus_changed.disconnect(self._on_registry_changed)
-
     def _on_registry_changed(self, changed_ids: set[str]) -> None:
         if self._menu_id in changed_ids:
-            self.rebuild()
+            # the C++ object may already be deleted while the python wrapper
+            # (and therefore this weakly-connected slot) is still alive.
+            with contextlib.suppress(RuntimeError):
+                self.rebuild()
 
 
 class QModelMenuBar(QMenuBar):
