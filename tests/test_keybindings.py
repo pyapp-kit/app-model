@@ -188,3 +188,18 @@ def test_standard_keybindings() -> None:
 
     m = M(key=StandardKeyBinding.Copy)
     assert m.key.primary == KeyMod.CtrlCmd | KeyCode.KeyC
+
+
+@pytest.mark.parametrize(
+    ("enc", "os", "expect"),
+    [
+        (KeyMod.CtrlCmd | KeyCode.KeyX, OperatingSystem.MACOS, "Cmd+X"),
+        (KeyMod.CtrlCmd | KeyCode.KeyX, OperatingSystem.WINDOWS, "Ctrl+X"),
+        (KeyMod.WinCtrl | KeyCode.KeyX, OperatingSystem.MACOS, "Control+X"),
+        (KeyMod.WinCtrl | KeyCode.KeyX, OperatingSystem.WINDOWS, "Win+X"),
+    ],
+)
+def test_int_conversion_respects_os(enc: int, os: OperatingSystem, expect: str) -> None:
+    kb = KeyBinding.from_int(enc, os=os)
+    assert kb.to_text(os=os) == expect
+    assert kb.to_int(os=os) == enc
