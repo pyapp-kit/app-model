@@ -73,10 +73,11 @@ Supported constructs include:
 
 - **Names**: `myvar` (require a context to evaluate)
 - **Constants**: numbers, strings, bytes, booleans, `None`
-- **Comparisons**: `==`, `!=`, `<`, `<=`, `>`, `>=`, `in`, `not in`
+- **Comparisons**: `==`, `!=`, `<`, `<=`, `>`, `>=`, `in`, `not in`, `is`,
+  `is not`
 - **Boolean operators**: `and`, `or`, `not`
 - **Binary operators**: `+`, `-`, `*`, `/`, `//`, `%`, `**`, `@`, `^`,
-  `&`, `|`
+  `&`, `|`, `<<`, `>>`
 - **Unary operators**: `not`, `-`, `+`, `~`
 - **Conditional expressions**: `a if b else c`
 - **Container literals**: lists, tuples, sets (e.g. `x in [1, 2, 3]`)
@@ -180,6 +181,14 @@ with scoped.buffered_changes():
 # only one `changed` event is emitted, with keys={'a', 'b'}
 ```
 
+The bulk mutation methods `update()`, `clear()`, and `|=` are buffered the
+same way, so each call emits a single `changed` event:
+
+```python
+scoped.update({"a": 3, "b": 4})
+# only one `changed` event is emitted, with keys={'a', 'b'}
+```
+
 ### Creating contexts for objects
 
 A typical pattern is to associate a context with an object — for example, a
@@ -244,9 +253,11 @@ a child, and `theme` would not be visible from inside the document.
 
 ### Application contexts
 
-If not provided, the [`Application`][app_model.Application] class automatically creates a
-[`Context`][app_model.expressions.Context] for itself, available as
-`app.context`.  It is pre-populated with a few platform-detection keys via
+Every [`Application`][app_model.Application] has a
+[`Context`][app_model.expressions.Context], available as `app.context`.  You
+may pass your own (a `Context` or any mutable mapping) as the `context`
+argument; otherwise a new one is created.  Either way, the application adds a
+few platform-detection keys to it via
 [`app_model_context`][app_model.expressions.app_model_context]:
 
 | Key | Type | Meaning |
