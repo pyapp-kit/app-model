@@ -221,6 +221,8 @@ class KeyBindingsRegistry:
 
         """
         if key in self._keymap:
+            # mypy 2.4 infers `Any` here: https://github.com/python/mypy/issues/22174
+            entry: _RegisteredKeyBinding
             for entry in reversed(self._keymap[key]):
                 if entry.when is None or entry.when.eval(context):
                     return entry
