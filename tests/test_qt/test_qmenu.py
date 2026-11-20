@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import gc
 import sys
 from typing import TYPE_CHECKING, cast
 
 import pytest
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QEvent, Qt
 from qtpy.QtWidgets import QAction, QMainWindow
 
 from app_model.backends.qt import QModelMenu, QModelToolBar
 
 if TYPE_CHECKING:
     from pytestqt.plugin import QtBot
+    from qtpy.QtWidgets import QApplication
 
     from conftest import FullApp
 
@@ -64,7 +66,29 @@ def test_menu(
     with pytest.raises(NameError, match="Names required to eval this expression"):
         menu.update_from_context({})
 
-    menu._disconnect()
+
+@pytest.mark.parametrize("MenuCls", [QModelMenu, QModelToolBar])
+def test_menu_cpp_deleted(
+    MenuCls: type[QModelMenu] | type[QModelToolBar],
+    qapp: QApplication,
+    full_app: FullApp,
+) -> None:
+    """Registry changes are safe after the C++ object is deleted (#157)."""
+    app = full_app
+    signal = app.menus.menus_changed
+    n_slots = len(signal)
+    menu = MenuCls(app.Menus.EDIT, app)
+    assert len(signal) == n_slots + 1
+
+    menu.deleteLater()
+    qapp.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    # python wrapper is still alive, so the slot is still connected
+    signal.emit({app.Menus.EDIT})
+
+    # once the wrapper is gone, the (weak) connection cleans itself up
+    del menu
+    gc.collect()
+    assert len(signal) == n_slots
 
 
 def test_submenu(qtbot: QtBot, full_app: FullApp) -> None:
