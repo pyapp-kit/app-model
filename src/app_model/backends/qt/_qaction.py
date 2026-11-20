@@ -188,6 +188,17 @@ class QMenuItemAction(QCommandRuleAction):
         with contextlib.suppress(NameError):
             self.update_from_context(self._app.context)
 
+        self._app.destroyed.connect(self._on_app_destroyed)
+
+    def _on_app_destroyed(self) -> None:
+        # To not keep object alive after the app is destroyed,
+        # we remove the parent, which will
+        # trigger the deletion of this object.
+        # We ignore RuntimeError, which is raised if
+        # the Qt object has already been deleted.
+        with contextlib.suppress(RuntimeError):  # Qt object already deleted
+            self.setParent(None)
+
     @staticmethod
     def _cache_key(app: Application, menu_item: MenuItem) -> tuple[int, int]:
         return (id(app), hash(menu_item))
