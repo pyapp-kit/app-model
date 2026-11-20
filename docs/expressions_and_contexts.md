@@ -110,7 +110,7 @@ count = Name[int]("count")
 is_ready = light_is_green & (count > 5)
 
 is_ready.eval({"count": 4, "light_is_green": True})  # False
-is_ready.eval({"count": 7, "light_is_green": False}) # False
+is_ready.eval({"count": 7, "light_is_green": False})  # False
 is_ready.eval({"count": 7, "light_is_green": True})  # True
 ```
 
@@ -160,14 +160,16 @@ scoped = root.new_child()
 scoped["selected_count"] = 3
 
 # child sees keys from parent
-scoped["theme"]           # 'dark'
+scoped["theme"]  # 'dark'
 scoped["selected_count"]  # 3
+
 
 @scoped.changed.connect
 def on_change(keys):
     print("changed:", keys)
 
-root["theme"] = "light"   # changed: {'theme'}
+
+root["theme"] = "light"  # changed: {'theme'}
 scoped["selected_count"] = 7  # changed: {'selected_count'}
 ```
 
@@ -202,8 +204,8 @@ yourself:
 ```python
 class Window:
     def __init__(self):
-        self.context = Context()           # an isolated root mapping
-        self.document = Document()         # has no idea about Window's context
+        self.context = Context()  # an isolated root mapping
+        self.document = Document()  # has no idea about Window's context
 ```
 
 …but this gives you an isolated, parentless mapping that nothing else can
@@ -230,21 +232,24 @@ context without explicit wiring:
 ```python
 from app_model.expressions import create_context, get_context
 
+
 class Window:
     def __init__(self):
         create_context(self)
-        self.document = Document()        # constructed inside Window.__init__
+        self.document = Document()  # constructed inside Window.__init__
+
 
 class Document:
     def __init__(self):
-        create_context(self)              # picks Window's context as parent
+        create_context(self)  # picks Window's context as parent
+
 
 w = Window()
-get_context(w)              # Window's context
-get_context(w.document)     # Document's context (a ChainMap child of Window's)
+get_context(w)  # Window's context
+get_context(w.document)  # Document's context (a ChainMap child of Window's)
 
 get_context(w)["theme"] = "dark"
-get_context(w.document)["theme"]   # 'dark' — inherited from Window
+get_context(w.document)["theme"]  # 'dark' — inherited from Window
 ```
 
 If `Document` had used `Context()` directly, `get_context(w.document)` would
@@ -283,6 +288,7 @@ that you can compose with other expressions using normal operators.
 
 ```python
 from app_model.expressions import ContextKey, ContextNamespace
+
 
 class SelectionContextKeys(ContextNamespace[list]):
     selected_count = ContextKey(
@@ -332,6 +338,7 @@ errors:
 ```python
 from app_model.expressions import Context, ContextKey, ContextNamespace
 
+
 class SelectionKeys(ContextNamespace[list]):
     selected_count = ContextKey[list, int](
         default_value=0,
@@ -339,17 +346,17 @@ class SelectionKeys(ContextNamespace[list]):
         getter=lambda sel: len(sel),
     )
 
+
 ctx = Context()
 keys = SelectionKeys(ctx)
 
-reveal_type(keys.selected_count)             # int
-total: int = keys.selected_count + 1         # OK
-keys.selected_count = 3                      # OK
+reveal_type(keys.selected_count)  # int
+total: int = keys.selected_count + 1  # OK
+keys.selected_count = 3  # OK
 
 # A static type checker flags both of the following:
-keys.selected_count.upper()                  # error: "int" has no attribute "upper"
-keys.selected_count = "three"                # error: Incompatible: str -> int
-
+keys.selected_count.upper()  # error: "int" has no attribute "upper"
+keys.selected_count = "three"  # error: Incompatible: str -> int
 ```
 
 Running mypy or pyright on the snippet above produces an error on each
@@ -367,16 +374,16 @@ from app_model.expressions import Context
 ctx = Context()
 keys = SelectionContextKeys(ctx)
 
-keys.selected_count          # 0 (default)
-ctx["selected_count"]        # 0
+keys.selected_count  # 0 (default)
+ctx["selected_count"]  # 0
 
-keys.selected_count = 3      # sets ctx["selected_count"] = 3
-ctx["selected_count"]        # 3
+keys.selected_count = 3  # sets ctx["selected_count"] = 3
+ctx["selected_count"]  # 3
 
 keys.dict()
 # {'selected_count': 3, 'has_selection': False}
 
-keys.reset_all()             # restore defaults
+keys.reset_all()  # restore defaults
 ```
 
 This gives you a typed, attribute-style API on top of a plain mapping —
@@ -417,6 +424,7 @@ from app_model import Action, Application
 from app_model.expressions import ContextKey, ContextNamespace
 from app_model.types import KeyBindingRule, KeyCode, KeyMod
 
+
 class MyKeys(ContextNamespace[list]):
     selected_count = ContextKey(
         default_value=0,
@@ -424,11 +432,14 @@ class MyKeys(ContextNamespace[list]):
         getter=lambda sel: len(sel),
     )
 
+
 app = Application("my-app")
 keys = MyKeys(app.context)
 
+
 def delete_selection():
     print("deleted!")
+
 
 app.register_action(
     Action(
