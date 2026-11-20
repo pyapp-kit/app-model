@@ -203,3 +203,16 @@ def test_int_conversion_respects_os(enc: int, os: OperatingSystem, expect: str) 
     kb = KeyBinding.from_int(enc, os=os)
     assert kb.to_text(os=os) == expect
     assert kb.to_int(os=os) == enc
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Ctrl+↵", "Ctrl+Enter"),
+        ("⌘⇧↵", "Shift+Meta+Enter"),
+        ("⌘", "Meta"),
+        ("Option", "Alt"),
+    ],
+)
+def test_from_str_symbols(text: str, expected: str) -> None:
+    assert str(KeyBinding.from_str(text)) == expected
