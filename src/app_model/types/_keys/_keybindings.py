@@ -302,17 +302,18 @@ class KeyBinding:
         raise TypeError("invalid keybinding")  # pragma: no cover
 
 
-_re_ctrl = re.compile(r"(ctrl|control|ctl|⌃|\^)[\+|\-]")
-_re_shift = re.compile(r"(shift|⇧)[\+|\-]")
-_re_alt = re.compile(r"(alt|opt|option|⌥)[\+|\-]")
-_re_meta = re.compile(r"(meta|super|win|windows|⊞|cmd|command|⌘)[\+|\-]")
+_re_ctrl = re.compile(r"(ctrl|control|ctl|\^)[\+|\-]|⌃[\+|\-]?(?=.)")
+_re_shift = re.compile(r"shift[\+|\-]|⇧[\+|\-]?(?=.)")
+_re_alt = re.compile(r"(alt|opt|option)[\+|\-]|⌥[\+|\-]?(?=.)")
+_re_meta = re.compile(r"(meta|super|win|windows|cmd|command)[\+|\-]|[⊞⌘][\+|\-]?(?=.)")
 
 
 def _parse_modifiers(input: str) -> tuple[dict[str, bool], str]:
     """Parse modifiers from a string (case insensitive).
 
     modifiers must start at the beginning of the string, and be separated by
-    "+" or "-".  e.g. "ctrl+shift+alt+K" or "Ctrl-Cmd-K"
+    "+" or "-".  e.g. "ctrl+shift+alt+K" or "Ctrl-Cmd-K".  Modifier symbols
+    may omit the separator, as long as a key follows. e.g. "⌘⇧K"
     """
     remainder = input.lower()
 

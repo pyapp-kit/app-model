@@ -595,11 +595,7 @@ def _build_maps() -> Tuple[
     SCANCODE_FROM_LOWERCASE_STRING: Dict[str, ScanCode] = {}
 
     KEYCODE_TO_STRING: Dict[KeyCode, str] = {}
-    KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {
-        # two special cases for assigning os-specific strings to the meta key
-        'win': KeyCode.Meta,
-        'cmd': KeyCode.Meta,
-    }
+    KEYCODE_FROM_LOWERCASE_STRING: Dict[str, KeyCode] = {}
 
     # key symbols on all platforms
     KEY_SYMBOLS: dict[KeyCode, str] = {
@@ -659,6 +655,11 @@ def _build_maps() -> Tuple[
             _EVENTCODE_TO_KEYCODE[km.eventcode] = km.keycode
         if km.virtual_key:
             _NATIVE_WINDOWS_VK_TO_KEYCODE[km.virtual_key] = km.keycode
+
+    # also parse the os-specific symbols and names returned by `to_text`
+    for mapping in (*OS_KEY_SYMBOLS.values(), *OS_KEY_NAMES.values()):
+        for keycode, string in mapping.items():
+            KEYCODE_FROM_LOWERCASE_STRING.setdefault(string.lower(), keycode)
 
     def _keycode_to_string(keycode: KeyCode) -> str:
         """Return the string representation of a KeyCode."""
